@@ -4,17 +4,16 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRole } from "../middleware/roleMiddleware.js";
 import { UserRoleConstants } from "../../shared/constants/roles.js";
 
-export function CompanyRouter(companyController:any,tokenTool:ITokenService){
-    const router = Router()
 
+export function AdminRouter(adminController:any,tokenTool:ITokenService){
+    const router = Router()
     router.use(authMiddleware(tokenTool))
-    router.use(authorizeRole(UserRoleConstants.COMPANY))
-    
+    router.use(authorizeRole(UserRoleConstants.ADMIN))
+
     router.get('/home',(req:Request,res:Response)=>{
-        companyController.getHome(req,res)
+        adminController.getHome(req,res)
     })
-    router.get('/jobs',(req:Request,res:Response)=>{
-        companyController.getJobs(req,res)
+    router.get('/manage-users',(req:Request,res:Response)=>{
+        adminController.getManaging(req,res)
     })
-     
 }

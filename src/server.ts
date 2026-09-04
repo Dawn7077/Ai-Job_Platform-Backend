@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import app from './app.js' 
 import { log } from 'console'
+import { errorHandler } from './presentation/middleware/errorHandler.js'
 import { PrismaClient } from '@prisma/client'
 import { PrismaTool } from './infrastructure/db/PrismaTool.js'
 import { BcryptService } from './infrastructure/services/BcryptService.js'
@@ -14,7 +15,12 @@ import { CandidateRoute } from './presentation/routes/CandidateRoutes.js'
 import { CompanyRouter } from './presentation/routes/CompanyRoutes.js'
 import { GetMeUseCase } from './application/use-case/GetMe.js'
 import { authMiddleware } from './presentation/middleware/authMiddleware.js'
-
+import {ForgotPasswordUseCase} from './application/use-case/ForgotPassWord.js'
+import { ResetPassswordUseCase } from './application/use-case/ResetPassword.js'
+import {EmailService} from './infrastructure/services/EmailService.js'
+import {SendSignUpOTPUseCase} from './application/use-case/SignUpOTP.js'
+import { GoogleLoginUseCase } from './application/use-case/GoogleLoginUseCase.js'
+import { Google_Service } from './infrastructure/services/GoogleAuthService.js'
 const PORT  = process.env.PORT || 3000
 const JWTSecret = process.env.JWT_SECRET || "Default_SecretKey"
 
@@ -26,11 +32,23 @@ async function startApp() {
     const tokenTool  = new TokenService( JWTSecret)
     const refreshTool = new RefreshTokenService(prismaTool,tokenTool)
     const getMeTool = new GetMeUseCase(prismaTool)
+    const EmailServiceTool = new EmailService()
+    const forgotPasswordTool = new ForgotPasswordUseCase(prismaTool,EmailServiceTool)
+    const resetPasswordTool = new ResetPassswordUseCase(prismaTool,BcryptTool)
+    const googleServiceAuth = new Google_Service()
+    const GoogleServiceUseCase = new GoogleLoginUseCase(googleServiceAuth,prismaTool,tokenTool)
 
-    const registerUseCase = new Register(prismaTool,BcryptTool,tokenTool)
+
+    const registerUseCase = new Register(prismaTool,tokenTool)
+    const signUpOTPUseCase = new SendSignUpOTPUseCase(prismaTool,EmailServiceTool,BcryptTool)
     const loginUseCase= new LoginUseCase(prismaTool,BcryptTool,tokenTool)
 
-    const authControllerTool = new AuthController(registerUseCase,loginUseCase,refreshTool,tokenTool,getMeTool) 
+    const authControllerTool = new AuthController(
+        registerUseCase,signUpOTPUseCase,loginUseCase,
+        refreshTool,tokenTool,getMeTool,
+        forgotPasswordTool,resetPasswordTool,
+        GoogleServiceUseCase
+    ) 
 
     const userRoutes = AuthRoutes(authControllerTool,tokenTool,authMiddleware)
 
@@ -40,6 +58,8 @@ async function startApp() {
     // app.use('/candidate',CandidateRoute(tokenTool,candidateController))
     // app.use('/company',CompanyRouter(tokenTool,candidateController))
 
+    
+    app.use(errorHandler)
     app.listen(PORT,()=>{
         log(`Server running on port http://localhost:${PORT}`)
     })

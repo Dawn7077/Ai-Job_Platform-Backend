@@ -1,23 +1,38 @@
 import { User, UserRole } from "../../domain/entities/User.js";
 import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
 import { IRegisterUser } from "../interface/IRegister.js"; 
-import { IHashService } from "../interface/IHashService.js";
-import { ITokenService } from "../interface/ITokenService.js";
+// import { IHashService } from "../../infrastructure/repo/IHashService.js";
+import { ITokenService } from "../../infrastructure/repo/ITokenService.js";
 import redisClient from "../../infrastructure/db/redisClient.js";
+import { AppError } from "../../shared/AppErrors.js";
+import { StatusCode } from "../../shared/StatusCode.js";
 export default class Register implements IRegisterUser{
     constructor(
         private SQLtool:IUserRepository,
-        private HashTool:IHashService,
-        private TokenTool:ITokenService
+        // private HashTool:IHashService,
+        private TokenTool:ITokenService,
     ){}
 
-    async execute(name:string,email:string,password:string,role:UserRole){
-        const existingUser = await this.SQLtool.findByEmail(email)
-        
-        if(existingUser){
-            throw new Error("Register Error")
+    async execute(email:string,otp:string){
+        const cachedData = await redisClient.get(`signup_otp:${email}`)
+        if(!cachedData){
+            throw new AppError(
+                "OTP has expired or request is invalid.",
+                StatusCode.BAD_REQUEST,
+                'REGISTRAION_ERROR'
+            )
         }
-        const passwordHash = await this.HashTool.hash(password)
+        const {name,passwordHash,role,otp:storedOTP} = JSON.parse(cachedData)
+
+        if(storedOTP !== otp){
+            throw new AppError(
+                "Invalid OTP code provided.",
+                StatusCode.BAD_REQUEST,
+                'INVALID OTP'
+            )
+        }
+
+
         const newUser_ID = crypto.randomUUID()
         const newUser = new User({
             id:newUser_ID,
@@ -29,6 +44,8 @@ export default class Register implements IRegisterUser{
 
         await this.SQLtool.Save(newUser)
 
+        await redisClient.del(`signup_otp:${email}`)
+
         const accessToken = this.TokenTool.generateAccesToken({userId:newUser.getId(),role:newUser.getRole()})
         const refreshToken = this.TokenTool.generateRefreshToken({userId:newUser.getId(),role:newUser.getRole()})
         const refreshTokenKey = `refresh_token:${newUser.getId()}`
@@ -36,4 +53,34 @@ export default class Register implements IRegisterUser{
 
         return {accessToken,refreshToken,user:newUser}
     }
+
+
+
+
+
+    // async execute(name:string,email:string,password:string,role:UserRole){
+    //     const existingUser = await this.SQLtool.findByEmail(email)
+        
+    //     if(existingUser){
+    //         throw new Error("Register Error")
+    //     }
+    //     const passwordHash = await this.HashTool.hash(password)
+    //     const newUser_ID = crypto.randomUUID()
+    //     const newUser = new User({
+    //         id:newUser_ID,
+    //         name,
+    //         email,
+    //         passwordHash,
+    //         role
+    //     })
+
+    //     await this.SQLtool.Save(newUser)
+
+    //     const accessToken = this.TokenTool.generateAccesToken({userId:newUser.getId(),role:newUser.getRole()})
+    //     const refreshToken = this.TokenTool.generateRefreshToken({userId:newUser.getId(),role:newUser.getRole()})
+    //     const refreshTokenKey = `refresh_token:${newUser.getId()}`
+    //     await redisClient.set(refreshTokenKey,refreshToken,'EX',2 * 24 * 60 * 60)
+
+    //     return {accessToken,refreshToken,user:newUser}
+    // }
 }

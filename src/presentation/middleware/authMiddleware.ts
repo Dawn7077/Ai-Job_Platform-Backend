@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from "express"
-import { ITokenService } from "../../application/interface/ITokenService.js"
+import { ITokenService } from "../../infrastructure/repo/ITokenService.js"
 import { StatusCode } from "../../shared/StatusCode.js"
 
 declare global{
@@ -37,7 +37,9 @@ export const authMiddleware:IAuthMiddleware = (tokenTool:ITokenService)=>{
 
             const decodedUser =  tokenTool.verifyAccessToken(accesstToken)
 
-            req.user = decodedUser
+            req.user = decodedUser 
+
+            console.log(req.user)
 
             next()
 

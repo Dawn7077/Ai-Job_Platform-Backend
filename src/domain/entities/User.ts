@@ -6,11 +6,11 @@ export interface UserProps {
   id?:string;
   name:string;
   email:string;
-  passwordHash:string;
+  passwordHash?:string;
   role:UserRole;
   status?:UserStatus;
   createdAt?:Date; 
-  updatedAt?:Date 
+  updatedAt?:Date;
 }
 
 export class User {
@@ -21,7 +21,7 @@ export class User {
       id:props.id?? crypto.randomUUID(),
       name:props.name,
       email:props.email,
-      passwordHash:props.passwordHash,
+      passwordHash:props.passwordHash ?? '',
       role:props.role,
       status:props.status ?? 'ACTIVE',
       createdAt:props.createdAt ?? new Date()
@@ -31,7 +31,7 @@ export class User {
   getId():string{return this.props.id}
   getEmail():string{return this.props.email}
   getName():string{return this.props.name}
-  getPasswordHash():string{return this.props.passwordHash}
+  getPasswordHash():string{return this.props.passwordHash ?? ''}
   getRole():UserRole{return this.props.role}
   getStatus():UserStatus { return this.props.status} 
 

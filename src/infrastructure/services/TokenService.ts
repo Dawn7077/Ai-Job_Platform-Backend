@@ -1,4 +1,4 @@
-import { ITokenService, TokenPayload } from "../../application/interface/ITokenService.js";
+import { ITokenService, TokenPayload } from "../repo/ITokenService.js";
 import jwt from 'jsonwebtoken'
 
 export class TokenService implements ITokenService{
@@ -12,13 +12,13 @@ export class TokenService implements ITokenService{
     generateAccesToken(payload: TokenPayload): string {
         const secret =  this.Access_Secret
         if(!secret) throw new Error("JWT secret key missing")
-        return jwt.sign({payload,},secret,{expiresIn:"15m"})
+        return jwt.sign({...payload,},secret,{expiresIn:"15m"})
     }
 
     generateRefreshToken(payload:TokenPayload): string {
         const secret =  this.Refresh_secret
         if(!secret) throw new Error("JWT secret key missing")
-        return jwt.sign({payload,},secret,{expiresIn:"1d"})
+        return jwt.sign({...payload,},secret,{expiresIn:"1d"})
     }
 
 //       Generates a random, cryptographically strong string for database-backed refresh tokens
@@ -27,12 +27,17 @@ export class TokenService implements ITokenService{
 //   }
 
     verifyAccessToken(token: string): TokenPayload {
-        const secret =  process.env.JWT_SECRET
+        const secret =  this.Access_Secret
         if(!secret) throw new Error("JWT secret key missing")
         try {
-            return jwt.verify(token,secret) as TokenPayload
+            const decoded = jwt.verify(token,secret) as TokenPayload
+             
+            return {
+                userId:decoded.userId,
+                role:decoded.role
+            }
         } catch (error) {
-            throw new Error("JWT secret key missing")
+            throw new Error("Invalid or expired access token")
         }
     }
 
@@ -41,7 +46,12 @@ export class TokenService implements ITokenService{
         if(!secretKey)throw new Error("JWT secret key missing")
 
         try {
-            return jwt.verify(token,secretKey)as TokenPayload
+            const decoded =  jwt.verify(token,secretKey)as TokenPayload
+
+            return {
+                userId:decoded.userId, 
+                role:decoded.role
+            }
         } catch (error) {
             throw new Error("Invalid or expired refresh token")
         }

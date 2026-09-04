@@ -3,9 +3,9 @@ import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
 import redisClient from "../../infrastructure/db/redisClient.js";
 import { AppError } from "../../shared/AppErrors.js";
 import { StatusCode } from "../../shared/StatusCode.js";
-import { IHashService } from "../interface/IHashService.js";
+import { IHashService } from "../../infrastructure/repo/IHashService.js";
 import { ILogin } from "../interface/ILogin.js";
-import { ITokenService } from "../interface/ITokenService.js";
+import { ITokenService } from "../../infrastructure/repo/ITokenService.js";
 
 export class LoginUseCase implements ILogin{
     constructor(
@@ -26,11 +26,19 @@ export class LoginUseCase implements ILogin{
 
         const user = await this.SQLTool.findByEmail(email)
         
-        if(!user)throw new Error("Invalid email or password credentials.")
+        if(!user)throw new AppError(
+                'Invalid email or password credentials',
+                StatusCode.UNAUTHORIZED,
+                'INVALID_CREDENTIALS'
+            )
             
         const validPassword = await this.Hash.compare(password,user.getPasswordHash())
         
-        if(!validPassword)throw new Error("Invalid email or password credentials.")
+        if(!validPassword)throw new AppError(
+                'Invalid email or password credentials',
+                StatusCode.UNAUTHORIZED,
+                'INVALID_CREDENTIALS'
+            )
         
         const accessToken =  this.TokenTool.generateAccesToken({userId:user.getId(), role:user.getRole()})
         const refreshToken = this.TokenTool.generateRefreshToken({userId:user.getId(), role:user.getRole()})
