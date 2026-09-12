@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express"
-import { ITokenService } from "../../infrastructure/repo/ITokenService.js"
+import { ITokenService } from "../../infrastructure/Interface/ITokenService.js"
 import { StatusCode } from "../../shared/StatusCode.js"
+import { AuthMessages } from "../../shared/constants/authMessages.js"
 
 declare global{
     namespace Express{
@@ -30,7 +31,7 @@ export const authMiddleware:IAuthMiddleware = (tokenTool:ITokenService)=>{
             if(!accesstToken){
                 res.status(StatusCode.UNAUTHORIZED).json({
                     success:false,
-                    message:"Unauthorized: NO Token provided."
+                    message:AuthMessages.NO_TOKEN
                 })
                 return
             }

@@ -1,6 +1,6 @@
-import { IRefreshToken } from '../repo/IRefreshToken.js';
+import { IRefreshToken } from '../Interface/IRefreshToken.js';
 import { IUserRepository } from '../../domain/repositories/IUserRepository.js';
-import { ITokenService } from '../repo/ITokenService.js';
+import { ITokenService } from '../Interface/ITokenService.js';
 import redisClient from '../db/redisClient.js';
 
 export class RefreshTokenService implements IRefreshToken{

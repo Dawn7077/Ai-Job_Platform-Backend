@@ -29,3 +29,32 @@ model User {
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
 }
+
+
+
+enum JobType {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+model Job {
+  id          String    @id @default(uuid())
+  companyId   String    @map("company_id")
+  title       String
+  jobType     JobType   @map("job_type")
+  description String    @db.Text
+  skills      Json      // Stored as JSON array in MySQL: ["Node.js", "TypeScript"]
+  salaryMin   Int       @map("salary_min")
+  salaryMax   Int       @map("salary_max")
+  status      JobStatus @default(OPEN)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("jobs")
+}

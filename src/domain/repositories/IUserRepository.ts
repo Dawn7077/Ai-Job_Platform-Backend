@@ -5,4 +5,5 @@ export interface IUserRepository{ //blue print for usecase db tool
     findById(id:string):Promise<User|null> 
     updateUser(id:string,data:Object):Promise<void>
     Save(user:User):Promise<void>
+    findPendingUsers():Promise<User[]>
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AuthController } from "../controller/AuthController.js";
-import { ITokenService } from "../../infrastructure/repo/ITokenService.js";
+import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
 import { IAuthMiddleware } from "../middleware/authMiddleware.js";
 
 export function AuthRoutes(
@@ -18,7 +18,7 @@ export function AuthRoutes(
         authController.handleRegister(req,res,next)
     })
 
-    router.post('google-login',(req,res,next)=>{
+    router.post('/google-login',(req,res,next)=>{
         authController.handleGoogleLogin(req,res,next)
     })
 

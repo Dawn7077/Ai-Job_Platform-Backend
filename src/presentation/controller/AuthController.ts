@@ -2,14 +2,16 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCode } from "../../shared/StatusCode.js";
 import { IRegisterUser } from "../../application/interface/IRegister.js";
 import { ILogin } from "../../application/interface/ILogin.js";
-import { IRefreshToken } from "../../infrastructure/repo/IRefreshToken.js";
+import { IRefreshToken } from "../../infrastructure/Interface/IRefreshToken.js";
 import redisClient from "../../infrastructure/db/redisClient.js";
-import { ITokenService } from "../../infrastructure/repo/ITokenService.js";
+import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
 import { IGetMe } from "../../application/interface/IGetMe.js";
 import { IForgotPasswordUseCase } from "../../application/use-case/ForgotPassWord.js";
 import { IResetPasswordUseCase } from "../../application/use-case/ResetPassword.js";
 import { ISignUpOTP } from "../../application/use-case/SignUpOTP.js";
 import { IGoogleService } from "../../application/use-case/GoogleLoginUseCase.js";
+import { User } from "../../domain/entities/User.js";
+import { AuthMessages } from "../../shared/constants/authMessages.js";
 
 export class AuthController{
     constructor(
@@ -32,7 +34,7 @@ export class AuthController{
                 res.status(StatusCode.BAD_REQUEST)
                 .json({
                     success:false,
-                    error:"Missing required email or password fields!"
+                    error:AuthMessages.MISSING_EMAIL_PASSWORD
                 })
                 return
             }
@@ -41,7 +43,7 @@ export class AuthController{
 
             res.status(StatusCode.OK).json({
                 success:true,
-                message:"OTP sent successfully to your email.",
+                message:AuthMessages.OTP_SENT,
             })
         } catch (error) {
             next(error)
@@ -55,20 +57,29 @@ export class AuthController{
                 res.status(StatusCode.BAD_REQUEST)
                 .json({
                     success:false,
-                    error:"Email and OTP are required!"
+                    error:AuthMessages.MISSING_OTP_EMAIL
                 })
                 return
             }
             
 
-            const {accessToken,refreshToken,user} = await this.registerTool.execute(email,otp)
+            const result = await this.registerTool.execute(email,otp)
 
-            res.cookie('access_token',accessToken,{
+            if('requiresApproval' in result && result.requiresApproval){
+                return res.status(StatusCode.CREATED).json({
+                    success:true,
+                    message:result.message,
+                    requiresApproval:true,
+                    user:result.user.toJSON()
+                })
+            }
+
+            res.cookie('access_token',result.accessToken,{
                 httpOnly:true,
                 secure:false,
                 maxAge:15*60*1000
             })
-            res.cookie('refresh_token',refreshToken,{
+            res.cookie('refresh_token',result.refreshToken,{
                 httpOnly:true,
                 secure:false,
                 maxAge:2*24*60*60*1000
@@ -77,10 +88,8 @@ export class AuthController{
 
             res.status(StatusCode.CREATED).json({
                 success:true,
-                message:"User registered to our database succesfully",
-                user:user.toJSON(),
-                // accessToken:accessToken,
-                // refreshToken:refreshToken,
+                message:AuthMessages.REGISTER_SUCCESS,
+                user:result.user.toJSON(),
             })
         } catch (error) {
             next(error)
@@ -91,7 +100,7 @@ export class AuthController{
     async handleLogin(req:Request,res:Response,next:NextFunction){
         try {
             const {email,password} =req.body
-            if(!email||!password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:"Missing fields"})
+            if(!email||!password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
             
             const {accessToken,refreshToken,user} = await this.loginTool.execute(email,password)
 
@@ -160,7 +169,7 @@ export class AuthController{
             res.clearCookie('refresh_token')
             res.status(StatusCode.OK).json({
                 success:true,
-                message:'Logged out successfully'
+                message:AuthMessages.LOGOUT_SUCCESS
             })
         } catch (error) {
             next(error)
@@ -171,7 +180,7 @@ export class AuthController{
         try {
             const userId = req.user?.userId
             if(!userId)return res.status(StatusCode.UNAUTHORIZED)
-                .json({success:false,message:'Unauthorized'})
+                .json({success:false,message:AuthMessages.UNAUTHORIZED})
 
             const user = await this.getMeTool.execute(userId)
             console.log(userId,user.getId())
@@ -190,7 +199,7 @@ export class AuthController{
             if(!email ){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
-                    error:"Missing required email field!"
+                    error:AuthMessages.MISSING_EMAIL
                 })
             }
             
@@ -198,7 +207,7 @@ export class AuthController{
 
             res.status(StatusCode.OK).json({
                 success:true,
-                message:"OTP sent to your email address"
+                message:AuthMessages.OTP_SENT
             })
 
             
@@ -213,7 +222,7 @@ export class AuthController{
             if(!email || !otp || !newPassword){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
-                    error:"Missing required fields!"
+                    error:AuthMessages.MISSING_FEILDS
                 })                
             }
 
@@ -221,7 +230,7 @@ export class AuthController{
 
             res.status(StatusCode.OK).json({
                 success:true,
-                message:"Password reset successful. Please login with your new password"
+                message:AuthMessages.RESET_SUCCESS
             })
         }
         catch (error) {
@@ -235,11 +244,23 @@ export class AuthController{
             if(!token || !role){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
-                    error:"Missing Token or Role!"
+                    error:AuthMessages.MISSING_TOKEN_ROLE
                 })  
             }
 
-            const {accessToken,refreshToken,user} = await this.googleServiceTool.execute({token,role})
+            const result = await this.googleServiceTool.execute({token,role})
+
+            if('requiresApproval' in  result && result.requiresApproval){
+                return res.status(StatusCode.CREATED).json({
+                    success:true,
+                    message:result.message,
+                    requiresApproval:true,
+                    user:result.user.toJSON()
+                })
+            } 
+
+            // const successRes = result as {accessToken:string,refreshToken:string,user:User}
+            const {accessToken,refreshToken,user} = result as {accessToken:string,refreshToken:string,user:User}
 
             res.cookie('access_token',accessToken,{
                 httpOnly:true,

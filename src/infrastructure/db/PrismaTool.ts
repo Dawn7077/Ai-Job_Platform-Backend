@@ -9,8 +9,16 @@ export class PrismaTool implements IUserRepository{
 
    
     async Save(user: User): Promise<void> {
-        await this.prisma.user.create({
-            data:{
+        await this.prisma.user.upsert({
+            where:{email:user.getEmail()},
+            update:{
+                name:user.getName(),
+                email:user.getEmail(),
+                passwordHash:user.getPasswordHash(),
+                role:user.getRole() as UserRole,
+                status:user.getStatus() as UserStatus
+            },
+            create:{
                 name:user.getName(),
                 email:user.getEmail(),
                 passwordHash:user.getPasswordHash(),
@@ -57,6 +65,26 @@ export class PrismaTool implements IUserRepository{
             createdAt:record.createdAt,
             updatedAt:record.updatedAt
         })
+    }
+
+    async findPendingUsers(): Promise<User[]> {
+        const records = await this.prisma.user.findMany({
+            where:{
+                status:'PENDING',
+                role:'COMPANY'
+            }
+        })
+
+        return records.map(record=>new User({
+            id:record.id,
+            name:record.name,
+            email:record.email,
+            passwordHash:record.passwordHash,
+            role:record.role as UserRole,
+            status:record.status as UserStatus,
+            createdAt:record.createdAt,
+            updatedAt:record.updatedAt
+        }))
     }
 
     async updateUser(id: string, data: Object): Promise<void> {

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { IEmailService } from "../repo/IEmailService.js";
+import { IEmailService } from "../Interface/IEmailService.js";
 
 export class EmailService implements IEmailService{
     private transporter

@@ -1,5 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
-import { GoogleUserInfo, IGoogleAuthService } from "../../domain/interfaces/IGoogleAuthService.js";
+import { GoogleUserInfo, IGoogleAuthService } from "../../domain/repositories/IGoogleAuthService.js";
 
 export class Google_Service implements IGoogleAuthService{
     private client:OAuth2Client;

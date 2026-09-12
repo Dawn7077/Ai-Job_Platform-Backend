@@ -1,4 +1,4 @@
-import { IHashService } from "../repo/IHashService.js";
+import { IHashService } from "../Interface/IHashService.js";
 import bcrypt from 'bcrypt'
 
 export class BcryptService implements IHashService{

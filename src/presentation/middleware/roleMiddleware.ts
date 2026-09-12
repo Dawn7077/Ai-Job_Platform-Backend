@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { AppError } from "../../shared/AppErrors.js";
 import { StatusCode } from "../../shared/StatusCode.js";
+import { AuthMessages } from "../../shared/constants/authMessages.js";
 
 export type IAuthorizeRole = (...allowedRoles:string[])=>RequestHandler
 
@@ -9,7 +10,7 @@ export const authorizeRole:IAuthorizeRole = (...allowedRoles:string[]):RequestHa
     return(req:Request,res:Response,next:NextFunction):void=>{
         if(!req.user || !req.user.role){
             return next(new AppError(
-                'UnAuthorized:User identity not found',
+                AuthMessages.UNAUTHORIZED,
                 StatusCode.UNAUTHORIZED,
                 'UNAUTHORIZED'
             ))
@@ -18,7 +19,7 @@ export const authorizeRole:IAuthorizeRole = (...allowedRoles:string[]):RequestHa
 
         if(!hasPermission){
             return next(new AppError(
-                'Forbidden:You do not have the permission to access this resource',
+                AuthMessages.FORBIDDEN,
                 StatusCode.FORBIDDEN,
                 'FORBIDDEN'
             ))

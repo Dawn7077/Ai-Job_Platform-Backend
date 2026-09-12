@@ -1,9 +1,10 @@
 import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import {IEmailService} from "../../infrastructure/repo/IEmailService.js"
+import {IEmailService} from "../../infrastructure/Interface/IEmailService.js"
 import { AppError } from "../../shared/AppErrors.js";
 import { StatusCode } from "../../shared/StatusCode.js";
 import { generateOtp } from '../../shared/utils.js'
-import redisClient from '../../infrastructure/db/redisClient.js'
+import redisClient, { ICacheService } from '../../infrastructure/db/redisClient.js'
+import { ExpiryOTP } from "../../shared/constants/roles.js";
 
 
 export interface IForgotPasswordUseCase{
@@ -13,6 +14,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase{
     constructor(
         private SQLTool:IUserRepository, 
         private EmailService:IEmailService,
+        private RedisService:ICacheService,
     ){}
 
     async execute(email:string):Promise<void>{
@@ -24,12 +26,11 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase{
                 'USER NOT FOUND'
             )
         
-        const otp  = generateOtp()
-        const expiry = 600
+        const otp  = generateOtp() 
         const otpKey = `otp:${user.getId()}`
         
         const cooldownKey = `otp_cooldown:${email}`
-        const ttl = await redisClient.ttl(cooldownKey)
+        const ttl = await this.RedisService.ttl(cooldownKey)
 
         if(ttl>0){
             throw new AppError(
@@ -39,8 +40,8 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase{
             )
         }
 
-        await redisClient.set(otpKey,otp,'EX',expiry)
-        await redisClient.set(cooldownKey,'true','EX',60)
+        await this.RedisService.set(otpKey,otp,ExpiryOTP)
+        await this.RedisService.set(cooldownKey,'true',60)
 
         await this.EmailService.sendOtpEmail(email,otp,'Password Reset OTP')
 

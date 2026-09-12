@@ -1,4 +1,4 @@
-import { ITokenService, TokenPayload } from "../repo/ITokenService.js";
+import { ITokenService, TokenPayload } from "../Interface/ITokenService.js";
 import jwt from 'jsonwebtoken'
 
 export class TokenService implements ITokenService{
