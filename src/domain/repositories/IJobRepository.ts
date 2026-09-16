@@ -5,4 +5,5 @@ export interface IJobRepository{
     findById(id:string):Promise<Job|null>
     findbyCompanyId(companyId:string):Promise<Job[]>
     findAll(): Promise<Job[]>
+    findByType(companyId:string,jobtype:string):Promise<Job[]>
 }

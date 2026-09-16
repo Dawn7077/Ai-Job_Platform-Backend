@@ -3,7 +3,7 @@ import { ICreateJobUseCase } from "../../application/use-case/CreateJobUseCase.j
 import {  z} from 'zod'
 import { StatusCode } from "../../shared/StatusCode.js";
 import { CompanyMessages } from "../../shared/constants/CompanyMessages.js";
-import { IGetJOBCompany } from "../../application/interface/IGETJobCompany.js";
+import { IGetJOBCompany, IGetJOBTypeCompany } from "../../application/interface/IGETJobCompany.js";
 
 const createJobSchema = z.object({
     title:z.string().min(3,'Title must be at least 3 characters'),
@@ -17,7 +17,8 @@ const createJobSchema = z.object({
 export class CompanyController{
     constructor(
         private createJobUseCase:ICreateJobUseCase,
-        private getJobsUseCase:IGetJOBCompany
+        private getJobsUseCase:IGetJOBCompany,
+        // private getJobsTypeUseCase:IGetJOBTypeCompany
     ){}
 
     postJob = async(req:Request,res:Response,next:NextFunction)=>{
@@ -60,17 +61,19 @@ export class CompanyController{
                 })
             }
 
-            const jobs = await this.getJobsUseCase.execute(companyId)
+            const data = await this.getJobsUseCase.execute(companyId)
             
             res.status(StatusCode.OK).json({
                 success:true, 
-                data:jobs
+                data:data.jobList, 
             })
 
         } catch (error) {
             next(error)
         }
     }
+
+     
 
 
 }

@@ -55,6 +55,18 @@ export class PrismaJobRepository implements IJobRepository{
         return jobRecords.map((record)=> this.convertToEntity(record))
     }
 
+    async findByType(companyId:string,jobtype:"REMOTE"|"HYBRID"|"ONSITE"): Promise<Job[]> {
+        const jobRecords = await this.prisma.job.findMany({
+            where:{
+                companyId:companyId,
+                jobType:jobtype 
+            },
+            orderBy:{createdAt:"desc"},
+        })
+        return jobRecords.map((record)=> this.convertToEntity(record))
+    }
+
+
     private convertToEntity(record:PrismaJobModel):Job{
         const skillsArray = Array.isArray(record.skills)
             ?(record.skills as string[])

@@ -44,7 +44,7 @@ import { CreateJobUseCase } from './application/use-case/CreateJobUseCase.js'
 import clientConnection from './infrastructure/db/MongoConnection.js'
 import { PrismaJobRepository } from './infrastructure/db/PrismJobRepository.js'
 import { CompanyController } from './presentation/controller/CompanyController.js'
-import { GetJobsUseCase } from './application/use-case/GetCompanyJobUseCase.js'
+import { GetJobsTypeUseCase, GetJobsUseCase } from './application/use-case/GetCompanyJobUseCase.js'
 
 
 const PORT  = process.env.PORT || 3000
@@ -75,16 +75,18 @@ async function startApp() {
     const registerUseCase = new Register(userRepoTool,tokenTool,redisServiceTool)
     const signUpOTPUseCase = new SendSignUpOTPUseCase(userRepoTool,EmailServiceTool,BcryptTool,redisServiceTool)
     const loginUseCase= new LoginUseCase(userRepoTool,BcryptTool,tokenTool,redisServiceTool)
-
+    
     const gatewayModel = new GatewayModels()
-    const mentorAgent = new MentorAgent(gatewayModel)
+    const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
+
+    const mentorAgent = new MentorAgent(gatewayModel,MongoServiceTool)
     const classifierModel = new IntentClassifier(gatewayModel)
     const mentorChatUseCase = new MentorChatUseCase(classifierModel,mentorAgent,userRepoTool)
 
     
-    const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
     const createJobUseCase = new CreateJobUseCase(jobRepo,userRepoTool,MongoServiceTool)
     const getJobUseCase = new GetJobsUseCase(jobRepo)
+    const getJobTypeUseCase = new GetJobsTypeUseCase(jobRepo)
 
 
     const authControllerTool = new AuthController(
@@ -114,5 +116,6 @@ async function startApp() {
         log(`Server running on port http://localhost:${PORT}`)
     })
 }
+
 
 startApp()

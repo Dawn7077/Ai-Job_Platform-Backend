@@ -3,6 +3,8 @@ import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import {z} from 'zod'
 import { GatewayModels } from "../../infrastructure/gateways/GatewayModels.js";
+import { IVectorSearchService } from "../../infrastructure/Interface/IVectorSearchService.js";
+import { createSearchJobTool } from "./tools/SearchJobTool.js";
 
 const ApplyJobTool = tool(
     async({jobTitle,company,applicantName})=>{
@@ -31,13 +33,24 @@ export interface IMentorAgent {
 export class MentorAgent implements IMentorAgent{
     private agentInstance
 
-    constructor(aiGateway:GatewayModels){
-        const modelWithTools = aiGateway.getModelWithTool([ApplyJobTool])
+    constructor(
+        aiGateway:GatewayModels,
+        vectorSearchService:IVectorSearchService
+    ){
+        const searchJobTool = createSearchJobTool(vectorSearchService)
+        const tools = [ApplyJobTool,searchJobTool]
+        
+        const modelWithTools = aiGateway.getModelWithTool(tools)  
+
+        console.log(
+            "REGISTERED TOOLS:",
+            tools.map(tool => tool.name)
+        )
 
         this.agentInstance = createReactAgent({
-            llm:aiGateway.primaryModel,
+            llm:aiGateway.fallbackModel.bindTools(tools),
             // llm:modelWithTools,
-            tools:[ApplyJobTool],
+            tools:tools,
             checkpointSaver:new MemorySaver()
         })
     }   

@@ -1,7 +1,6 @@
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { Collection, MongoClient } from "mongodb";
 import { IVectorSearchService, JobVectorSearchResults } from "../Interface/IVectorSearchService.js";
-import { describe } from "node:test";
 
 
 export class MongoVectorSearchService implements IVectorSearchService{
@@ -53,7 +52,23 @@ export class MongoVectorSearchService implements IVectorSearchService{
 
 
     async searchJobs(query:string,limit=5):Promise<JobVectorSearchResults[]>{
-        const queryVector = await this.embeddings.embedQuery(query)
+        
+            console.log("================================");
+            console.log("VECTOR SEARCH STARTED");
+            console.log("query:", query);
+            console.log("limit:", limit);
+            console.log("================================");
+
+
+        try {
+
+            const queryVector = await this.embeddings.embedQuery(query)
+
+             console.log(
+            "EMBEDDING GENERATED",
+            "dimensions:",
+            queryVector.length
+        );
 
         const pipeline =[
             {
@@ -66,6 +81,7 @@ export class MongoVectorSearchService implements IVectorSearchService{
                     limit:limit
                 }
             },
+            {  $match:{status:"OPEN"} },
             {
                 $project:{
                     _id:0,
@@ -77,9 +93,24 @@ export class MongoVectorSearchService implements IVectorSearchService{
                 }
             }
         ]
+        console.log("RUNNING MONGODB VECTOR SEARCH...");
 
         const results = await this.collection.aggregate(pipeline).toArray()
+
+        console.log("MONGODB VECTOR SEARCH RESULTS:");
+        console.dir(results, { depth: null });
+
         return results as JobVectorSearchResults[]
+            
+        } catch (error) {
+             console.error("================================");
+            console.error("VECTOR SEARCH ERROR");
+            console.error(error);
+            console.error("================================");
+
+            throw error;
+        }
+
     }
 
 }

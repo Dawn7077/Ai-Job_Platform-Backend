@@ -14,24 +14,27 @@ export class MentorChatUseCase{
     async execute({userId,message}:{userId:string,message:string}){
         const intent = await this.classifier.classify(message) as intentType
 
-        if(intent === 'STATIC_PROFILE'){
-            const user = await this.userRepo.findById(userId)
-            return{
-                userReq:message,
-                intent,
-                response:`Here is your profile data:\n
-                    ${user?.toJSON()}
-                `
-            }
-        }
-        else if(intent === 'SEARCH_JOB'){
-            // need to complete vector search first
-            return{
-                userReq:message,
-                intent,
-                response:'Job search via vector search is currently under development'
-            }
-        }
+        // if(intent === 'STATIC_PROFILE'){
+        //     const user = await this.userRepo.findById(userId)
+        //     return{
+        //         userReq:message,
+        //         intent,
+        //         response:`Here is your profile data:\n
+        //             ${user?.toJSON()}
+        //         `
+        //     }
+        // }
+        // else if(intent === 'SEARCH_JOB'){
+        //     const agentResult =  await this.mentorAgent.run(message,userId)
+        //     const lastMessage = agentResult.messages[agentResult.messages.length-1]
+            
+        //     console.log('----> SEARCH_JOB_AgentSuccess')
+        //     return{
+        //         userReq:message,
+        //         intent,
+        //         response:lastMessage?.content || "I couldn't process that request"
+        //     }
+        // }
         //default general chat
 
         const agentResult =  await this.mentorAgent.run(message,userId)
