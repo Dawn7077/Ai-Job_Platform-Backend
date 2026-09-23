@@ -6,4 +6,6 @@ export interface IJobRepository{
     findbyCompanyId(companyId:string):Promise<Job[]>
     findAll(): Promise<Job[]>
     findByType(companyId:string,jobtype:string):Promise<Job[]>
+    deleteJob(id:string):Promise<void> 
+    updateJob(job:Job):Promise<Job>
 }

@@ -24,5 +24,20 @@ export function AdminRouter(
         adminController.verifyCompany(req,res,next)
     })
 
+    router.get('/users',(req,res,next)=>{
+        adminController.getUsers(req,res,next)
+    })
+
+    router.patch('/users/:id/status',(req,res,next)=>{
+        adminController.UpdateUserStatus(req,res,next)
+    })
+
+    router.patch('/users/:id/role',(req,res,next)=>{
+        adminController.UpdateUserRole(req,res,next)
+    })
+    router.delete('/users/:id',(req,res,next)=>{
+        adminController.DeleteUser(req,res,next)
+    })
+
     return router
 }

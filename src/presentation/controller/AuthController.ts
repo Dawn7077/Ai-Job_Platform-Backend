@@ -6,10 +6,10 @@ import { IRefreshToken } from "../../infrastructure/Interface/IRefreshToken.js";
 import redisClient from "../../infrastructure/db/redisClient.js";
 import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
 import { IGetMe } from "../../application/interface/IGetMe.js";
-import { IForgotPasswordUseCase } from "../../application/use-case/ForgotPassWord.js";
-import { IResetPasswordUseCase } from "../../application/use-case/ResetPassword.js";
-import { ISignUpOTP } from "../../application/use-case/SignUpOTP.js";
-import { IGoogleService } from "../../application/use-case/GoogleLoginUseCase.js";
+import { IForgotPasswordUseCase } from "../../application/use-case/Auth/ForgotPassWord.js";
+import { IResetPasswordUseCase } from "../../application/use-case/Auth/ResetPassword.js";
+import { ISignUpOTP } from "../../application/use-case/Auth/SignUpOTP.js";
+import { IGoogleService } from "../../application/use-case/Auth/GoogleLoginUseCase.js";
 import { User } from "../../domain/entities/User.js";
 import { AuthMessages } from "../../shared/constants/authMessages.js";
 
@@ -102,8 +102,9 @@ export class AuthController{
             const {email,password} =req.body
             if(!email||!password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
             
-            const {accessToken,refreshToken,user} = await this.loginTool.execute(email,password)
+            const {accessToken,refreshToken,user,isOnboarding} = await this.loginTool.execute(email,password)
 
+            console.log("isOnboarding=>",isOnboarding)
             //store in redis not done
 
             res.cookie('access_token',accessToken,{
@@ -121,6 +122,7 @@ export class AuthController{
             res.status(StatusCode.OK).json({
                 success:true,
                 user:user.toJSON(),
+                isOnboarding
                 // accessToken:accessToken,
                 // refreshToken:refreshToken
             })
@@ -260,7 +262,7 @@ export class AuthController{
             } 
 
             // const successRes = result as {accessToken:string,refreshToken:string,user:User}
-            const {accessToken,refreshToken,user} = result as {accessToken:string,refreshToken:string,user:User}
+            const {accessToken,refreshToken,user,isOnboarding} = result as {accessToken:string,refreshToken:string,user:User,isOnboarding:boolean}
 
             res.cookie('access_token',accessToken,{
                 httpOnly:true,
@@ -277,6 +279,7 @@ export class AuthController{
             res.status(StatusCode.OK).json({
                 success:true,
                 user:user.toJSON(),
+                isOnboarding
                 // accessToken:accessToken,
                 // refreshToken:refreshToken
             })

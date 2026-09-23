@@ -13,6 +13,8 @@ export interface JobProps{
     skills:string[]
     salaryMax:number
     salaryMin:number
+    // experienceMax?:number
+    // experienceMin?:number
     status?:'OPEN'|'CLOSED'
     createdAt?:Date
     updatedAt?:Date
@@ -48,6 +50,7 @@ export class Job{
     public get salaryMax():number{return this.props.salaryMax}
     public get salaryMin():number{return this.props.salaryMin}
     public get status():'OPEN'|'CLOSED'{return this.props.status} 
+    public get createdAt():Date{return this.props.createdAt}
 
     public toJSON(){
         return{ ...this.props }

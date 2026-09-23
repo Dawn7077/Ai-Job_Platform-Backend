@@ -18,4 +18,7 @@ export interface IVectorSearchService{
         skills:string[];
         status:string;
     }):Promise<void>
+
+    deleteJobEmbedding(jobId:string):Promise<void>
+    deleteJobEmbeddingsbyJobIds(jobIds:string[]):Promise<void>
 }

@@ -1,13 +1,13 @@
 import { UserRole } from "@prisma/client";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { IEmailService } from "../../infrastructure/Interface/IEmailService.js";
-import { IHashService } from "../../infrastructure/Interface/IHashService.js";
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { generateOtp } from "../../shared/utils.js";
-import redisClient, { ICacheService } from "../../infrastructure/db/redisClient.js";
-import { ResetOTPExpiry, SignUpOTPExpiry } from "../../shared/constants/roles.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { IEmailService } from "../../../infrastructure/Interface/IEmailService.js";
+import { IHashService } from "../../../infrastructure/Interface/IHashService.js";
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { generateOtp } from "../../../shared/utils.js";
+import redisClient, { ICacheService } from "../../../infrastructure/db/redisClient.js";
+import { ResetOTPExpiry, SignUpOTPExpiry } from "../../../shared/constants/roles.js";
+import { AuthMessages } from "../../../shared/constants/authMessages.js";
 
 export interface ISignUpOTP{
     execute(name: string, email: string, password: string, role:UserRole): Promise<{

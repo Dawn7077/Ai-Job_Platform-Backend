@@ -53,11 +53,11 @@ export class MongoVectorSearchService implements IVectorSearchService{
 
     async searchJobs(query:string,limit=5):Promise<JobVectorSearchResults[]>{
         
-            console.log("================================");
-            console.log("VECTOR SEARCH STARTED");
-            console.log("query:", query);
-            console.log("limit:", limit);
-            console.log("================================");
+            // console.log("================================");
+            // console.log("VECTOR SEARCH STARTED");
+            // console.log("query:", query);
+            // console.log("limit:", limit);
+            // console.log("================================");
 
 
         try {
@@ -65,10 +65,10 @@ export class MongoVectorSearchService implements IVectorSearchService{
             const queryVector = await this.embeddings.embedQuery(query)
 
              console.log(
-            "EMBEDDING GENERATED",
-            "dimensions:",
-            queryVector.length
-        );
+                "EMBEDDING GENERATED",
+                "dimensions:",
+                queryVector.length
+            );
 
         const pipeline =[
             {
@@ -111,6 +111,15 @@ export class MongoVectorSearchService implements IVectorSearchService{
             throw error;
         }
 
+    }
+
+    async deleteJobEmbedding(jobId: string): Promise<void> {
+        await this.collection.deleteOne({jobId})
+    }
+
+    async deleteJobEmbeddingsbyJobIds(jobIds: string[]): Promise<void> {
+        if(!jobIds || jobIds.length ===0)return
+        await this.collection.deleteMany({jobId:{$in:jobIds}})
     }
 
 }

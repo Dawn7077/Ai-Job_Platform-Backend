@@ -1,8 +1,8 @@
-import { User } from "../../domain/entities/User.js";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { IGetMe } from "../interface/IGetMe.js";
+import { User } from "../../../domain/entities/User.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { IGetMe } from "../../interface/IGetMe.js";
 
 
 export class GetMeUseCase implements IGetMe{

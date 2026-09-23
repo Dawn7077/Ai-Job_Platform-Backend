@@ -1,10 +1,10 @@
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import {IEmailService} from "../../infrastructure/Interface/IEmailService.js"
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { generateOtp } from '../../shared/utils.js'
-import redisClient, { ICacheService } from '../../infrastructure/db/redisClient.js'
-import { ExpiryOTP } from "../../shared/constants/roles.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import {IEmailService} from "../../../infrastructure/Interface/IEmailService.js"
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { generateOtp } from '../../../shared/utils.js'
+import redisClient, { ICacheService } from '../../../infrastructure/db/redisClient.js'
+import { ExpiryOTP } from "../../../shared/constants/roles.js";
 
 
 export interface IForgotPasswordUseCase{

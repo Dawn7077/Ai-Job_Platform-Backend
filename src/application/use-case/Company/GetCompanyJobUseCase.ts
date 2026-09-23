@@ -1,9 +1,9 @@
-import { Job } from "../../domain/entities/Job.js";
-import { IJobRepository } from "../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../shared/AppErrors.js";
-import { CompanyMessages } from "../../shared/constants/CompanyMessages.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { IGetJOBCompany, IGetJOBTypeCompany } from "../interface/IGETJobCompany.js";
+import { Job } from "../../../domain/entities/Job.js";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
+import { AppError } from "../../../shared/AppErrors.js";
+import { CompanyMessages } from "../../../shared/constants/CompanyMessages.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { IGetJOBCompany, IGetJOBTypeCompany } from "../../interface/IGETJobCompany.js";
 
 
 export class GetJobsUseCase implements IGetJOBCompany{

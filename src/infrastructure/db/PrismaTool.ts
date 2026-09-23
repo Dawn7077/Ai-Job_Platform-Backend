@@ -1,5 +1,5 @@
 import {PrismaClient } from '@prisma/client'
-import { IUserRepository } from '../../domain/repositories/IUserRepository.js'
+import { IUserRepository, PaginatedUsersList, UserFilterQueryParams } from '../../domain/repositories/IUserRepository.js'
 import { User, UserRole, UserStatus } from '../../domain/entities/User.js'
 
 // const prisma  = new PrismaClient()
@@ -91,6 +91,64 @@ export class PrismaTool implements IUserRepository{
         await this.prisma.user.update({
             where:{id},
             data:data
+        })
+    }
+    //for admin search
+    async findUsers(params:UserFilterQueryParams):Promise<PaginatedUsersList>{
+        const {page=1,limit=1,role,status,search} = params
+        const skip = (page-1)*limit
+
+        const where = {
+            ...(role && {role}),
+            ...(status && {status}),
+            ...(search?.trim() && {
+                OR:[
+                    {
+                        name:{contains:search,
+                        // mode:"insensitive" as const
+                        }},
+                    {email:{
+                        contains:search,
+                        // mode:"insensitive" as const
+                    }}
+                ]
+            }),
+        }
+
+        const [records,total] = await Promise.all([
+            this.prisma.user.findMany({
+                where,
+                skip,
+                take:limit,
+                orderBy:{createdAt:'desc'}
+            }),
+            this.prisma.user.count({where})
+        ])
+
+        const users = records.map(record=>new User({
+            id:record.id,
+            name:record.name,
+            email:record.email,
+            passwordHash:record.passwordHash,
+            role:record.role as UserRole,
+            status:record.status as UserStatus,
+            createdAt:record.createdAt,
+            updatedAt:record.updatedAt
+        }))
+        const totalPages = limit>0? Math.ceil(total/limit):1
+
+        return {
+            users, total,
+            totalPages,
+            page,
+
+        }
+    
+    }
+
+    async deleteUser(id: string): Promise<void> {
+        await this.prisma.user.delete({
+            where:{id},
         })
     }
 

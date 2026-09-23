@@ -40,7 +40,7 @@ export const authMiddleware:IAuthMiddleware = (tokenTool:ITokenService)=>{
 
             req.user = decodedUser 
 
-            console.log(req.user)
+            // console.log(req.user)
 
             next()
 

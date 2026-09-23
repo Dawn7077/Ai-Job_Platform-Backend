@@ -25,9 +25,17 @@ model User {
   email        String         @unique
   passwordHash String         @map("password_hash")
   role         UserRole       @default(CANDIDATE)
-  status       UserStatus     @default(ACTIVE)
+  status       UserStatus     @default(ACTIVE) 
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  postedJobs        Job[]         @relation("CompanyPostedJobs")
+  applications      Application[]
+  candidateProfile  CandidateProfile?
+  companyProfile    CompanyProfile?
+ 
+  @@map("users")
 }
 
 
@@ -43,18 +51,107 @@ enum JobStatus {
   CLOSED
 }
 
+// Application Code: prisma.job
+// MySQL Table Name: `jobs`
+
 model Job {
-  id          String    @id @default(uuid())
-  companyId   String    @map("company_id")
-  title       String
-  jobType     JobType   @map("job_type")
-  description String    @db.Text
-  skills      Json      // Stored as JSON array in MySQL: ["Node.js", "TypeScript"]
-  salaryMin   Int       @map("salary_min")
-  salaryMax   Int       @map("salary_max")
-  status      JobStatus @default(OPEN)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  companyId     String    @map("company_id")
+  title         String
+  jobType       JobType   @map("job_type")
+  description   String    @db.Text
+  skills        Json      // Stored as JSON array in MySQL: ["Node.js", "TypeScript"]
+  salaryMin     Int       @map("salary_min")
+  salaryMax     Int       @map("salary_max")
+  experienceMax Int?      @map("experience_max")
+  experienceMin Int?      @map("experience_min")
+  status        JobStatus @default(OPEN)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  company      User          @relation("CompanyPostedJobs", fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
 
   @@map("jobs")
+}
+
+enum ApplicationStage{
+  APPLIED
+  SCREENING
+  SHORTLISTED
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+model Application{ 
+  id          String     @id @default(uuid())
+  jobId       String     @map("job_id")
+  candidateId String     @map("candidate_id") 
+  stage       ApplicationStage  @default(APPLIED)
+  resumeUrl   String?          @map("resume_url")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate   User             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Enforce one application per candidate per job- Prevents a candidate from applying to the same job multiple
+  @@unique([candidateId, jobId], name: "candidate_job_unique")
+
+  // Optimization indexes for common queries
+  @@index([candidateId, createdAt(sort: Desc)])
+  @@index([jobId, stage])
+  @@map("applications")
+}
+
+
+model CandidateProfile{
+  id          String     @id @default(uuid())
+  userId      String     @unique
+  user        User      @relation(fields:[userId],references:[id], onDelete:Cascade)
+
+  firstName    String
+  lastName     String
+  phone        String?
+  headline     String?  //eg. for 'Full stack developer|MERN & AWS'
+  bio          String?     @db.Text
+  location     String?
+  webSiteUrl   String?
+  githubUrl    String?
+  linkedinUrl  String?
+  skills       Json?  // Array of strings: ["Node.js", "React"]
+  //structured experience/education JSON or seperated relations
+
+  experience   Json?
+  education    Json?
+
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("candidate_profiles")
+}
+
+
+model CompanyProfile {
+  id            String     @id @default(uuid())
+  userId        String     @unique
+  user          User      @relation(fields:[userId],references:[id], onDelete:Cascade)
+
+  companyName   String   @map("company_name")
+  industry      String?
+  companySize   String?  @map("company_size")
+  website       String? 
+  location      String?
+  description   String?  @db.Text
+  logoUrl       String?  @map("logo_url")
+
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at") 
+
+  @@map("company_profiles")
 }

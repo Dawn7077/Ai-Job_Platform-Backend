@@ -1,10 +1,10 @@
-import { Job } from "../../domain/entities/Job.js"
-import { IJobRepository } from "../../domain/repositories/IJobRepository.js"
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js"
-import { IVectorSearchService } from "../../infrastructure/Interface/IVectorSearchService.js"
-import { AppError } from "../../shared/AppErrors.js"
-import { CompanyMessages } from "../../shared/constants/CompanyMessages.js"
-import { StatusCode } from "../../shared/StatusCode.js"
+import { Job } from "../../../domain/entities/Job.js"
+import { IJobRepository } from "../../../domain/repositories/IJobRepository.js"
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js"
+import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js"
+import { AppError } from "../../../shared/AppErrors.js"
+import { CompanyMessages } from "../../../shared/constants/CompanyMessages.js"
+import { StatusCode } from "../../../shared/StatusCode.js"
 
 
 export interface CreateJobInputData{

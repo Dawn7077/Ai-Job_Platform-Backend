@@ -1,9 +1,9 @@
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { IHashService } from "../../infrastructure/Interface/IHashService.js"
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import redisClient, { ICacheService } from '../../infrastructure/db/redisClient.js'
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { IHashService } from "../../../infrastructure/Interface/IHashService.js"
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import redisClient, { ICacheService } from '../../../infrastructure/db/redisClient.js'
+import { AuthMessages } from "../../../shared/constants/authMessages.js";
 export interface IResetPasswordUseCase{
     execute(email:string,otp:string,newPassword:string):Promise<void>
 }

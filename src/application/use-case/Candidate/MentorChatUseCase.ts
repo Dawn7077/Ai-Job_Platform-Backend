@@ -1,8 +1,12 @@
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { GatewayModels } from "../../infrastructure/gateways/GatewayModels.js";
-import { IClassfierIntent } from "../agent/Classifier.js";
-import { MentorAgent } from "../agent/MentorAgent.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { GatewayModels } from "../../../infrastructure/gateways/GatewayModels.js";
+import { IClassfierIntent } from "../../agent/Models/Classifier.js";
+import { MentorAgent } from "../../agent/Models/MentorAgent.js";
 type intentType = 'STATIC_PROFILE'|'SEARCH_JOB'|'GENERAL_CHAT'
+
+
+
+
 export class MentorChatUseCase{
     constructor(
         private classifier:IClassfierIntent,

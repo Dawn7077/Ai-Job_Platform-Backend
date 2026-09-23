@@ -1,12 +1,12 @@
-import { User } from "../../domain/entities/User.js";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { IRegisterUser } from "../interface/IRegister.js"; 
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import { ICacheService } from "../../infrastructure/db/redisClient.js";
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { RefreshExpiry } from "../../shared/constants/roles.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { User } from "../../../domain/entities/User.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { IRegisterUser } from "../../interface/IRegister.js"; 
+import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
+import { ICacheService } from "../../../infrastructure/db/redisClient.js";
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { RefreshExpiry } from "../../../shared/constants/roles.js";
+import { AuthMessages } from "../../../shared/constants/authMessages.js";
 export default class Register implements IRegisterUser{
     constructor(
         private SQLtool:IUserRepository,

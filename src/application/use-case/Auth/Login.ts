@@ -1,23 +1,25 @@
-import { User } from "../../domain/entities/User.js";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js"; 
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { IHashService } from "../../infrastructure/Interface/IHashService.js";
-import { ILogin } from "../interface/ILogin.js";
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import { ICacheService } from "../../infrastructure/db/redisClient.js";
-import { RefreshExpiry } from "../../shared/constants/roles.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { User } from "../../../domain/entities/User.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js"; 
+import { AppError } from "../../../shared/AppErrors.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
+import { IHashService } from "../../../infrastructure/Interface/IHashService.js";
+import { ILogin } from "../../interface/ILogin.js";
+import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
+import { ICacheService } from "../../../infrastructure/db/redisClient.js";
+import { RefreshExpiry } from "../../../shared/constants/roles.js";
+import { AuthMessages } from "../../../shared/constants/authMessages.js";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
 
 export class LoginUseCase implements ILogin{
     constructor(
         private UserRepo:IUserRepository,
+        private candidateRepo:ICandidateProfileRepository,
         private HashService:IHashService,
         private TokenService:ITokenService,
         private redisClient:ICacheService
     ){}
 
-    async execute(email: string,password:string): Promise<{ accessToken: string; refreshToken: string; user:User}> {
+    async execute(email: string,password:string): Promise<{ accessToken: string; refreshToken: string; user:User;isOnboarding:boolean}> {
         if(!email || ! password){ 
             throw new AppError(
                 AuthMessages.MISSING_EMAIL_PASSWORD,
@@ -54,6 +56,12 @@ export class LoginUseCase implements ILogin{
                 'ACCOUNT_NOT_ACTIVE'
             )
         }
+        let isOnboarding = false
+
+        if(user.getRole() ==='CANDIDATE'){
+            const candidateProfile = await this.candidateRepo.findByUserId(user.getId())
+            isOnboarding = candidateProfile !== null //if no profile candidate profile ==null is onboarding turn true and leads to onboarding page
+        }
 
         const accessToken =  this.TokenService.generateAccesToken({userId:user.getId(), role:user.getRole()})
         const refreshToken = this.TokenService.generateRefreshToken({userId:user.getId(), role:user.getRole()})
@@ -64,7 +72,7 @@ export class LoginUseCase implements ILogin{
         
         // console.log('redis-stored->',await this.redisClient.get(refreshTokenKey))
         
-        return {accessToken,refreshToken,user}
+        return {accessToken,refreshToken,user,isOnboarding}
         
     }
 }

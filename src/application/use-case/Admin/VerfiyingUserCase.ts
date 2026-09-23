@@ -1,8 +1,8 @@
-import { User } from "../../domain/entities/User.js";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../shared/AppErrors.js";
-import { AdminMessages } from "../../shared/constants/adminMessages.js";
-import { StatusCode } from "../../shared/StatusCode.js";
+import { User } from "../../../domain/entities/User.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { AppError } from "../../../shared/AppErrors.js";
+import { AdminMessages } from "../../../shared/constants/adminMessages.js";
+import { StatusCode } from "../../../shared/StatusCode.js";
 
 export interface IVerifyCompany{
     execute(userId: string, status: "ACTIVE" | "SUSPENDED"): Promise<{

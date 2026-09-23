@@ -66,6 +66,33 @@ export class PrismaJobRepository implements IJobRepository{
         return jobRecords.map((record)=> this.convertToEntity(record))
     }
 
+    async deleteJob(id:string):Promise<void> {
+        await this.prisma.job.delete({
+            where:{id}
+        })
+    }
+
+    async updateJob(job: Job): Promise<Job> {
+        const raw = job.toJSON()
+
+        const udpatedRecord = await this.prisma.job.update({
+            where:{id:raw.id},
+            data:{
+                title:raw.title,
+                jobType:raw.jobType as "REMOTE"|"HYBRID"|"ONSITE",
+                description:raw.description,
+                skills:raw.skills,
+                salaryMax:raw.salaryMax,
+                salaryMin:raw.salaryMin,
+                status:raw.status as "OPEN"| "CLOSED",
+                updatedAt:new Date(),
+            }
+        })
+
+        return this.convertToEntity(udpatedRecord)
+
+    }
+
 
     private convertToEntity(record:PrismaJobModel):Job{
         const skillsArray = Array.isArray(record.skills)

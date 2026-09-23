@@ -1,10 +1,11 @@
-import { UserRole,User} from "../../domain/entities/User.js";
-import { IGoogleAuthService } from "../../domain/repositories/IGoogleAuthService.js";
-import { IUserRepository } from "../../domain/repositories/IUserRepository.js";
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import redisClient, { ICacheService } from "../../infrastructure/db/redisClient.js";
-import { RefreshExpiry } from "../../shared/constants/roles.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { UserRole,User} from "../../../domain/entities/User.js";
+import { IGoogleAuthService } from "../../../domain/repositories/IGoogleAuthService.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
+import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
+import redisClient, { ICacheService } from "../../../infrastructure/db/redisClient.js";
+import { RefreshExpiry } from "../../../shared/constants/roles.js";
+import { AuthMessages } from "../../../shared/constants/authMessages.js";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
 
 interface GoogleLoginInput{
     token:string
@@ -14,7 +15,7 @@ interface GoogleLoginInput{
 export interface IGoogleService{
     execute(inputData:GoogleLoginInput): Promise<
     | {user:User; requiresApproval:true ; message:string}
-    | { accessToken: string; refreshToken: string; user:User}>
+    | { accessToken: string; refreshToken: string; user:User;isOnboarding:boolean}>
 }
 
 
@@ -22,13 +23,14 @@ export class GoogleLoginUseCase implements IGoogleService{
     constructor(
         private googleAuthService:IGoogleAuthService,
         private UserRepo:IUserRepository,
+        private candidateRepo:ICandidateProfileRepository,
         private tokenService:ITokenService,
         private RedisService:ICacheService
     ){}
 
     async execute(inputData:GoogleLoginInput):Promise<
         | {user:User; requiresApproval:true ; message:string}
-        | { accessToken: string; refreshToken: string; user:User}
+        | { accessToken: string; refreshToken: string; user:User ; isOnboarding:boolean}
     >{
         const profile = await this.googleAuthService.verifyandGetProfile(inputData.token)
 
@@ -53,6 +55,11 @@ export class GoogleLoginUseCase implements IGoogleService{
             }
         }
 
+        let isOnboarding =false
+        if(user.getRole() ==='CANDIDATE'){
+            const candidateProfile = await this.candidateRepo.findByUserId(user.getId())
+            isOnboarding = candidateProfile !== null
+        }
         
 
         const accessToken = this.tokenService.generateAccesToken({
@@ -71,6 +78,7 @@ export class GoogleLoginUseCase implements IGoogleService{
             accessToken,
             refreshToken,
             user:user,
+            isOnboarding
         }
     }
 

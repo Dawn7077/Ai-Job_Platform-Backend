@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ICreateJobUseCase } from "../../application/use-case/CreateJobUseCase.js";
+import { ICreateJobUseCase } from "../../application/use-case/Company/CreateJobUseCase.js";
 import {  z} from 'zod'
 import { StatusCode } from "../../shared/StatusCode.js";
 import { CompanyMessages } from "../../shared/constants/CompanyMessages.js";
