@@ -6,6 +6,10 @@ import { IGETActiveJobs } from "../../application/use-case/Candidate/GetJobsUseC
 import { IGetActiveJobById } from "../../application/use-case/Candidate/GetActiveJobById.js";
 import { ISaveCandidateProfile } from "../../application/use-case/Candidate/SaveCandidateProfile.js";
 import { IGetProfileCandidateUseCase } from "../../application/use-case/Candidate/GetProfileCandidate.js";
+import { IGetResumeUrlUseCase } from "../../application/use-case/Candidate/GetResumeUrlUseCase.js";
+import { IProcessResumeUseCase } from "../../application/agent/use-case/ProcessUploadedResumeUC.js";
+import { IGetUploadResumeUrlUseCase } from "../../application/use-case/Candidate/GetUploadResumeUrlUseCase.js";
+import { IGetCandidateInterviewUC } from "../../application/use-case/Interview/GetCandidateInterviewUC.js";
 
 
 export class CandidateController{
@@ -15,6 +19,10 @@ export class CandidateController{
         private getJobDetailsUseCase:IGetActiveJobById,
         private saveProfileuseCase:ISaveCandidateProfile,
         private getProfileCase:IGetProfileCandidateUseCase,
+        private getUploadRESUseCase:IGetUploadResumeUrlUseCase,
+        private processResumeUseCase:IProcessResumeUseCase,
+        private getReadResumeUrlUseCase: IGetResumeUrlUseCase,
+        private getCandidateInterviewUC:IGetCandidateInterviewUC,
 
     ){}
 
@@ -114,6 +122,98 @@ export class CandidateController{
                 success:true,
                 data: profile.toJSON()
             })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async getResumeUploadUrl(req:Request,res:Response,next:NextFunction){
+        try {
+            const {fileName,mimeType} = req.body
+            if(!fileName || !mimeType){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"fileName and mimeType are required"
+                })
+            }
+            const result = await this.getUploadRESUseCase.execute(fileName,mimeType)
+            
+            return res.status(StatusCode.OK).json({
+                success:true,
+                result
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async processResume(req:Request,res:Response,next:NextFunction){
+        try {
+            const userId = req.user?.userId
+            const {fileKey} = req.body
+            if(!userId){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"User Id is required"
+                })
+            }
+            if(!fileKey){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"fileKey is required"
+                })
+            }
+
+            const result = await this.processResumeUseCase.execute(userId,fileKey)
+
+            return res.status(StatusCode.OK).json({
+                success:true,
+                result
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    }
+    async getResumeUrl(req:Request,res:Response,next:NextFunction){
+        try {
+            const userId = req.user?.userId 
+            if(!userId){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"User Id is required"
+                })
+            }
+            const url = await this.getReadResumeUrlUseCase.execute(userId)
+
+            return res.status(StatusCode.OK).json({
+                success:true,
+                resumeUrl:url 
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async getAllInterviews(req:Request,res:Response,next:NextFunction){
+        try { 
+            const candidateId  = req.user?.userId 
+            if(!candidateId){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"User Id is required"
+                })
+            }
+            const interviews = await this.getCandidateInterviewUC.execute(candidateId)
+             
+
+            return res.status(StatusCode.OK).json({
+                success:true,
+                interviews
+            })
+
         } catch (error) {
             next(error)
         }

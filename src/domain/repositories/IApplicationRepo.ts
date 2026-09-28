@@ -4,7 +4,7 @@ import { Application ,ApplicationStage} from "../entities/Application.js"
 export interface CreateApplicationInputDTO{
     jobId:string
     candidateId:string
-    resumeUrl?:string
+    resumeKey?:string
 }
 
 export interface IApplicationRepository{

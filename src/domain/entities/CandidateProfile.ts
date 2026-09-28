@@ -25,6 +25,7 @@ export interface CandidateProfileProps{
     githubUrl?:string
     linkedinUrl?:string
     skills?:string[]
+    resumeKey?:string
     experience?:ExperienceItem[]
     education?:EducationItem[]
     createdAt:Date
@@ -57,6 +58,7 @@ export class CandidateProfile {
     get githubUrl():string|undefined{return this.props.githubUrl}
     get linkedinUrl():string|undefined{return this.props.linkedinUrl}
     get skills():string[]|undefined{return this.props.skills}
+    get resumeKey():string|undefined{return this.props.resumeKey}
     get experience():ExperienceItem[]|undefined{return this.props.experience}
     get education():EducationItem[]|undefined{return this.props.education}
 

@@ -28,12 +28,15 @@ model User {
   status       UserStatus     @default(ACTIVE) 
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
+  rejectionReason String?
 
   // Relations
-  postedJobs        Job[]         @relation("CompanyPostedJobs")
-  applications      Application[]
-  candidateProfile  CandidateProfile?
-  companyProfile    CompanyProfile?
+  postedJobs         Job[]         @relation("CompanyPostedJobs")
+  applications       Application[]
+  candidateProfile   CandidateProfile?
+  companyProfile     CompanyProfile?
+  candidateInterview Interview[]  @relation("CandidateInterview")
+  companyInterview   Interview[]  @relation("CompanyInterview")
  
   @@map("users")
 }
@@ -92,13 +95,14 @@ model Application{
   jobId       String     @map("job_id")
   candidateId String     @map("candidate_id") 
   stage       ApplicationStage  @default(APPLIED)
-  resumeUrl   String?          @map("resume_url")
+  resumeKey   String?          @map("resume_url")
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
   // Relations
   job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
   candidate   User             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interviews  Interview[]
 
   // Enforce one application per candidate per job- Prevents a candidate from applying to the same job multiple
   @@unique([candidateId, jobId], name: "candidate_job_unique")
@@ -127,6 +131,8 @@ model CandidateProfile{
   skills       Json?  // Array of strings: ["Node.js", "React"]
   //structured experience/education JSON or seperated relations
 
+  resumeKey   String?   
+
   experience   Json?
   education    Json?
 
@@ -154,4 +160,62 @@ model CompanyProfile {
   updatedAt    DateTime   @updatedAt @map("updated_at") 
 
   @@map("company_profiles")
+}
+
+
+enum InterviewStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EvaluationDesicion {
+  HIRED
+  REJECTED
+  NEXT_ROUND
+  PENDING 
+}
+
+model Interview {
+  id              String     @id @default(uuid())
+  applicationId   String     @map("application_id")
+  candidateId     String     @map("candidate_id")
+  companyId       String     @map("company_id") 
+  roomKey         String     @unique @map("room_key")
+  scheduledAt     DateTime    @map("scheduled_at")
+  status          InterviewStatus    @default(SCHEDULED)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @default(now()) @map("updated_at")
+
+
+  //Relations
+  application   Application     @relation(fields:[applicationId], references:[id],onDelete:Cascade)
+  candidate     User            @relation("CandidateInterview",fields:[candidateId],references:[id],onDelete:Cascade)
+  company       User            @relation("CompanyInterview",fields:[companyId],references:[id],onDelete:Cascade)
+
+  evaluation    InterviewEvaluation?
+
+  @@index([roomKey])
+  @@index([companyId,scheduledAt])
+  @@index([candidateId,scheduledAt])
+  @@map("interviews")
+
+}
+
+model InterviewEvaluation{
+  id                    String               @id @default(uuid())
+  interviewId           String               @unique @map("interview_id")
+  technicalScore        Int                  @map("technical_score")
+  communicationScore    Int                  @map("communication_score")
+  problemSolvingScore   Int                  @map("problem_solving_score")
+  notes                 String               @db.Text
+  decision              EvaluationDesicion   @default(PENDING)
+  createdAt             DateTime             @default(now()) @map("created_at")
+
+  //Relations
+  interview       Interview     @relation(fields:[interviewId],references:[id],onDelete:Cascade)
+
+  @@map("Interview_evaluations")
+  
 }

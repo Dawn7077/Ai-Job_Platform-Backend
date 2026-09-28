@@ -43,6 +43,9 @@ export function AuthRoutes(
     router.post('/reset-password',(req,res,next)=>{
         authController.handleResetPassword(req,res,next)
     })
+    router.post('/company/reapply-verification',(req,res,next)=>{
+        authController.handleReapplyVerication(req,res,next)
+    })
 
     return router
 }

@@ -16,14 +16,16 @@ export class PrismaTool implements IUserRepository{
                 email:user.getEmail(),
                 passwordHash:user.getPasswordHash(),
                 role:user.getRole() as UserRole,
-                status:user.getStatus() as UserStatus
+                status:user.getStatus() as UserStatus,
+                rejectionReason:user.getRejectionReason()
             },
             create:{
                 name:user.getName(),
                 email:user.getEmail(),
                 passwordHash:user.getPasswordHash(),
                 role:user.getRole() as UserRole,
-                status:user.getStatus() as UserStatus
+                status:user.getStatus() as UserStatus,
+                rejectionReason:user.getRejectionReason()
             }
         })
 
@@ -44,6 +46,7 @@ export class PrismaTool implements IUserRepository{
             passwordHash:record.passwordHash,
             role:record.role,
             status:record.status,
+            rejectionReason:record.rejectionReason ?? undefined,
             createdAt:record.createdAt,
             updatedAt:record.updatedAt
         })
@@ -62,6 +65,7 @@ export class PrismaTool implements IUserRepository{
             passwordHash:record.passwordHash,
             role:record.role,
             status:record.status,
+            rejectionReason:record.rejectionReason ?? undefined,
             createdAt:record.createdAt,
             updatedAt:record.updatedAt
         })
@@ -82,6 +86,7 @@ export class PrismaTool implements IUserRepository{
             passwordHash:record.passwordHash,
             role:record.role as UserRole,
             status:record.status as UserStatus,
+            rejectionReason:record.rejectionReason ?? undefined,
             createdAt:record.createdAt,
             updatedAt:record.updatedAt
         }))
@@ -132,6 +137,7 @@ export class PrismaTool implements IUserRepository{
             passwordHash:record.passwordHash,
             role:record.role as UserRole,
             status:record.status as UserStatus,
+            rejectionReason:record.rejectionReason ?? undefined,
             createdAt:record.createdAt,
             updatedAt:record.updatedAt
         }))

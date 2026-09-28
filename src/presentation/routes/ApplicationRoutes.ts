@@ -26,17 +26,10 @@ export function ApplicationRouter(
         applicationController.getApplicationById(req,res,next)
     })
 
-    router.patch('/company/:id/stage',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
-        applicationController.updateApplication(req,res,next)
-    })
 
-    router.get('/company/applications',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
-        applicationController.getAllCompanyApplications(req,res,next)
-    })
 
-    router.get('/company/:id/:jobId',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
-        applicationController.getCompanyApplication(req,res,next)
-    })
+
+   
 
 
 

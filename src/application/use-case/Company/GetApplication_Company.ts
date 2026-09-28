@@ -16,6 +16,7 @@ export class GetApplication_Company implements IGetApplication_Company{
     ){}
 
     async execute(companyId:string,applicationId: string,jobId:string):Promise<Application>{
+        console.log('hit GetApplication_Company detail')
         const job = await this.jobRepo.findById(jobId)
         if(!job){
             throw new AppError(

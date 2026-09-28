@@ -11,7 +11,7 @@ export class PrismaApplicationRepo implements IApplicationRepository {
             data:{
                 jobId:data.jobId,
                 candidateId:data.candidateId,
-                resumeUrl:data.resumeUrl ?? null,
+                resumeKey:data.resumeKey ?? null,
                 stage:JobAppStage.APPLIED,
             },
         })
@@ -87,7 +87,7 @@ export class PrismaApplicationRepo implements IApplicationRepository {
             jobId:record.jobId,
             candidateId:record.candidateId,
             stage:record.stage as JobAppStage,
-            resumeUrl:record.resumeUrl,
+            resumeKey:record.resumeKey,
             createdAt:record.createdAt,
             updatedAt:record.updatedAt, 
         })

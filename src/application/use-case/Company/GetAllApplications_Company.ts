@@ -5,7 +5,7 @@ export interface IGetAllApplications_Company{
     execute(companyId: string): Promise<Application[]>
 }
 
-export class GetAllApplications_Company{
+export class GetAllApplications_Company implements IGetAllApplications_Company{
     constructor(
         private applicationRepo:IApplicationRepository,
     ){}

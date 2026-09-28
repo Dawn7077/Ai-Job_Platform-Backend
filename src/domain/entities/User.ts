@@ -9,20 +9,25 @@ export interface UserProps {
   passwordHash?:string;
   role:UserRole;
   status?:UserStatus;
+  rejectionReason?:string
   createdAt?:Date; 
   updatedAt?:Date;
 }
 
 export class User {
   // private props:Required<UserProps>
-  private props:Required<Omit<UserProps,'updatedAt'>>  & {updatedAt?:Date}
+  private props:Required<Omit<UserProps,'updatedAt' |'rejectionReason'>>  & {
+    updatedAt?:Date
+    rejectionReason?:string
+  }
   constructor (props:UserProps){
     this.props = { 
-      id:props.id?? crypto.randomUUID(),
+      id:props.id ?? crypto.randomUUID(),
       name:props.name,
       email:props.email,
       passwordHash:props.passwordHash ?? '',
       role:props.role,
+      rejectionReason:props.rejectionReason,
       status:props.status ?? 'ACTIVE',
       createdAt:props.createdAt ?? new Date()
     }
@@ -34,6 +39,7 @@ export class User {
   getPasswordHash():string{return this.props.passwordHash ?? ''}
   getRole():UserRole{return this.props.role}
   getStatus():UserStatus { return this.props.status} 
+  getRejectionReason() :string|undefined { return this.props.rejectionReason} 
 
   public isActive():boolean{
     return this.props.status === "ACTIVE"
@@ -46,6 +52,7 @@ export class User {
       email:this.props.email,
       role:this.props.role,
       status:this.props.status,
+      rejectionReason:this.props.rejectionReason,
       createdAt:this.props.createdAt,
       updatedAt:this.props.updatedAt
     }

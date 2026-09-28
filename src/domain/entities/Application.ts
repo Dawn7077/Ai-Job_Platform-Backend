@@ -14,9 +14,10 @@ export interface ApplicationProps{
     jobId:string
     candidateId:string
     stage:ApplicationStage
-    resumeUrl?:string | null
+    resumeKey?:string | null
     createdAt:Date
     updatedAt:Date
+    //referral
 }
 
 export class Application {
@@ -28,7 +29,7 @@ export class Application {
             jobId:props.jobId,
             candidateId:props.candidateId,
             stage:props.stage,
-            resumeUrl:props.resumeUrl ?? null,
+            resumeKey:props.resumeKey ?? null,
             createdAt:props.createdAt ?? new Date(),
             updatedAt:props.updatedAt ?? new Date(),
         }
@@ -38,7 +39,7 @@ export class Application {
     get candidateId():string{return this.props.candidateId}
     get jobId():string{return this.props.jobId}
     get stage():ApplicationStage{return this.props.stage}
-    get resumeUrl():string | null| undefined {return this.props.resumeUrl}
+    get resumeKey():string | null| undefined {return this.props.resumeKey}
     get createdAt():Date{return this.props.createdAt}
     get updatedAt():Date{return this.props.updatedAt}
 

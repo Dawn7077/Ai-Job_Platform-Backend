@@ -30,6 +30,18 @@ export function CandidateRoute(candidateController:CandidateController,tokenTool
     router.post('/profile',(req:Request,res:Response,next:NextFunction)=>{
         candidateController.saveProfile(req,res,next)
     })
+    router.post('/resume/upload-url',(req:Request,res:Response,next:NextFunction)=>{
+        candidateController.getResumeUploadUrl(req,res,next)
+    })
+    router.post('/resume/process',(req:Request,res:Response,next:NextFunction)=>{
+        candidateController.processResume(req,res,next)
+    })
+    router.get('/resume/url',(req:Request,res:Response,next:NextFunction)=>{
+        candidateController.getResumeUrl(req,res,next)
+    })
+    router.get('/interviews',(req:Request,res:Response,next:NextFunction)=>{
+        candidateController.getAllInterviews(req,res,next)
+    })
      
     return router
 }

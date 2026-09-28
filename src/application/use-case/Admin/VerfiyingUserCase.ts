@@ -5,7 +5,7 @@ import { AdminMessages } from "../../../shared/constants/adminMessages.js";
 import { StatusCode } from "../../../shared/StatusCode.js";
 
 export interface IVerifyCompany{
-    execute(userId: string, status: "ACTIVE" | "SUSPENDED"): Promise<{
+    execute(userId: string, status: "ACTIVE" | "SUSPENDED",rejectionReason:string): Promise<{
         success: boolean;
         message: string;
     }>
@@ -14,7 +14,7 @@ export interface IVerifyCompany{
 export class VerifyCompanyUseCase implements IVerifyCompany{
     constructor(private userRepo:IUserRepository){}
 
-    async execute(userId:string, status:'ACTIVE'|'SUSPENDED'){
+    async execute(userId:string, status:'ACTIVE'|'SUSPENDED',rejectionReason?:string){
         const user = await this.userRepo.findById(userId)
         if(!user){
             throw new AppError(
@@ -30,8 +30,11 @@ export class VerifyCompanyUseCase implements IVerifyCompany{
                 'INVALID_ROLE'
             )
         }
-
-        await this.userRepo.updateUser(user.getId(),{status:status})
+        console.log('verifying--->',rejectionReason)
+        await this.userRepo.updateUser(user.getId(),{
+            status:status,
+            rejectionReason:status==='SUSPENDED'?rejectionReason:undefined,
+        })
 
         return {
             success:true,

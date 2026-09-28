@@ -2,7 +2,7 @@ import { tool } from "@langchain/core/tools";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import {z} from 'zod'
-import { GatewayModels } from "../../../infrastructure/gateways/GatewayModels.js";
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
 import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js";
 import { createSearchJobTool } from "../tools/SearchJobTool.js";
 import { IApplyJobUseCase } from "../../use-case/Candidate/ApplyJobUseCase.js";
@@ -13,6 +13,8 @@ import { createGetUserApplicationsTool } from "../tools/GetUserApplicationsTool.
 import { createGetApplicationDetailsTool } from "../tools/GetApplicationDetails.js";
 import { IGetProfileCandidateUseCase } from "../../use-case/Candidate/GetProfileCandidate.js";
 import { createGetProfileCandidateTool } from "../tools/GetCandidateProfileTool.js";
+import { IGetResumeTextUseCase } from "../use-case/GetResumeTextUseCase.js";
+import { createAnalyzeResumeTool } from "../tools/AnalyseResumeTool.js";
 
 // const ApplyJobTool = tool(//mock apply
 //     async({jobTitle,company,applicantName})=>{
@@ -48,14 +50,18 @@ export class MentorAgent implements IMentorAgent{
         getAllApplicationsUseCase:IGetCandidateALLAppications,
         getApplicationDetailsUseCase:IGetCandidateApplication,
         getProfileCandidateProfileUseCase:IGetProfileCandidateUseCase,
+        getResumeTextUseCase:IGetResumeTextUseCase
     ){
         const searchJobTool = createSearchJobTool(vectorSearchService)
         const applyJobTool = createApplyJobTool(applyJobUseCase)
         const getUserApplicationsTool = createGetUserApplicationsTool(getAllApplicationsUseCase)
         const getApplicationDetailsTool = createGetApplicationDetailsTool(getApplicationDetailsUseCase)
         const getProfileCandidateTool = createGetProfileCandidateTool(getProfileCandidateProfileUseCase)
+        const analyzeResumeTool = createAnalyzeResumeTool(getResumeTextUseCase)
 
-        const tools = [searchJobTool,applyJobTool,getUserApplicationsTool,getApplicationDetailsTool,getProfileCandidateTool]
+        const tools = [searchJobTool,applyJobTool,getUserApplicationsTool,
+            getApplicationDetailsTool,getProfileCandidateTool,analyzeResumeTool
+        ]
         
         const modelWithTools = aiGateway.getModelWithTool(tools)  
 

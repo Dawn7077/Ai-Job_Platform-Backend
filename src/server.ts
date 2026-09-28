@@ -7,7 +7,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 import 'dotenv/config'
 import app from './app.js' 
-import { log } from 'console'
+import { log } from 'console' 
 import { errorHandler } from './presentation/middleware/errorHandler.js'
 import { PrismaClient } from '@prisma/client'
 import { PrismaTool } from './infrastructure/db/PrismaTool.js'
@@ -37,7 +37,7 @@ import { VerifyCompanyUseCase } from './application/use-case/Admin/VerfiyingUser
 import { CandidateController } from './presentation/controller/CandidateController.js'
 import { MentorChatUseCase } from './application/use-case/Candidate/MentorChatUseCase.js'
 import { MentorAgent } from './application/agent/Models/MentorAgent.js'
-import { GatewayModels } from './infrastructure/gateways/GatewayModels.js'
+import { GatewayModels } from './infrastructure/ai/GatewayModels.js'
 import { IntentClassifier } from './application/agent/Models/Classifier.js'
 import { MongoVectorSearchService } from './infrastructure/services/MongoVectorSearch.js'
 import { CreateJobUseCase } from './application/use-case/Company/CreateJobUseCase.js'
@@ -63,19 +63,49 @@ import { PrismaCandidateProfileRepo } from "./infrastructure/db/PrismaCanidatePr
 import { GetProfileCandidateUseCase } from "./application/use-case/Candidate/GetProfileCandidate.js";
 import { SaveCandidateProfile } from "./application/use-case/Candidate/SaveCandidateProfile.js";
 import { DeleteUserUseCase } from "./application/use-case/Admin/DeleteUserUseCase.js";
-
+import s3Client, { R2StorageService } from "./infrastructure/services/r2StorageService.js";
+import { ResumeParserService } from "./infrastructure/ai/pdfParserService.js";
+import { ProcessResumeUseCase } from "./application/agent/use-case/ProcessUploadedResumeUC.js";
+import { GetUploadResumeUrlUseCase } from "./application/use-case/Candidate/GetUploadResumeUrlUseCase.js";
+import { GetResumeUrlUseCase } from "./application/use-case/Candidate/GetResumeUrlUseCase.js";
+import { GetResumeTextUseCase } from "./application/agent/use-case/GetResumeTextUseCase.js";
+import { GetApplicationByJobIdUC } from "./application/use-case/Company/GetApplicationByJobIdUC.js";
+import { ScheduleInterviewUC } from "./application/use-case/Interview/ScheduleInterviewUseCase.js";
+import { PrismaInterviewRepo } from "./infrastructure/db/PrismaInterviewRepo.js";
+import { GetInterviewByRoomKeyUC } from "./application/use-case/Interview/GetInterviewByRoomKeyUC.js";
+import { SubmitInterviewEvaluationUC } from "./application/use-case/Interview/SubmitEvaludationUseCase.js";
+import { SaveProfileCompanyUC } from "./application/use-case/Company/SaveProfileCompanyUC.js";
+import { PrismaCompanyProfileRepo } from "./infrastructure/db/CompanyProfilePrisma.js";
+import { GetProfileCompanyUC } from "./application/use-case/Company/GetProfileCompanyUC.js";
+import { ReapplyVerificationUseCase } from "./application/use-case/Company/ReapplyVerificationUseCase.js";
+import { GetCompanyInterviewUC } from "./application/use-case/Interview/GetCompanyInterviewUC.js";
+import { GetCandidateInterviewUC } from "./application/use-case/Interview/GetCandidateInterviewUC.js";
+ 
+import { createServer } from 'http'
+import { setUpSocket } from "./infrastructure/websocket/SignalingServer.js";
 
 const PORT  = process.env.PORT || 3000
 const JWTSecret = process.env.JWT_SECRET || "Default_SecretKey"
 
 
 async function startApp() { 
+    const server = createServer(app)
+    setUpSocket(server)
+     
+
     const prismaClientConnect =new PrismaClient()
     const mongoClient  = await clientConnection
     const userRepoTool = new PrismaTool(prismaClientConnect) // prisma tool
     const jobRepo = new PrismaJobRepository(prismaClientConnect)
     const applicationRepo = new PrismaApplicationRepo(prismaClientConnect)
     const candidateProfileRepo = new PrismaCandidateProfileRepo(prismaClientConnect)
+    const companyProfileRepo = new PrismaCompanyProfileRepo(prismaClientConnect)
+    const interviewRepo = new PrismaInterviewRepo(prismaClientConnect)
+    const s3clientConnect = await s3Client
+
+    const gatewayModel = new GatewayModels()
+    const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
+    
 
     const BcryptTool = new BcryptService()
     const tokenTool  = new TokenService( JWTSecret)
@@ -89,6 +119,11 @@ async function startApp() {
     const googleServiceAuth = new Google_Service()
     const GoogleServiceUseCase = new GoogleLoginUseCase(googleServiceAuth,userRepoTool,candidateProfileRepo,tokenTool,redisServiceTool)
     
+    
+    const r2Service = new R2StorageService(s3clientConnect)
+    const parserService = new ResumeParserService()
+
+
     //auth use case
     const registerUseCase = new Register(userRepoTool,tokenTool,redisServiceTool)
     const signUpOTPUseCase = new SendSignUpOTPUseCase(userRepoTool,EmailServiceTool,BcryptTool,redisServiceTool)
@@ -105,12 +140,20 @@ async function startApp() {
     
     const getCandidateProfileUseCase = new GetProfileCandidateUseCase(candidateProfileRepo)
     const saveCandidateProfileUseCase = new SaveCandidateProfile(candidateProfileRepo)
+    const getCandidateInterviewUC = new GetCandidateInterviewUC(interviewRepo)
+
+    //resume
+    const uploadResumeUrlUseCase = new GetUploadResumeUrlUseCase(r2Service)
+    const processResumeUseCase = new ProcessResumeUseCase(candidateProfileRepo,parserService,gatewayModel,r2Service)
+    const getResumeUrlUseCase = new GetResumeUrlUseCase(r2Service,candidateProfileRepo)
     
     // candidate Ai use case
-    const gatewayModel = new GatewayModels()
-    const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
+    const getResumeTextUseCase = new GetResumeTextUseCase(r2Service,candidateProfileRepo,parserService)
     
-    const mentorAgent = new MentorAgent(gatewayModel,MongoServiceTool,applyJobCandidateuseCase,getAllApplicationUseCase,getCandidateApplicationuseCase,getCandidateProfileUseCase)
+    const mentorAgent = new MentorAgent(gatewayModel,MongoServiceTool,applyJobCandidateuseCase,getAllApplicationUseCase,
+        getCandidateApplicationuseCase,getCandidateProfileUseCase,
+        getResumeTextUseCase,
+    )
     const classifierModel = new IntentClassifier(gatewayModel)
     const mentorChatUseCase = new MentorChatUseCase(classifierModel,mentorAgent,userRepoTool)
     
@@ -123,6 +166,7 @@ async function startApp() {
     const updateUsersStatusAdminUC = new UpdateUserStatusUC(userRepoTool)
     const updateUserRoleAdminUC = new UpdateUserRoleUC(userRepoTool)
     const deleteUserAdminUC = new DeleteUserUseCase(userRepoTool,jobRepo,MongoServiceTool)
+    const reapplyVerificationUC = new ReapplyVerificationUseCase(userRepoTool)
 
     
     
@@ -130,10 +174,17 @@ async function startApp() {
     const createJobUseCase = new CreateJobUseCase(jobRepo,userRepoTool,MongoServiceTool)
     const getJobUseCase = new GetJobsUseCase(jobRepo)
     const getJobTypeUseCase = new GetJobsTypeUseCase(jobRepo)
-
+    
     const updateApplicationUseCase = new UpdateApplicationStageUseCase(applicationRepo,jobRepo)
     const getCompanyApplicationAllUseCase = new GetAllApplications_Company(applicationRepo)
     const getCompanyApplicationUseCase = new GetApplication_Company(applicationRepo,jobRepo)
+    const getApplicationsByJobIdUC = new GetApplicationByJobIdUC(applicationRepo,userRepoTool,jobRepo)
+    const scheduleInterviewUseCase = new ScheduleInterviewUC(interviewRepo,applicationRepo)
+    const getRoomKeyUseCase = new GetInterviewByRoomKeyUC(interviewRepo)
+    const submitInterviewEvalUC = new SubmitInterviewEvaluationUC(interviewRepo)
+    const saveProfileCompanyUC = new SaveProfileCompanyUC(companyProfileRepo)
+    const getProfileCompanyUC = new GetProfileCompanyUC(companyProfileRepo)
+    const getCompanyInterviewUC = new GetCompanyInterviewUC(interviewRepo)
 
     
     //controllers
@@ -141,15 +192,25 @@ async function startApp() {
         registerUseCase,signUpOTPUseCase,loginUseCase,
         refreshTool,tokenTool,getMeTool,
         forgotPasswordTool,resetPasswordTool,
-        GoogleServiceUseCase
+        GoogleServiceUseCase,reapplyVerificationUC,
     ) 
     const adminControllerTool = new AdminController(getCompaniesUseCase,verifyCompanyUseCase,updateUsersStatusAdminUC,updateUserRoleAdminUC,getUsersAdminUC,deleteUserAdminUC)
-    const candidateControllerTool = new CandidateController(mentorChatUseCase,getAllJobUseCase,getJobActiveDetailsUseCase,saveCandidateProfileUseCase,getCandidateProfileUseCase)
-    const companyControllerTool = new CompanyController(createJobUseCase,getJobUseCase)
+    const candidateControllerTool = new CandidateController(
+        mentorChatUseCase,getAllJobUseCase,getJobActiveDetailsUseCase,
+        saveCandidateProfileUseCase,getCandidateProfileUseCase,
+        uploadResumeUrlUseCase,processResumeUseCase,getResumeUrlUseCase,
+        getCandidateInterviewUC
+    )
+    const companyControllerTool = new CompanyController(
+        createJobUseCase,getJobUseCase,getCompanyApplicationAllUseCase,
+        getApplicationsByJobIdUC,getCompanyApplicationUseCase,updateApplicationUseCase,
+        scheduleInterviewUseCase,getRoomKeyUseCase,submitInterviewEvalUC,
+        saveProfileCompanyUC,getProfileCompanyUC,
+        getCompanyInterviewUC
+    )
     const applicationController = new ApplicationController(
         applyJobCandidateuseCase,getAllApplicationUseCase
-        ,getCandidateApplicationuseCase,updateApplicationUseCase,
-        getCompanyApplicationAllUseCase,getCompanyApplicationUseCase
+        ,getCandidateApplicationuseCase
     )
 
     
@@ -168,8 +229,8 @@ async function startApp() {
 
     
     app.use(errorHandler)
-    app.listen(PORT,()=>{
-        log(`Server running on port http://localhost:${PORT}`)
+    server.listen(PORT,()=>{
+        log(`Server and Websocket running on port http://localhost:${PORT}`)
     })
 }
 

@@ -12,6 +12,7 @@ import { ISignUpOTP } from "../../application/use-case/Auth/SignUpOTP.js";
 import { IGoogleService } from "../../application/use-case/Auth/GoogleLoginUseCase.js";
 import { User } from "../../domain/entities/User.js";
 import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { IReapplyVerificationUseCase } from "../../application/use-case/Company/ReapplyVerificationUseCase.js";
 
 export class AuthController{
     constructor(
@@ -23,7 +24,8 @@ export class AuthController{
         private getMeTool:IGetMe,
         private forgotPasswordTool:IForgotPasswordUseCase,
         private resetPasswordTool:IResetPasswordUseCase,
-        private googleServiceTool:IGoogleService
+        private googleServiceTool:IGoogleService,
+        private reapplyVerificationUC:IReapplyVerificationUseCase,
 
     ){}
 
@@ -283,6 +285,24 @@ export class AuthController{
                 // accessToken:accessToken,
                 // refreshToken:refreshToken
             })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleReapplyVerication(req:Request,res:Response,next:NextFunction){
+        try {
+            const {email} = req.body
+            if(!email){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"Email is required for reapplying verification"
+                })
+            }
+
+            const result = await this.reapplyVerificationUC.execute(email)
+
+            res.status(StatusCode.OK).json(result)
         } catch (error) {
             next(error)
         }

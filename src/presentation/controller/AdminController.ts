@@ -34,7 +34,7 @@ export class AdminController{
 
     async verifyCompany(req:Request,res:Response,next:NextFunction){
         try {
-            const {userId,status} = req.body
+            const {userId,status,reason} = req.body
 
             if(!userId || !['ACTIVE','SUSPENDED'].includes(status)){
                 return res.status(StatusCode.BAD_REQUEST).json({
@@ -43,7 +43,7 @@ export class AdminController{
                 })
             }
 
-            const result = await this.VerifyCompanyRepo.execute(userId,status)
+            const result = await this.VerifyCompanyRepo.execute(userId,status,reason)
 
             res.status(StatusCode.OK).json({
                 success:true,

@@ -18,6 +18,7 @@ export interface JobProps{
     status?:'OPEN'|'CLOSED'
     createdAt?:Date
     updatedAt?:Date
+    // expiry
 }
 
 

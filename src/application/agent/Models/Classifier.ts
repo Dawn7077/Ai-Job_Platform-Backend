@@ -1,4 +1,4 @@
-import { GatewayModels } from "../../../infrastructure/gateways/GatewayModels.js";
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
 import {z} from 'zod'
 
 const intentSchema = z.object({

@@ -9,7 +9,8 @@ export class PrismaCandidateProfileRepo implements ICandidateProfileRepository{
     async findByUserId(userId: string): Promise<CandidateProfile | null> {
         const raw = await this.prisma.candidateProfile.findUnique({
             where:{userId},
-        })
+        }) 
+        console
         if(!raw) return null
 
         return new CandidateProfile({
@@ -24,6 +25,7 @@ export class PrismaCandidateProfileRepo implements ICandidateProfileRepository{
             websiteUrl:raw.webSiteUrl ?? undefined,
             githubUrl:raw.githubUrl ?? undefined,
             linkedinUrl:raw.linkedinUrl ?? undefined,
+            resumeKey:raw.resumeKey ?? undefined,
             skills:(raw.skills as unknown as string[])??[] ,
             experience:(raw.experience as unknown as ExperienceItem[])?? [],
             education:(raw.education  as unknown as EducationItem[])?? [],
@@ -47,6 +49,7 @@ export class PrismaCandidateProfileRepo implements ICandidateProfileRepository{
                 githubUrl:data.githubUrl,
                 linkedinUrl:data.linkedinUrl,
                 skills:data.skills,
+                resumeKey:data.resumeKey,
                 experience:(data.experience as any) ?? [],
                 education:(data.education as any)?? [],
             },
@@ -62,6 +65,7 @@ export class PrismaCandidateProfileRepo implements ICandidateProfileRepository{
                 githubUrl:data.githubUrl,
                 linkedinUrl:data.linkedinUrl,
                 skills:data.skills,
+                resumeKey:data.resumeKey,
                 experience:data.experience as any,
                 education:data.education as any,
             }
@@ -80,11 +84,39 @@ export class PrismaCandidateProfileRepo implements ICandidateProfileRepository{
             githubUrl:raw.githubUrl ?? undefined,
             linkedinUrl:raw.linkedinUrl ?? undefined,
             skills:(raw.skills as unknown as string[])??[] ,
+            resumeKey:raw.resumeKey ?? undefined,
             experience:(raw.experience as unknown as ExperienceItem[])?? [],
             education:(raw.education  as unknown as EducationItem[])?? [],
             createdAt:raw.createdAt,
             updatedAt:raw.updatedAt
 
+        })
+    }
+
+    async updateResumeKey(userId: string, resumeKey: string): Promise<CandidateProfile> {
+        const raw = await this.prisma.candidateProfile.update({
+            where:{userId},
+            data:{resumeKey}
+        })
+
+        return new CandidateProfile({
+            id:raw.id,
+            userId:raw.userId,
+            firstName:raw.firstName,
+            lastName:raw.lastName,
+            phone:raw.phone ??undefined,
+            headline:raw.headline??undefined,
+            bio:raw.bio ?? undefined,
+            location:raw.location ?? undefined,
+            websiteUrl:raw.webSiteUrl ?? undefined,
+            githubUrl:raw.githubUrl ?? undefined,
+            linkedinUrl:raw.linkedinUrl ?? undefined,
+            skills:(raw.skills as unknown as string[])??[] ,
+            resumeKey:raw.resumeKey ?? undefined,
+            experience:(raw.experience as unknown as ExperienceItem[])?? [],
+            education:(raw.education  as unknown as EducationItem[])?? [],
+            createdAt:raw.createdAt,
+            updatedAt:raw.updatedAt
         })
     }
 

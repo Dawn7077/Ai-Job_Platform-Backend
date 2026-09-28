@@ -17,7 +17,7 @@ export const AuthMessages = {
     INVALID_CREDENTIALS:'Invalid email or password credentials',
     COMPANY_PENDING:"Your company account is pending admin approval. Please wait for the verification.",
     COMPANY_PENDING_GOOGLE:"Your company account is pending admin verification. You cannot log in yet. Please wait for the verification.",
-    COMPANY_SUSPENDED:"Your company account has been suspended.",
+    COMPANY_SUSPENDED:(reason:string)=>`Account suspended:${reason || "Your company account has been suspended. contact for more details"}`,
 
     // OTP VERIFICATIONS
     OTP_EXPIRED:"OTP has expired or request is invalid.",

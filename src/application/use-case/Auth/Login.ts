@@ -46,9 +46,12 @@ export class LoginUseCase implements ILogin{
         
         if(user.getRole()==='COMPANY' && user.getStatus() !== 'ACTIVE'){
             const status  =  user.getStatus() 
+            const rejectionReason = user.getRejectionReason()
+            
+            console.log('reason=>',rejectionReason)
             const message = status === 'PENDING'
             ?AuthMessages.COMPANY_PENDING
-            :AuthMessages.COMPANY_SUSPENDED
+            :AuthMessages.COMPANY_SUSPENDED(rejectionReason||'')
 
             throw new AppError(
                 message,
