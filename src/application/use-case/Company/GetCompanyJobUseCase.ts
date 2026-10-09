@@ -1,13 +1,14 @@
-import { Job } from "../../../domain/entities/Job.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { CompanyMessages } from "../../../shared/constants/CompanyMessages.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import { IGetJOBCompany, IGetJOBTypeCompany } from "../../interface/IGETJobCompany.js";
+import { inject, injectable } from "inversify"; 
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { CompanyMessages } from "../../../shared/constants/CompanyMessages";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetJOBCompany, IGetJOBTypeCompany } from "../../interface/I-UseCases/Company/IGETJobCompany";
+import { TYPES } from "../../../di/TYPES";
 
-
+@injectable()
 export class GetJobsUseCase implements IGetJOBCompany{
-    constructor(private jobRepo:IJobRepository){}
+    constructor(@inject(TYPES.IJobRepo)private jobRepo:IJobRepository){}
 
     async execute(companyId:string ){
         if(!companyId){
@@ -25,8 +26,9 @@ export class GetJobsUseCase implements IGetJOBCompany{
         }
     }
 }
+@injectable()
 export class GetJobsTypeUseCase implements IGetJOBTypeCompany{
-    constructor(private jobRepo:IJobRepository){}
+    constructor(@inject(TYPES.IJobRepo)private jobRepo:IJobRepository){}
 
     async execute(companyId:string,jobType:"REMOTE"|"HYBRID"|"ONSITE"){
         if(!companyId){

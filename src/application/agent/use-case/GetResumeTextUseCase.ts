@@ -1,18 +1,19 @@
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
-import { ResumeParserService } from "../../../infrastructure/ai/pdfParserService.js";
-import { R2StorageService } from "../../../infrastructure/services/r2StorageService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import { ResumeParserService } from "../../../infrastructure/ai/pdfParserService";
+import { R2StorageService } from "../../../infrastructure/services/r2StorageService";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetResumeTextUseCase } from "../../interface/I-UseCases/Candidate/IGetResumeTextUseCase";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetResumeTextUseCase{
-    execute(userId: string): Promise<string> 
-}
 
+@injectable()
 export class GetResumeTextUseCase implements IGetResumeTextUseCase{
     constructor(
-        private r2Service:R2StorageService,
-        private candidateProfileRepo:ICandidateProfileRepository,
-        private resumeParserService:ResumeParserService
+        @inject(TYPES.IR2StorageService) private r2Service:R2StorageService,
+        @inject(TYPES.ICandidateProfileRepo) private candidateProfileRepo:ICandidateProfileRepository,
+        @inject(TYPES.IResumeParserService) private resumeParserService:ResumeParserService
     ){}
 
     async execute(userId:string){

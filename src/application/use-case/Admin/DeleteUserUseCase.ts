@@ -1,19 +1,20 @@
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService";
+import { IDeleteUserUseCase } from "../../interface/I-UseCases/Admin/IDeleteUserUseCase";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode"; 
+import { TYPES } from "../../../di/TYPES";
 
-export interface IDeleteUserUseCase{
-    execute(userId: string,adminId: string): Promise<void>
-}
 
 
+@injectable()
 export class DeleteUserUseCase implements IDeleteUserUseCase{
     constructor(
-        private userRepo:IUserRepository,
-        private jobRepo:IJobRepository,
-        private vectorSearchService:IVectorSearchService
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository,
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
+        @inject(TYPES.IVectorSearchService) private vectorSearchService:IVectorSearchService
 
     ){}
 

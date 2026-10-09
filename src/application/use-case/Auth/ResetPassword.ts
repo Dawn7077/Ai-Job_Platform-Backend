@@ -1,18 +1,21 @@
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { IHashService } from "../../../infrastructure/Interface/IHashService.js"
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import redisClient, { ICacheService } from '../../../infrastructure/db/redisClient.js'
-import { AuthMessages } from "../../../shared/constants/authMessages.js";
-export interface IResetPasswordUseCase{
-    execute(email:string,otp:string,newPassword:string):Promise<void>
-}
+import {inject,injectable}from 'inversify'
+import {TYPES} from '../../../di/TYPES'
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { IHashService } from "../../interface/I-Services/IHashService"
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import redisClient, { ICacheService } from '../../../infrastructure/db/Redis/redisClient'
+import { AuthMessages } from "../../../shared/constants/authMessages";
+import { IResetPasswordUseCase } from '../../interface/I-UseCases/Auth/IResetPasswordUseCase'; 
 
+
+
+@injectable()
 export class ResetPassswordUseCase  implements IResetPasswordUseCase{
     constructor(
-        private SQLTool:IUserRepository,
-        private HashTool:IHashService,
-        private RedisTool:ICacheService,
+        @inject(TYPES.IUserRepository) private SQLTool:IUserRepository,
+        @inject(TYPES.IHashService) private HashTool:IHashService,
+        @inject(TYPES.IRedisService) private RedisTool:ICacheService,
     ){}
 
     async execute (email:string,otp:string,newPassword:string): Promise <void> {

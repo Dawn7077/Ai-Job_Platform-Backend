@@ -1,17 +1,17 @@
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
-import { IClassfierIntent } from "../../agent/Models/Classifier.js";
-import { MentorAgent } from "../../agent/Models/MentorAgent.js";
+import { inject, injectable } from "inversify";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels";
+import { IClassfierIntent } from "../../agent/Models/Classifier";
+import { MentorAgent } from "../../agent/Models/MentorAgent";
+import { TYPES } from "../../../di/TYPES";
 type intentType = 'STATIC_PROFILE'|'SEARCH_JOB'|'GENERAL_CHAT'
 
-
-
-
+@injectable()
 export class MentorChatUseCase{
     constructor(
-        private classifier:IClassfierIntent,
-        private mentorAgent:MentorAgent, 
-        private userRepo:IUserRepository
+        @inject(TYPES.IntentClassifier) private classifier:IClassfierIntent,
+        @inject(TYPES.IMentorAgent) private mentorAgent:MentorAgent, 
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository
         // private vectorSearch: VectorSearchService,
     ){}
 

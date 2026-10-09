@@ -1,17 +1,21 @@
-import { User } from "../../../domain/entities/User.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { IRegisterUser } from "../../interface/IRegister.js"; 
-import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
-import { ICacheService } from "../../../infrastructure/db/redisClient.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import { RefreshExpiry } from "../../../shared/constants/roles.js";
-import { AuthMessages } from "../../../shared/constants/authMessages.js";
+import { User } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { IRegisterUser } from "../../interface/I-UseCases/Auth/IRegister";  
+import { ITokenService } from "../../interface/I-Services/ITokenService";
+import { ICacheService } from "../../../infrastructure/db/Redis/redisClient";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { RefreshExpiry } from "../../../shared/constants/roles";
+import { AuthMessages } from "../../../shared/constants/authMessages";
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES'
+
+@injectable()
 export default class Register implements IRegisterUser{
     constructor(
-        private SQLtool:IUserRepository,
-        private TokenTool:ITokenService,
-        private RedisTool:ICacheService,
+        @inject(TYPES.IUserRepository) private SQLtool:IUserRepository,
+        @inject(TYPES.ITokenService) private TokenTool:ITokenService,
+        @inject(TYPES.IRedisService) private RedisTool:ICacheService,
     ){}
 
     async execute(email:string,otp:string){ 

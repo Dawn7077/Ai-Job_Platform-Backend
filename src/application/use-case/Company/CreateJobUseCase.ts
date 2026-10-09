@@ -1,10 +1,13 @@
-import { Job } from "../../../domain/entities/Job.js"
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js"
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js"
-import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js"
-import { AppError } from "../../../shared/AppErrors.js"
-import { CompanyMessages } from "../../../shared/constants/CompanyMessages.js"
-import { StatusCode } from "../../../shared/StatusCode.js"
+import { inject, injectable } from "inversify"
+import { Job } from "../../../domain/entities/Job"
+import { IJobRepository } from "../../../domain/repositories/IJobRepository"
+import { IUserRepository } from "../../../domain/repositories/IUserRepository"
+import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService"
+import { AppError } from "../../../shared/AppErrors"
+import { CompanyMessages } from "../../../shared/constants/CompanyMessages"
+import { StatusCode } from "../../../shared/StatusCode"
+import { ICreateJobUseCase } from "../../interface/I-UseCases/Company/ICreateJobUseCase"
+import { TYPES } from "../../../di/TYPES"
 
 
 export interface CreateJobInputData{
@@ -18,15 +21,13 @@ export interface CreateJobInputData{
     salaryMin:number
 }
 
-export interface ICreateJobUseCase{
-    execute(data: CreateJobInputData): Promise<Job>
-}
 
+@injectable()
 export class CreateJobUseCase implements ICreateJobUseCase{
     constructor(
-        private jobRepo:IJobRepository,
-        private userRepo:IUserRepository,
-        private vectorSearchService:IVectorSearchService
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
+        @inject(TYPES.IUserRepository)private userRepo:IUserRepository,
+        @inject(TYPES.IVectorSearchService)private vectorSearchService:IVectorSearchService
     ){}
 
     async execute(Job_data:CreateJobInputData){

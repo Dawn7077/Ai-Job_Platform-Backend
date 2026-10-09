@@ -1,4 +1,4 @@
-import { CompanyProfile, CompanyProfileProps } from "../entities/CompanyProfile.js";
+import { CompanyProfile, CompanyProfileProps } from "../entities/CompanyProfile";
 
 export interface ICompanyProfileRepo{
     findbyUserId(userId:string):Promise<CompanyProfile | null>

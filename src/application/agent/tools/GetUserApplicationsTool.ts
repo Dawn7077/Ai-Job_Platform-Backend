@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import {z} from "zod"
 import { RunnableConfig } from "@langchain/core/runnables";
-import { IGetCandidateALLAppications } from "../../use-case/Candidate/GetAllApplications.js";
+import { IGetCandidateALLAppications } from "../../interface/I-UseCases/Candidate/IGetCandidateALLAppications";  
 
 export const createGetUserApplicationsTool = (
     getApplicationsUseCase:IGetCandidateALLAppications

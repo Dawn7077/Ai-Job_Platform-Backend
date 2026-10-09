@@ -1,7 +1,7 @@
-import { InterviewStatusType } from "../../../domain/entities/Interview.js";
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { InterviewStatusType } from "../../../domain/entities/Interview";
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
 
 export interface IUpdateInterviewStatusUC{
     execute(interviewId: string, status: InterviewStatusType): Promise<void>

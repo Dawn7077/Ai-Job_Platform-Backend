@@ -1,5 +1,7 @@
-import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
+import { inject, injectable } from "inversify";
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels";
 import {z} from 'zod'
+import { TYPES } from "../../../di/TYPES";
 
 const intentSchema = z.object({
     intent:z.enum(['STATIC_PROFILE','SEARCH_JOB','CHAT_GENERAL','APPLY_JOB']),
@@ -10,8 +12,9 @@ export interface IClassfierIntent{
     classify(userMessage: string): Promise<"STATIC_PROFILE" | "SEARCH_JOB" | "CHAT_GENERAL" | "APPLY_JOB">
 }
 
+@injectable()
 export class IntentClassifier{
-    constructor(private aiGateWay:GatewayModels){}
+    constructor(@inject(TYPES.GatewayModel) private aiGateWay:GatewayModels){}
 
     async classify(userMessage:string){
         const structeredOutputModel = this.aiGateWay.ClassifierModel.withStructuredOutput(intentSchema) 

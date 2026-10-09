@@ -1,6 +1,8 @@
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../../../di/TYPES";
 
 export interface IReapplyVerificationUseCase{
     execute(userId: string): Promise<{
@@ -8,9 +10,9 @@ export interface IReapplyVerificationUseCase{
         message: string;
     }>
 }
-
+@injectable()
 export class ReapplyVerificationUseCase implements IReapplyVerificationUseCase{
-    constructor(private userRepo:IUserRepository){}
+    constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
     async execute(email:string){
         const user = await this.userRepo.findByEmail(email)

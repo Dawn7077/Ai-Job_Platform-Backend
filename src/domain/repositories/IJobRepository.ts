@@ -1,4 +1,4 @@
-import { Job } from "../entities/Job.js";
+import { Job } from "../entities/Job";
 
 export interface IJobRepository{
     create(job:Job):Promise<Job>

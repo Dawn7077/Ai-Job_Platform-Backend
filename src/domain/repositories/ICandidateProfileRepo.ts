@@ -1,4 +1,4 @@
-import { CandidateProfile, CandidateProfileProps } from "../entities/CandidateProfile.js";
+import { CandidateProfile, CandidateProfileProps } from "../entities/CandidateProfile";
 
 export interface ICandidateProfileRepository{
     findByUserId(userId:string):Promise<CandidateProfile |null>

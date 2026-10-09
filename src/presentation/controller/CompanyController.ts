@@ -1,20 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import { ICreateJobUseCase } from "../../application/use-case/Company/CreateJobUseCase.js";
-import {  success, z} from 'zod'
-import { StatusCode } from "../../shared/StatusCode.js";
-import { CompanyMessages } from "../../shared/constants/CompanyMessages.js";
-import { IGetJOBCompany, IGetJOBTypeCompany } from "../../application/interface/IGETJobCompany.js";
-import { IGetAllApplications_Company } from "../../application/use-case/Company/GetAllApplications_Company.js";
-import { IGetApplication_Company } from "../../application/use-case/Company/GetApplication_Company.js";
-import { IScheduleInterviewUC } from "../../application/use-case/Interview/ScheduleInterviewUseCase.js";
-import { IGetInterviewByRoomKeyUC } from "../../application/use-case/Interview/GetInterviewByRoomKeyUC.js";
-import { ISubmitInterviewEvaluationUC } from "../../application/use-case/Interview/SubmitEvaludationUseCase.js";
-import { IGetApplicationByJobIdUC } from "../../application/use-case/Company/GetApplicationByJobIdUC.js";
+import { ICreateJobUseCase } from "../../application/interface/I-UseCases/Company/ICreateJobUseCase";  
+import { z } from 'zod'
+import { StatusCode } from "../../shared/StatusCode";
+import { CompanyMessages } from "../../shared/constants/CompanyMessages";
+import { IGetJOBCompany } from "../../application/interface/I-UseCases/Company/IGETJobCompany";
+import { IGetAllApplications_Company } from "../../application/interface/I-UseCases/Company/IGetAllApplications_Company"; 
+import { IGetApplication_Company } from "../../application/interface/I-UseCases/Company/IGetApplication_Company";  
+import { IScheduleInterviewUC } from "../../application/interface/I-UseCases/Company/IScheduleInterviewUC"; 
+import { IGetInterviewByRoomKeyUC } from "../../application/interface/I-UseCases/Company/IGetInterviewByRoomKeyUC";  
+import { ISubmitInterviewEvaluationUC } from "../../application/interface/I-UseCases/Company/ISubmitInterviewEvaluationUC"; 
+import { IGetApplicationByJobIdUC } from "../../application/interface/I-UseCases/Company/IGetApplicationByJobIdUC";  
 import { ApplicationStage } from "@prisma/client";
-import { IUpdateApplicationStageUseCase } from "../../application/use-case/Company/UpdateApplicationStage.js";
-import { ISaveProfileCompanyUC } from "../../application/use-case/Company/SaveProfileCompanyUC.js";
-import { IGetProfileCompanyUC } from "../../application/use-case/Company/GetProfileCompanyUC.js";
-import { IGetCompanyInterviewUC } from "../../application/use-case/Interview/GetCompanyInterviewUC.js";
+import { IUpdateApplicationStageUseCase } from "../../application/interface/I-UseCases/Company/IUpdateApplicationStageUseCase";  
+import { ISaveProfileCompanyUC } from "../../application/interface/I-UseCases/Company/ISaveProfileCompanyUC";  
+import { IGetProfileCompanyUC } from "../../application/interface/I-UseCases/Company/IGetProfileCompanyUC"; 
+import { IGetCompanyInterviewUC } from "../../application/interface/I-UseCases/Company/IGetCompanyInterviewUC"; 
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/TYPES";
 
 const createJobSchema = z.object({
     title:z.string().min(3,'Title must be at least 3 characters'),
@@ -25,20 +27,22 @@ const createJobSchema = z.object({
     salaryMin:z.number().positive(),
 })
 
+
+@injectable()
 export class CompanyController{
     constructor(
-        private createJobUseCase:ICreateJobUseCase,
-        private getJobsUseCase:IGetJOBCompany,
-        private getAllapplicationUseCase:IGetAllApplications_Company,
-        private getApplicationsByJobIdUC:IGetApplicationByJobIdUC,
-        private getApplicationdetailsUC :IGetApplication_Company,
-        private updateApplicationUseCase:IUpdateApplicationStageUseCase,
-        private scheduleUseCase:IScheduleInterviewUC,
-        private getByRoomKeyUC:IGetInterviewByRoomKeyUC,
-        private submitEvalutionUsecase:ISubmitInterviewEvaluationUC,
-        private saveProfileUseCase:ISaveProfileCompanyUC,
-        private getProfileUseCase:IGetProfileCompanyUC,
-        private getCompanyInterviewUC:IGetCompanyInterviewUC
+        @inject(TYPES.ICreateJob) private createJobUseCase:ICreateJobUseCase,
+        @inject(TYPES.IGetJobsUseCase) private getJobsUseCase:IGetJOBCompany,
+        @inject(TYPES.IGetAllApplications_Company) private getAllapplicationUseCase:IGetAllApplications_Company,
+        @inject(TYPES.IGetApplicationByJobIdUC) private getApplicationsByJobIdUC:IGetApplicationByJobIdUC,
+        @inject(TYPES.IGetApplication_Company) private getApplicationdetailsUC :IGetApplication_Company,
+        @inject(TYPES.IUpdateApplicationStageUseCase) private updateApplicationUseCase:IUpdateApplicationStageUseCase,
+        @inject(TYPES.IScheduleInterviewUC) private scheduleUseCase:IScheduleInterviewUC,
+        @inject(TYPES.IGetInterviewByRoomKeyUC) private getByRoomKeyUC:IGetInterviewByRoomKeyUC,
+        @inject(TYPES.ISubmitInterviewEvaluationUC) private submitEvalutionUsecase:ISubmitInterviewEvaluationUC,
+        @inject(TYPES.ISaveProfileCompanyUC) private saveProfileUseCase:ISaveProfileCompanyUC,
+        @inject(TYPES.IGetProfileCompanyUC) private getProfileUseCase:IGetProfileCompanyUC,
+        @inject(TYPES.IGetCompanyInterviewUC) private getCompanyInterviewUC:IGetCompanyInterviewUC
 
         // private getJobsTypeUseCase:IGetJOBTypeCompany
     ){}

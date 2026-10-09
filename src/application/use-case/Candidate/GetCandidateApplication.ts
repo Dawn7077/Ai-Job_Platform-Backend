@@ -1,9 +1,12 @@
-import { Application, ApplicationProps } from "../../../domain/entities/Application.js";
-import { JobProps } from "../../../domain/entities/Job.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Application, ApplicationProps } from "../../../domain/entities/Application";
+import { JobProps } from "../../../domain/entities/Job";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetCandidateApplication } from "../../interface/I-UseCases/Candidate/IGetCandidateApplication";
+import { TYPES } from "../../../di/TYPES";
 
 
 export interface ApplicationDetailsResponse{
@@ -11,14 +14,11 @@ export interface ApplicationDetailsResponse{
     job:JobProps|null
 }
 
-export interface IGetCandidateApplication{
-    execute(candidateId: string, applicationId: string): Promise<ApplicationDetailsResponse>
-}
-
+@injectable()
 export class  GetCandidateApplication implements IGetCandidateApplication {
     constructor(
-        private applicationRepo:IApplicationRepository,
-        private jobRepo:IJobRepository
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository
     ){}
 
     async execute(candidateId:string,applicationId:string):Promise<ApplicationDetailsResponse>{

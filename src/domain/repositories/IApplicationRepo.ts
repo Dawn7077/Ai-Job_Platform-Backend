@@ -1,4 +1,4 @@
-import { Application ,ApplicationStage} from "../entities/Application.js"
+import { Application ,ApplicationStage} from "../entities/Application"
 
  
 export interface CreateApplicationInputDTO{

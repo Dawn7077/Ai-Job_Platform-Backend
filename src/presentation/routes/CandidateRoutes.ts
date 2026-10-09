@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
-import {authorizeRole}from '../middleware/roleMiddleware.js'
-import { UserRoleConstants } from "../../shared/constants/roles.js";
-import { CandidateController } from "../controller/CandidateController.js";
+import { ITokenService } from "../../application/interface/I-Services/ITokenService";
+import { authMiddleware } from "../middleware/authMiddleware";
+import {authorizeRole}from '../middleware/roleMiddleware'
+import { UserRoleConstants } from "../../shared/constants/roles";
+import { CandidateController } from "../controller/CandidateController";
 
 export function CandidateRoute(candidateController:CandidateController,tokenTool:ITokenService){
     const router = Router()

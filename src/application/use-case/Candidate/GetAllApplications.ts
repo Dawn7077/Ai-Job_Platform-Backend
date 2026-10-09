@@ -1,13 +1,13 @@
-import { Application } from "../../../domain/entities/Application.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
+import { inject, injectable } from "inversify";
+import { Application } from "../../../domain/entities/Application";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IGetCandidateALLAppications } from "../../interface/I-UseCases/Candidate/IGetCandidateALLAppications";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetCandidateALLAppications{
-    execute(candidateId:string):Promise<Application[]>
-}
-
+@injectable()
 export class GetAllAppicationsUseCase implements IGetCandidateALLAppications{
     constructor(
-        private applicationRepo:IApplicationRepository,
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
     ){}
 
     async execute(candidateId:string):Promise<Application[]>{

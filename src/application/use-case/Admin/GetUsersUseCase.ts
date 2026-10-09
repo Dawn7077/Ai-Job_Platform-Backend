@@ -1,33 +1,14 @@
-import { IUserRepository, UserFilterQueryParams } from "../../../domain/repositories/IUserRepository.js";
-import { UserStatus,UserRole } from "../../../domain/entities/User.js";
+import { IUserRepository, UserFilterQueryParams } from "../../../domain/repositories/IUserRepository";
+import { UserStatus,UserRole } from "../../../domain/entities/User";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../di/TYPES"; 
+import { IGetUsersUseCase } from "../../interface/I-UseCases/Admin/IGetUsersUseCase";
 
-export interface IGetUsersUseCase{
-    execute(query: {
-    page?: string | undefined;
-    limit?: string | undefined;
-    role?: string | undefined;
-    status?: string | undefined;
-    search?: string | undefined;
-}): Promise<{
-    users: {
-        id: string;
-        name: string;
-        email: string;
-        role: UserRole;
-        status: UserStatus;
-        createdAt: Date;
-        updatedAt: Date | undefined;
-    }[];
-    pagination: {
-        total: number;
-        page: number;
-        totalPages: number;
-        limit: number;
-    };
-}>
-}
+
+
+@injectable()
 export class GetUsersUseCase implements IGetUsersUseCase{
-    constructor(private userRepo:IUserRepository){}
+    constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
     async execute(query:
        { page?:string

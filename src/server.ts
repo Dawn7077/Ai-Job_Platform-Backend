@@ -6,83 +6,87 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 
 import 'dotenv/config'
-import app from './app.js' 
+import app from './app' 
 import { log } from 'console' 
-import { errorHandler } from './presentation/middleware/errorHandler.js'
+import { errorHandler } from './presentation/middleware/errorHandler'
 import { PrismaClient } from '@prisma/client'
-import { PrismaTool } from './infrastructure/db/PrismaTool.js'
-import { BcryptService } from './infrastructure/services/BcryptService.js'
-import { TokenService } from './infrastructure/services/TokenService.js'
-import Register from './application/use-case/Auth/Register.js'
-import { LoginUseCase } from './application/use-case/Auth/Login.js'
-import { RefreshTokenService } from './infrastructure/services/RefreshTookenService.js'
-import { AuthController } from './presentation/controller/AuthController.js' 
-import { AuthRoutes } from './presentation/routes/UserRoutes.js'
-import { CandidateRoute } from './presentation/routes/CandidateRoutes.js'
-import { CompanyRouter } from './presentation/routes/CompanyRoutes.js'
-import { GetMeUseCase } from './application/use-case/Auth/GetMe.js'
-import { authMiddleware } from './presentation/middleware/authMiddleware.js'
-import {ForgotPasswordUseCase} from './application/use-case/Auth/ForgotPassWord.js'
-import { ResetPassswordUseCase } from './application/use-case/Auth/ResetPassword.js'
-import {EmailService} from './infrastructure/services/EmailService.js'
-import {SendSignUpOTPUseCase} from './application/use-case/Auth/SignUpOTP.js'
-import { GoogleLoginUseCase } from './application/use-case/Auth/GoogleLoginUseCase.js'
-import { Google_Service } from './infrastructure/services/GoogleAuthService.js'
-import { RedisService } from './infrastructure/services/RedisService.js'
-import redisClient from './infrastructure/db/redisClient.js'
-import { AdminRouter } from './presentation/routes/AdminRoutes.js'
-import { AdminController } from './presentation/controller/AdminController.js'
-import { GetPendingUsersUseCase } from './application/use-case/Admin/GetPendingUseCase.js'
-import { VerifyCompanyUseCase } from './application/use-case/Admin/VerfiyingUserCase.js'
-import { CandidateController } from './presentation/controller/CandidateController.js'
-import { MentorChatUseCase } from './application/use-case/Candidate/MentorChatUseCase.js'
-import { MentorAgent } from './application/agent/Models/MentorAgent.js'
-import { GatewayModels } from './infrastructure/ai/GatewayModels.js'
-import { IntentClassifier } from './application/agent/Models/Classifier.js'
-import { MongoVectorSearchService } from './infrastructure/services/MongoVectorSearch.js'
-import { CreateJobUseCase } from './application/use-case/Company/CreateJobUseCase.js'
-import clientConnection from './infrastructure/db/MongoConnection.js'
-import { PrismaJobRepository } from './infrastructure/db/PrismJobRepository.js'
-import { CompanyController } from './presentation/controller/CompanyController.js'
-import { GetJobsTypeUseCase, GetJobsUseCase } from './application/use-case/Company/GetCompanyJobUseCase.js'
-import { ApplicationRouter } from "./presentation/routes/ApplicationRoutes.js";
-import { ApplicationController } from "./presentation/controller/ApplicationController.js";
-import { ApplyJobUseCase } from "./application/use-case/Candidate/ApplyJobUseCase.js";
-import { PrismaApplicationRepo } from "./infrastructure/db/PrismaApplicationRepo.js";
-import { GetAllAppicationsUseCase } from "./application/use-case/Candidate/GetAllApplications.js";
-import { GetCandidateApplication } from "./application/use-case/Candidate/GetCandidateApplication.js";
-import { UpdateApplicationStageUseCase } from "./application/use-case/Company/UpdateApplicationStage.js";
-import { GetAllApplications_Company } from "./application/use-case/Company/GetAllApplications_Company.js";
-import { GetApplication_Company } from "./application/use-case/Company/GetApplication_Company.js";
-import { GetActiveJobsUseCase } from "./application/use-case/Candidate/GetJobsUseCase.js";
-import { GetActiveJobById } from "./application/use-case/Candidate/GetActiveJobById.js";
-import { GetUsersUseCase } from "./application/use-case/Admin/GetUsersUseCase.js";
-import { UpdateUserRoleUC } from "./application/use-case/Admin/UpdateUserRoleUseCase.js";
-import { UpdateUserStatusUC } from "./application/use-case/Admin/UpdateUserStatusUseCase.js";
-import { PrismaCandidateProfileRepo } from "./infrastructure/db/PrismaCanidateProfile.js";
-import { GetProfileCandidateUseCase } from "./application/use-case/Candidate/GetProfileCandidate.js";
-import { SaveCandidateProfile } from "./application/use-case/Candidate/SaveCandidateProfile.js";
-import { DeleteUserUseCase } from "./application/use-case/Admin/DeleteUserUseCase.js";
-import s3Client, { R2StorageService } from "./infrastructure/services/r2StorageService.js";
-import { ResumeParserService } from "./infrastructure/ai/pdfParserService.js";
-import { ProcessResumeUseCase } from "./application/agent/use-case/ProcessUploadedResumeUC.js";
-import { GetUploadResumeUrlUseCase } from "./application/use-case/Candidate/GetUploadResumeUrlUseCase.js";
-import { GetResumeUrlUseCase } from "./application/use-case/Candidate/GetResumeUrlUseCase.js";
-import { GetResumeTextUseCase } from "./application/agent/use-case/GetResumeTextUseCase.js";
-import { GetApplicationByJobIdUC } from "./application/use-case/Company/GetApplicationByJobIdUC.js";
-import { ScheduleInterviewUC } from "./application/use-case/Interview/ScheduleInterviewUseCase.js";
-import { PrismaInterviewRepo } from "./infrastructure/db/PrismaInterviewRepo.js";
-import { GetInterviewByRoomKeyUC } from "./application/use-case/Interview/GetInterviewByRoomKeyUC.js";
-import { SubmitInterviewEvaluationUC } from "./application/use-case/Interview/SubmitEvaludationUseCase.js";
-import { SaveProfileCompanyUC } from "./application/use-case/Company/SaveProfileCompanyUC.js";
-import { PrismaCompanyProfileRepo } from "./infrastructure/db/CompanyProfilePrisma.js";
-import { GetProfileCompanyUC } from "./application/use-case/Company/GetProfileCompanyUC.js";
-import { ReapplyVerificationUseCase } from "./application/use-case/Company/ReapplyVerificationUseCase.js";
-import { GetCompanyInterviewUC } from "./application/use-case/Interview/GetCompanyInterviewUC.js";
-import { GetCandidateInterviewUC } from "./application/use-case/Interview/GetCandidateInterviewUC.js";
+import { PrismaTool } from './infrastructure/db/Prisma/PrismaTool'
+import { BcryptService } from './infrastructure/services/BcryptService'
+import { TokenService } from './infrastructure/services/TokenService'
+import Register from './application/use-case/Auth/Register'
+import { LoginUseCase } from './application/use-case/Auth/Login'
+import { RefreshTokenService } from './infrastructure/services/RefreshTookenService'
+import { AuthController } from './presentation/controller/AuthController' 
+import { AuthRoutes } from './presentation/routes/UserRoutes'
+import { CandidateRoute } from './presentation/routes/CandidateRoutes'
+import { CompanyRouter } from './presentation/routes/CompanyRoutes'
+import { GetMeUseCase } from './application/use-case/Auth/GetMe'
+import { authMiddleware } from './presentation/middleware/authMiddleware'
+import {ForgotPasswordUseCase} from './application/use-case/Auth/ForgotPassWord'
+import { ResetPassswordUseCase } from './application/use-case/Auth/ResetPassword'
+import {EmailService} from './infrastructure/services/EmailService'
+import {SendSignUpOTPUseCase} from './application/use-case/Auth/SignUpOTP'
+import { GoogleLoginUseCase } from './application/use-case/Auth/GoogleLoginUseCase'
+import { Google_Service } from './infrastructure/services/GoogleAuthService'
+import { RedisService } from './infrastructure/services/RedisService'
+import redisClient from './infrastructure/db/Redis/redisClient'
+import { AdminRouter } from './presentation/routes/AdminRoutes'
+import { AdminController } from './presentation/controller/AdminController'
+import { GetPendingUsersUseCase } from './application/use-case/Admin/GetPendingUseCase'
+import { VerifyCompanyUseCase } from './application/use-case/Admin/VerfiyingUserCase'
+import { CandidateController } from './presentation/controller/CandidateController'
+import { MentorChatUseCase } from './application/use-case/Candidate/MentorChatUseCase'
+import { MentorAgent } from './application/agent/Models/MentorAgent'
+import { GatewayModels } from './infrastructure/ai/GatewayModels'
+import { IntentClassifier } from './application/agent/Models/Classifier'
+import { MongoVectorSearchService } from "./infrastructure/db/Mongo/MongoVectorSearch";  
+import { CreateJobUseCase } from './application/use-case/Company/CreateJobUseCase'
+import clientConnection from './infrastructure/db/Mongo/MongoConnection'
+import { PrismaJobRepository } from './infrastructure/db/Prisma/PrismJobRepository'
+import { CompanyController } from './presentation/controller/CompanyController'
+import { GetJobsTypeUseCase, GetJobsUseCase } from './application/use-case/Company/GetCompanyJobUseCase'
+import { ApplicationRouter } from "./presentation/routes/ApplicationRoutes";
+import { ApplicationController } from "./presentation/controller/ApplicationController";
+import { ApplyJobUseCase } from "./application/use-case/Candidate/ApplyJobUseCase";
+import { PrismaApplicationRepo } from "./infrastructure/db/Prisma/PrismaApplicationRepo";
+import { GetAllAppicationsUseCase } from "./application/use-case/Candidate/GetAllApplications";
+import { GetCandidateApplication } from "./application/use-case/Candidate/GetCandidateApplication";
+import { UpdateApplicationStageUseCase } from "./application/use-case/Company/UpdateApplicationStage";
+import { GetAllApplications_Company } from "./application/use-case/Company/GetAllApplications_Company";
+import { GetApplication_Company } from "./application/use-case/Company/GetApplication_Company";
+import { GetActiveJobsUseCase } from "./application/use-case/Candidate/GetJobsUseCase";
+import { GetActiveJobById } from "./application/use-case/Candidate/GetActiveJobById";
+import { GetUsersUseCase } from "./application/use-case/Admin/GetUsersUseCase";
+import { UpdateUserRoleUC } from "./application/use-case/Admin/UpdateUserRoleUseCase";
+import { UpdateUserStatusUC } from "./application/use-case/Admin/UpdateUserStatusUseCase";
+import { PrismaCandidateProfileRepo } from "./infrastructure/db/Prisma/PrismaCandidateProfile";
+import { GetProfileCandidateUseCase } from "./application/use-case/Candidate/GetProfileCandidate";
+import { SaveCandidateProfile } from "./application/use-case/Candidate/SaveCandidateProfile";
+import { DeleteUserUseCase } from "./application/use-case/Admin/DeleteUserUseCase";
+import s3Client, { R2StorageService } from "./infrastructure/services/r2StorageService";
+import { ResumeParserService } from "./infrastructure/ai/pdfParserService";
+import { ProcessResumeUseCase } from "./application/agent/use-case/ProcessUploadedResumeUC";
+import { GetUploadResumeUrlUseCase } from "./application/use-case/Candidate/GetUploadResumeUrlUseCase";
+import { GetResumeUrlUseCase } from "./application/use-case/Candidate/GetResumeUrlUseCase";
+import { GetResumeTextUseCase } from "./application/agent/use-case/GetResumeTextUseCase";
+import { GetApplicationByJobIdUC } from "./application/use-case/Company/GetApplicationByJobIdUC";
+import { ScheduleInterviewUC } from "./application/use-case/Interview/ScheduleInterviewUseCase";
+import { PrismaInterviewRepo } from "./infrastructure/db/Prisma/PrismaInterviewRepo";
+import { GetInterviewByRoomKeyUC } from "./application/use-case/Interview/GetInterviewByRoomKeyUC";
+import { SubmitInterviewEvaluationUC } from "./application/use-case/Interview/SubmitEvaludationUseCase";
+import { SaveProfileCompanyUC } from "./application/use-case/Company/SaveProfileCompanyUC";
+import { PrismaCompanyProfileRepo } from "./infrastructure/db/Prisma/CompanyProfilePrisma";
+import { GetProfileCompanyUC } from "./application/use-case/Company/GetProfileCompanyUC";
+import { ReapplyVerificationUseCase } from "./application/use-case/Company/ReapplyVerificationUseCase";
+import { GetCompanyInterviewUC } from "./application/use-case/Interview/GetCompanyInterviewUC";
+import { GetCandidateInterviewUC } from "./application/use-case/Interview/GetCandidateInterviewUC";
  
 import { createServer } from 'http'
-import { setUpSocket } from "./infrastructure/websocket/SignalingServer.js";
+import { setUpSocket } from "./infrastructure/websocket/SignalingServer";
+
+import 'reflect-metadata'
+import {container} from './di/container'
+import {TYPES} from './di/TYPES'
 
 const PORT  = process.env.PORT || 3000
 const JWTSecret = process.env.JWT_SECRET || "Default_SecretKey"
@@ -95,13 +99,14 @@ async function startApp() {
 
     const prismaClientConnect =new PrismaClient()
     const mongoClient  = await clientConnection
+    const s3clientConnect = await s3Client
+
     const userRepoTool = new PrismaTool(prismaClientConnect) // prisma tool
     const jobRepo = new PrismaJobRepository(prismaClientConnect)
     const applicationRepo = new PrismaApplicationRepo(prismaClientConnect)
     const candidateProfileRepo = new PrismaCandidateProfileRepo(prismaClientConnect)
     const companyProfileRepo = new PrismaCompanyProfileRepo(prismaClientConnect)
     const interviewRepo = new PrismaInterviewRepo(prismaClientConnect)
-    const s3clientConnect = await s3Client
 
     const gatewayModel = new GatewayModels()
     const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
@@ -188,32 +193,39 @@ async function startApp() {
 
     
     //controllers
-    const authControllerTool = new AuthController(
-        registerUseCase,signUpOTPUseCase,loginUseCase,
-        refreshTool,tokenTool,getMeTool,
-        forgotPasswordTool,resetPasswordTool,
-        GoogleServiceUseCase,reapplyVerificationUC,
-    ) 
-    const adminControllerTool = new AdminController(getCompaniesUseCase,verifyCompanyUseCase,updateUsersStatusAdminUC,updateUserRoleAdminUC,getUsersAdminUC,deleteUserAdminUC)
-    const candidateControllerTool = new CandidateController(
-        mentorChatUseCase,getAllJobUseCase,getJobActiveDetailsUseCase,
-        saveCandidateProfileUseCase,getCandidateProfileUseCase,
-        uploadResumeUrlUseCase,processResumeUseCase,getResumeUrlUseCase,
-        getCandidateInterviewUC
-    )
-    const companyControllerTool = new CompanyController(
-        createJobUseCase,getJobUseCase,getCompanyApplicationAllUseCase,
-        getApplicationsByJobIdUC,getCompanyApplicationUseCase,updateApplicationUseCase,
-        scheduleInterviewUseCase,getRoomKeyUseCase,submitInterviewEvalUC,
-        saveProfileCompanyUC,getProfileCompanyUC,
-        getCompanyInterviewUC
-    )
+    // const authControllerTool = new AuthController(
+    //     registerUseCase,signUpOTPUseCase,loginUseCase,
+    //     refreshTool,tokenTool,getMeTool,
+    //     forgotPasswordTool,resetPasswordTool,
+    //     GoogleServiceUseCase,reapplyVerificationUC,
+    // ) 
+    // const candidateControllerTool = new CandidateController(
+    //     mentorChatUseCase,getAllJobUseCase,getJobActiveDetailsUseCase,
+    //     saveCandidateProfileUseCase,getCandidateProfileUseCase,
+    //     uploadResumeUrlUseCase,processResumeUseCase,getResumeUrlUseCase,
+    //     getCandidateInterviewUC
+    // )
+
+    // const adminControllerTool = new AdminController(getCompaniesUseCase,verifyCompanyUseCase,updateUsersStatusAdminUC,updateUserRoleAdminUC,getUsersAdminUC,deleteUserAdminUC)
+    
+    // const companyControllerTool = new CompanyController(
+    //     createJobUseCase,getJobUseCase,getCompanyApplicationAllUseCase,
+    //     getApplicationsByJobIdUC,getCompanyApplicationUseCase,updateApplicationUseCase,
+    //     scheduleInterviewUseCase,getRoomKeyUseCase,submitInterviewEvalUC,
+    //     saveProfileCompanyUC,getProfileCompanyUC,
+    //     getCompanyInterviewUC
+    // ) 
+    
     const applicationController = new ApplicationController(
         applyJobCandidateuseCase,getAllApplicationUseCase
         ,getCandidateApplicationuseCase
     )
 
-    
+    const authControllerTool =   container.get<AuthController>(TYPES.AuthController)
+    const candidateControllerTool =  container.get<CandidateController>(TYPES.CandidateController)
+    const companyControllerTool = container.get<CompanyController>(TYPES.CandidateController)
+    const adminControllerTool = container.get<AdminController>(TYPES.AdminController)
+
     const userRoutes = AuthRoutes(authControllerTool,tokenTool,authMiddleware)
     const adminRoutes = AdminRouter(adminControllerTool,tokenTool)
     const candidateRoutes = CandidateRoute(candidateControllerTool,tokenTool)

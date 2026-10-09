@@ -1,7 +1,10 @@
-import { InterviewEvaluation } from "../../../domain/entities/InterviewEvaluation.js"
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js"
-import { AppError } from "../../../shared/AppErrors.js"
-import { StatusCode } from "../../../shared/StatusCode.js"
+import { inject, injectable } from "inversify"
+import { InterviewEvaluation } from "../../../domain/entities/InterviewEvaluation"
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo"
+import { AppError } from "../../../shared/AppErrors"
+import { StatusCode } from "../../../shared/StatusCode"
+import { ISubmitInterviewEvaluationUC } from "../../interface/I-UseCases/Company/ISubmitInterviewEvaluationUC"
+import { TYPES } from "../../../di/TYPES"
 
 export interface EvaluationPayload{
     interviewId:string
@@ -12,13 +15,11 @@ export interface EvaluationPayload{
     decision:"HIRED"|"REJECTED"|"NEXT_ROUND"|"PENDING" 
 }
 
-export interface ISubmitInterviewEvaluationUC{
-    execute(payload: EvaluationPayload): Promise<InterviewEvaluation>
-}
 
+@injectable()
 export class SubmitInterviewEvaluationUC implements ISubmitInterviewEvaluationUC{
     constructor(
-        private interviewRepo:IInterviewRepository
+        @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository
     ){}
 
     async execute(payload:EvaluationPayload){

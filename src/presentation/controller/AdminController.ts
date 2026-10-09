@@ -1,21 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import { IGetPendingUsers } from "../../application/use-case/Admin/GetPendingUseCase.js";
-import { IVerifyCompany } from "../../application/use-case/Admin/VerfiyingUserCase.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { AdminMessages } from "../../shared/constants/adminMessages.js";
-import { IUpdateUserStatusUC } from "../../application/use-case/Admin/UpdateUserStatusUseCase.js";
-import { IUpdateUserRoleUC } from "../../application/use-case/Admin/UpdateUserRoleUseCase.js";
-import { IGetUsersUseCase } from "../../application/use-case/Admin/GetUsersUseCase.js";
-import { IDeleteUserUseCase } from "../../application/use-case/Admin/DeleteUserUseCase.js";
+import { IGetPendingUsers } from "../../application/interface/I-UseCases/Admin/IGetPendingUsers";  
+import { IVerifyCompany } from "../../application/interface/I-UseCases/Admin/IVerifyCompany";  
+import { StatusCode } from "../../shared/StatusCode";
+import { AdminMessages } from "../../shared/constants/adminMessages";
+import { IUpdateUserStatusUC } from "../../application/interface/I-UseCases/Admin/IUpdateUserStatusUC";  
+import { IUpdateUserRoleUC } from "../../application/interface/I-UseCases/Admin/IUpdateUserRoleUC"; 
+import { IGetUsersUseCase } from "../../application/interface/I-UseCases/Admin/IGetUsersUseCase";  
+import { IDeleteUserUseCase } from "../../application/interface/I-UseCases/Admin/IDeleteUserUseCase";  
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/TYPES";
 
+@injectable()
 export class AdminController{
     constructor(
-        private GetPendingRepo:IGetPendingUsers,
-        private VerifyCompanyRepo:IVerifyCompany,
-        private UpdateUserStatusUC:IUpdateUserStatusUC,
-        private UpdateUserRoleUC:IUpdateUserRoleUC,
-        private GetUsersUC:IGetUsersUseCase,
-        private deleteUserUseCase:IDeleteUserUseCase,
+        @inject(TYPES.IGetPendingUsersUseCase) private GetPendingRepo:IGetPendingUsers,
+        @inject(TYPES.IVerifyCompanyUseCase) private VerifyCompanyRepo:IVerifyCompany,
+        @inject(TYPES.IUpdateUserStatusUC) private UpdateUserStatusUC:IUpdateUserStatusUC,
+        @inject(TYPES.IUpdateUserRoleUC) private UpdateUserRoleUC:IUpdateUserRoleUC,
+        @inject(TYPES.IGetUsersUseCase) private GetUsersUC:IGetUsersUseCase,
+        @inject(TYPES.IDeleteUserUseCase) private deleteUserUseCase:IDeleteUserUseCase,
     ){}
 
     async handleGetPendingUsers(req:Request,res:Response,next:NextFunction){

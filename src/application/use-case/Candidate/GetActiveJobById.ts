@@ -1,13 +1,14 @@
-import { Job } from "../../../domain/entities/Job.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Job } from "../../../domain/entities/Job";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetActiveJobById } from "../../interface/I-UseCases/Candidate/IGetActiveJobById";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetActiveJobById{
-    execute(jobId: string): Promise<Job>    
-}
+@injectable()
 export class GetActiveJobById implements IGetActiveJobById{
-    constructor(private jobRepo:IJobRepository){}
+    constructor(@inject(TYPES.IJobRepo)private jobRepo:IJobRepository){}
 
     async execute(jobId:string):Promise<Job>{
         const job = await this.jobRepo.findById(jobId)

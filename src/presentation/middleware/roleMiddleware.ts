@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { AppError } from "../../shared/AppErrors.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { AppError } from "../../shared/AppErrors";
+import { StatusCode } from "../../shared/StatusCode";
+import { AuthMessages } from "../../shared/constants/authMessages";
 
 export type IAuthorizeRole = (...allowedRoles:string[])=>RequestHandler
 

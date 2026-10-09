@@ -1,17 +1,18 @@
-import { Application, ApplicationStage } from "../../../domain/entities/Application.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Application, ApplicationStage } from "../../../domain/entities/Application";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { TYPES } from "../../../di/TYPES";
+import { IUpdateApplicationStageUseCase } from "../../interface/I-UseCases/Company/IUpdateApplicationStageUseCase";
+ 
 
-export interface IUpdateApplicationStageUseCase{
-    execute(companyId: string, applicationId: string, stage: ApplicationStage): Promise<Application>
-}
-
-export class UpdateApplicationStageUseCase{
+@injectable()
+export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
     constructor(
-        private applicationRepo:IApplicationRepository,
-        private jobRepo:IJobRepository
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository
     ){}
 
     async execute(companyId:string,applicationId:string,stage:ApplicationStage){

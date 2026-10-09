@@ -1,12 +1,14 @@
-import { User } from "../../../domain/entities/User.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import { IGetMe } from "../../interface/IGetMe.js";
+import { User } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetMe } from "../../interface/I-UseCases/Auth/IGetMe";   
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES'
 
-
+@injectable()
 export class GetMeUseCase implements IGetMe{
-    constructor(private SQLTool:IUserRepository){}
+    constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
     async execute(userId: string): Promise<User> {
         if(!userId){
@@ -17,7 +19,7 @@ export class GetMeUseCase implements IGetMe{
             )
         }
 
-        const user = await this.SQLTool.findById(userId)
+        const user = await this.userRepo.findById(userId)
 
         if(!user){
             throw new AppError(

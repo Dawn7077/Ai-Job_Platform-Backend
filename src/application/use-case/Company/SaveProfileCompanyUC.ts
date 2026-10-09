@@ -1,14 +1,15 @@
-import { CompanyProfile, CompanyProfileProps } from "../../../domain/entities/CompanyProfile.js";
-import { ICompanyProfileRepo } from "../../../domain/repositories/ICompanyProfileRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { CompanyProfile, CompanyProfileProps } from "../../../domain/entities/CompanyProfile";
+import { ICompanyProfileRepo } from "../../../domain/repositories/ICompanyProfileRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { TYPES } from "../../../di/TYPES";
+import { ISaveProfileCompanyUC } from "../../interface/I-UseCases/Company/ISaveProfileCompanyUC";
 
-export interface ISaveProfileCompanyUC{
-    execute(userId: string, profileData: Partial<CompanyProfileProps>): Promise<CompanyProfile>
-}
 
+@injectable()
 export class SaveProfileCompanyUC implements ISaveProfileCompanyUC{
-    constructor(private profileRepo:ICompanyProfileRepo){}
+    constructor(@inject(TYPES.ICompanyProfileRepo) private profileRepo:ICompanyProfileRepo){}
 
     async execute(userId:string,profileData:Partial<CompanyProfileProps>){
         if(!userId){

@@ -1,7 +1,7 @@
-import { Interview } from "../../../domain/entities/Interview.js";
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { Interview } from "../../../domain/entities/Interview";
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
 
 export interface IGetInterviewByIDUseCase{
     execute(id: string): Promise<Interview>

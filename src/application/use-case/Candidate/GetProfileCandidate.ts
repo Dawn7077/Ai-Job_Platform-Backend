@@ -1,14 +1,14 @@
-import { CandidateProfile } from "../../../domain/entities/CandidateProfile.js";
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-
-export interface IGetProfileCandidateUseCase{
-    execute(userId: string): Promise<CandidateProfile>
-}
-
+import { inject, injectable } from "inversify";
+import { CandidateProfile } from "../../../domain/entities/CandidateProfile";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetProfileCandidateUseCase } from "../../interface/I-UseCases/Candidate/IGetProfileCandidateUseCase";
+import { TYPES } from "../../../di/TYPES";
+ 
+@injectable()
 export class GetProfileCandidateUseCase implements IGetProfileCandidateUseCase{
-    constructor(private profileRepo:ICandidateProfileRepository){}
+    constructor(@inject(TYPES.ICandidateProfileRepo) private profileRepo:ICandidateProfileRepository){}
 
     async execute(userId:string){
         const profile  = await this.profileRepo.findByUserId(userId)

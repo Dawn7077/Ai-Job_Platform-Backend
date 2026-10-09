@@ -2,61 +2,43 @@ import { tool } from "@langchain/core/tools";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import {z} from 'zod'
-import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
-import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js";
-import { createSearchJobTool } from "../tools/SearchJobTool.js";
-import { IApplyJobUseCase } from "../../use-case/Candidate/ApplyJobUseCase.js";
-import { createApplyJobTool } from "../tools/ApplyJobTools.js";
-import { IGetCandidateALLAppications } from "../../use-case/Candidate/GetAllApplications.js";
-import { IGetCandidateApplication } from "../../use-case/Candidate/GetCandidateApplication.js";
-import { createGetUserApplicationsTool } from "../tools/GetUserApplicationsTool.js";
-import { createGetApplicationDetailsTool } from "../tools/GetApplicationDetails.js";
-import { IGetProfileCandidateUseCase } from "../../use-case/Candidate/GetProfileCandidate.js";
-import { createGetProfileCandidateTool } from "../tools/GetCandidateProfileTool.js";
-import { IGetResumeTextUseCase } from "../use-case/GetResumeTextUseCase.js";
-import { createAnalyzeResumeTool } from "../tools/AnalyseResumeTool.js";
-
-// const ApplyJobTool = tool(//mock apply
-//     async({jobTitle,company,applicantName})=>{
-//         return JSON.stringify({
-//             status:'success',
-//             message:`Successfully submitted job application for "${jobTitle}" at "${company}" on behalf of ${applicantName}.`,
-//             confirmationId:`Job-${Math.random().toString(36).substring(2,9).toUpperCase()}`
-//         })
-//     },
-//     {
-//         name:"apply_job",
-//         description:'Use this tool when user explicitly wants to apply for a job',
-//         schema:z.object({
-//             jobTitle:z.string().describe('The title of the Job position being applied for'),
-//             company:z.string().describe('The title of the company offering the job'),
-//             applicantName:z.string().describe('The full name of the applicant'),
-//         })
-//     }
-// )
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels";
+import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService";
+import { createSearchJobTool } from "../tools/SearchJobTool";
+import { IApplyJobUseCase } from "../../interface/I-UseCases/Candidate/IApplyJobUseCase";  
+import { createApplyJobTool } from "../tools/ApplyJobTools";
+import { IGetCandidateALLAppications } from "../../interface/I-UseCases/Candidate/IGetCandidateALLAppications";  
+import { IGetCandidateApplication } from "../../interface/I-UseCases/Candidate/IGetCandidateApplication";  
+import { createGetUserApplicationsTool } from "../tools/GetUserApplicationsTool";
+import { createGetApplicationDetailsTool } from "../tools/GetApplicationDetails";
+import { IGetProfileCandidateUseCase } from "../../interface/I-UseCases/Candidate/IGetProfileCandidateUseCase";  
+import { createGetProfileCandidateTool } from "../tools/GetCandidateProfileTool";
+import { IGetResumeTextUseCase } from "../../interface/I-UseCases/Candidate/IGetResumeTextUseCase"; 
+import { createAnalyzeResumeTool } from "../tools/AnalyseResumeTool";
+import { IMentorAgent } from "../interfaces/IMentorAgent";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../di/TYPES";
 
 
-export interface IMentorAgent {
-    run(message:string,candidateId:string,threadId:string):Promise<any>
-}
 
+@injectable()
 export class MentorAgent implements IMentorAgent{
     private agentInstance
 
     constructor(
-        aiGateway:GatewayModels,
-        vectorSearchService:IVectorSearchService,
-        applyJobUseCase:IApplyJobUseCase,
-        getAllApplicationsUseCase:IGetCandidateALLAppications,
-        getApplicationDetailsUseCase:IGetCandidateApplication,
-        getProfileCandidateProfileUseCase:IGetProfileCandidateUseCase,
-        getResumeTextUseCase:IGetResumeTextUseCase
+        @inject(TYPES.GatewayModel) aiGateway:GatewayModels,
+        @inject(TYPES.IVectorSearchService) vectorSearchService:IVectorSearchService,
+        @inject(TYPES.IApplyJobUseCase) applyJobUseCase:IApplyJobUseCase,
+        @inject(TYPES.IGetAllApplicationsUseCase) getAllApplicationsUseCase:IGetCandidateALLAppications,
+        @inject(TYPES.IGetCandidateApplicationUC) getApplicationDetailsUseCase:IGetCandidateApplication,
+        @inject(TYPES.IGetProfileCanidateUseCase) getProfileCandidateUseCase:IGetProfileCandidateUseCase,
+        @inject(TYPES.IGetResumeTextUseCase) getResumeTextUseCase:IGetResumeTextUseCase
     ){
         const searchJobTool = createSearchJobTool(vectorSearchService)
         const applyJobTool = createApplyJobTool(applyJobUseCase)
         const getUserApplicationsTool = createGetUserApplicationsTool(getAllApplicationsUseCase)
         const getApplicationDetailsTool = createGetApplicationDetailsTool(getApplicationDetailsUseCase)
-        const getProfileCandidateTool = createGetProfileCandidateTool(getProfileCandidateProfileUseCase)
+        const getProfileCandidateTool = createGetProfileCandidateTool(getProfileCandidateUseCase)
         const analyzeResumeTool = createAnalyzeResumeTool(getResumeTextUseCase)
 
         const tools = [searchJobTool,applyJobTool,getUserApplicationsTool,

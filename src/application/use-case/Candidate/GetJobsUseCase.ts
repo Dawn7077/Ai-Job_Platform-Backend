@@ -1,12 +1,13 @@
-import { Job } from "../../../domain/entities/Job.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
+import { Job } from "../../../domain/entities/Job";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { IGETActiveJobs } from "../../interface/I-UseCases/Candidate/IGETActiveJobs";
+import { injectable,inject } from "inversify";
+import {TYPES} from '../../../di/TYPES'
 
-export interface IGETActiveJobs{
-    execute():Promise<Job[]>
-}
 
+@injectable()
 export class GetActiveJobsUseCase implements IGETActiveJobs{
-    constructor(private jobRepo:IJobRepository){}
+    constructor(@inject(TYPES.IJobRepo) private jobRepo:IJobRepository){}
 
     async execute():Promise<Job[]>{
         return await this.jobRepo.findAll()

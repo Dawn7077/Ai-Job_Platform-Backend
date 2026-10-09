@@ -1,8 +1,8 @@
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
 
 export interface IDeleteJobUseCase{
     execute(jobId: string, companyId: string): Promise<void>

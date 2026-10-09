@@ -1,9 +1,11 @@
 import {Redis} from "ioredis"
-import { ICacheService } from "../db/redisClient.js"
+import { ICacheService } from "../db/Redis/redisClient"
+import {injectable, inject} from 'inversify'
+import { TYPES } from "../../di/TYPES"
 
-
+@injectable()
 export class RedisService implements ICacheService{
-    constructor(private redis_client:Redis){}
+    constructor(@inject(TYPES.RedisClient) private redis_client:Redis){}
 
     async set(key: string, value: string, expiryInSeconds?: number): Promise<void> {
         if(expiryInSeconds){

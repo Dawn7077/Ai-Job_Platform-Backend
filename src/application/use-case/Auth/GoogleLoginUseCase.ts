@@ -1,31 +1,29 @@
-import { UserRole,User} from "../../../domain/entities/User.js";
-import { IGoogleAuthService } from "../../../domain/repositories/IGoogleAuthService.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
-import redisClient, { ICacheService } from "../../../infrastructure/db/redisClient.js";
-import { RefreshExpiry } from "../../../shared/constants/roles.js";
-import { AuthMessages } from "../../../shared/constants/authMessages.js";
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
+import { UserRole,User} from "../../../domain/entities/User";
+import { IGoogleAuthService } from "../../interface/I-UseCases/Auth/IGoogleAuthService";  
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { ITokenService } from "../../interface/I-Services/ITokenService";
+import redisClient, { ICacheService } from "../../../infrastructure/db/Redis/redisClient";
+import { RefreshExpiry } from "../../../shared/constants/roles";
+import { AuthMessages } from "../../../shared/constants/authMessages";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES'
+import { IGoogleService } from "../../interface/I-UseCases/Auth/IGoogleService"; 
 
-interface GoogleLoginInput{
+export interface GoogleLoginInput{
     token:string
     role:UserRole
 }
  
-export interface IGoogleService{
-    execute(inputData:GoogleLoginInput): Promise<
-    | {user:User; requiresApproval:true ; message:string}
-    | { accessToken: string; refreshToken: string; user:User;isOnboarding:boolean}>
-}
 
-
+@injectable()
 export class GoogleLoginUseCase implements IGoogleService{
     constructor(
-        private googleAuthService:IGoogleAuthService,
-        private UserRepo:IUserRepository,
-        private candidateRepo:ICandidateProfileRepository,
-        private tokenService:ITokenService,
-        private RedisService:ICacheService
+        @inject(TYPES.IGoogleAuthService)private googleAuthService:IGoogleAuthService,
+        @inject(TYPES.IUserRepository) private UserRepo:IUserRepository,
+        @inject(TYPES.ICandidateProfileRepo) private candidateRepo:ICandidateProfileRepository,
+        @inject(TYPES.ITokenService) private tokenService:ITokenService,
+        @inject(TYPES.IRedisService) private RedisService:ICacheService
     ){}
 
     async execute(inputData:GoogleLoginInput):Promise<

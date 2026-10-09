@@ -1,31 +1,35 @@
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../di/TYPES'
 import { NextFunction, Request, Response } from "express";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { IRegisterUser } from "../../application/interface/IRegister.js";
-import { ILogin } from "../../application/interface/ILogin.js";
-import { IRefreshToken } from "../../infrastructure/Interface/IRefreshToken.js";
-import redisClient from "../../infrastructure/db/redisClient.js";
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import { IGetMe } from "../../application/interface/IGetMe.js";
-import { IForgotPasswordUseCase } from "../../application/use-case/Auth/ForgotPassWord.js";
-import { IResetPasswordUseCase } from "../../application/use-case/Auth/ResetPassword.js";
-import { ISignUpOTP } from "../../application/use-case/Auth/SignUpOTP.js";
-import { IGoogleService } from "../../application/use-case/Auth/GoogleLoginUseCase.js";
-import { User } from "../../domain/entities/User.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
-import { IReapplyVerificationUseCase } from "../../application/use-case/Company/ReapplyVerificationUseCase.js";
+import { StatusCode } from "../../shared/StatusCode";
+import { IRegisterUser } from '../../application/interface/I-UseCases/Auth/IRegister'; 
+import { ILogin } from '../../application/interface/I-UseCases/Auth/ILogin';  
+import { IRefreshToken } from "../../application/interface/I-Services/IRefreshToken";
+import redisClient from "../../infrastructure/db/Redis/redisClient";
+import { ITokenService } from "../../application/interface/I-Services/ITokenService";
+import { IGetMe } from '../../application/interface/I-UseCases/Auth/IGetMe';  
+import { IForgotPasswordUseCase } from '../../application/interface/I-UseCases/Auth/IForgotPasswordUseCase';  
+import { IResetPasswordUseCase } from '../../application/interface/I-UseCases/Auth/IResetPasswordUseCase';  
+import { ISignUpOTP } from '../../application/interface/I-UseCases/Auth/ISignUpOTP';  
+import { IGoogleService } from '../../application/interface/I-UseCases/Auth/IGoogleService'; 
+import { User } from "../../domain/entities/User";
+import { AuthMessages } from "../../shared/constants/authMessages";
+import { IReapplyVerificationUseCase } from "../../application/use-case/Company/ReapplyVerificationUseCase";
 
+
+@injectable()
 export class AuthController{
     constructor(
-        private registerTool:IRegisterUser,
-        private signUpOtpTool:ISignUpOTP,
-        private loginTool:ILogin,
-        private refreshTool:IRefreshToken,
-        private tokenTool:ITokenService,
-        private getMeTool:IGetMe,
-        private forgotPasswordTool:IForgotPasswordUseCase,
-        private resetPasswordTool:IResetPasswordUseCase,
-        private googleServiceTool:IGoogleService,
-        private reapplyVerificationUC:IReapplyVerificationUseCase,
+        @inject(TYPES.IRegisterUseCase) private registerTool:IRegisterUser,
+        @inject(TYPES.ISignupOTPUseCase) private signUpOtpTool:ISignUpOTP,
+        @inject(TYPES.ILoginUseCase) private loginTool:ILogin,
+        @inject(TYPES.IRefreshToken) private refreshTool:IRefreshToken,
+        @inject(TYPES.ITokenService) private tokenTool:ITokenService,
+        @inject(TYPES.IGetMeUseCase) private getMeTool:IGetMe,
+        @inject(TYPES.IForgotPasswordUseCase) private forgotPasswordTool:IForgotPasswordUseCase,
+        @inject(TYPES.IResetPasswordUseCase) private resetPasswordTool:IResetPasswordUseCase,
+        @inject(TYPES.IGoogleAuthService) private googleServiceTool:IGoogleService,
+        @inject(TYPES.IReapplyVerificationUseCase) private reapplyVerificationUC:IReapplyVerificationUseCase,
 
     ){}
 

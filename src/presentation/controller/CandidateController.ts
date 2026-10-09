@@ -1,28 +1,30 @@
 import { NextFunction, Request, Response } from "express";
-// import { IClassfierIntent } from "../../application/agent/Models/Classifier.js";
-import { StatusCode } from "../../shared/StatusCode.js";
-import { MentorChatUseCase } from "../../application/use-case/Candidate/MentorChatUseCase.js";
-import { IGETActiveJobs } from "../../application/use-case/Candidate/GetJobsUseCase.js";
-import { IGetActiveJobById } from "../../application/use-case/Candidate/GetActiveJobById.js";
-import { ISaveCandidateProfile } from "../../application/use-case/Candidate/SaveCandidateProfile.js";
-import { IGetProfileCandidateUseCase } from "../../application/use-case/Candidate/GetProfileCandidate.js";
-import { IGetResumeUrlUseCase } from "../../application/use-case/Candidate/GetResumeUrlUseCase.js";
-import { IProcessResumeUseCase } from "../../application/agent/use-case/ProcessUploadedResumeUC.js";
-import { IGetUploadResumeUrlUseCase } from "../../application/use-case/Candidate/GetUploadResumeUrlUseCase.js";
-import { IGetCandidateInterviewUC } from "../../application/use-case/Interview/GetCandidateInterviewUC.js";
+// import { IClassfierIntent } from "../../application/agent/Models/Classifier";
+import { StatusCode } from "../../shared/StatusCode";
+import { MentorChatUseCase } from "../../application/use-case/Candidate/MentorChatUseCase";
+import { IGETActiveJobs } from "../../application/interface/I-UseCases/Candidate/IGETActiveJobs";  
+import { IGetActiveJobById } from "../../application/interface/I-UseCases/Candidate/IGetActiveJobById";  
+import { ISaveCandidateProfile } from "../../application/interface/I-UseCases/Candidate/ISaveCandidateProfile";  
+import { IGetProfileCandidateUseCase } from "../../application/interface/I-UseCases/Candidate/IGetProfileCandidateUseCase";  
+import { IGetResumeUrlUseCase } from "../../application/interface/I-UseCases/Candidate/IGetResumeUrlUseCase";  
+import { IProcessResumeUseCase } from "../../application/interface/I-UseCases/Candidate/IProcessResumeUseCase";  
+import { IGetUploadResumeUrlUseCase } from "../../application/interface/I-UseCases/Candidate/IGetUploadResumeUrlUseCase";  
+import { IGetCandidateInterviewUC } from "../../application/interface/I-UseCases/Candidate/IGetCandidateInterviewUC";  
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/TYPES";
 
-
+@injectable()
 export class CandidateController{
     constructor( 
-        private MentorUseCaseRepo:MentorChatUseCase,
-        private getAllJobsUseCase:IGETActiveJobs,
-        private getJobDetailsUseCase:IGetActiveJobById,
-        private saveProfileuseCase:ISaveCandidateProfile,
-        private getProfileCase:IGetProfileCandidateUseCase,
-        private getUploadRESUseCase:IGetUploadResumeUrlUseCase,
-        private processResumeUseCase:IProcessResumeUseCase,
-        private getReadResumeUrlUseCase: IGetResumeUrlUseCase,
-        private getCandidateInterviewUC:IGetCandidateInterviewUC,
+        @inject(TYPES.IMentorChatUseCase) private MentorUseCaseRepo:MentorChatUseCase,
+        @inject(TYPES.IGetActiveJobsUseCase) private getAllJobsUseCase:IGETActiveJobs,
+        @inject(TYPES.IGetActiveJobById) private getJobDetailsUseCase:IGetActiveJobById,
+        @inject(TYPES.ISaveCandidateProfile) private saveProfileuseCase:ISaveCandidateProfile,
+        @inject(TYPES.IGetProfileCanidateUseCase) private getProfileCase:IGetProfileCandidateUseCase,
+        @inject(TYPES.IGetUploadResumeUrlUseCase) private getUploadRESUseCase:IGetUploadResumeUrlUseCase,
+        @inject(TYPES.IProcessResumeUseCase) private processResumeUseCase:IProcessResumeUseCase,
+        @inject(TYPES.IGetResumeUrlUseCase) private getReadResumeUrlUseCase: IGetResumeUrlUseCase,
+        @inject(TYPES.IGetCandidateInterviewUC) private getCandidateInterviewUC:IGetCandidateInterviewUC,
 
     ){}
 

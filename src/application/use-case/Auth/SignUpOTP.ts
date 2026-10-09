@@ -1,26 +1,29 @@
 import { UserRole } from "@prisma/client";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { IEmailService } from "../../../infrastructure/Interface/IEmailService.js";
-import { IHashService } from "../../../infrastructure/Interface/IHashService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import { generateOtp } from "../../../shared/utils.js";
-import redisClient, { ICacheService } from "../../../infrastructure/db/redisClient.js";
-import { ResetOTPExpiry, SignUpOTPExpiry } from "../../../shared/constants/roles.js";
-import { AuthMessages } from "../../../shared/constants/authMessages.js";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { IEmailService } from "../../interface/I-Services/IEmailService";
+import { IHashService } from "../../interface/I-Services/IHashService";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { generateOtp } from "../../../shared/utils/generateOtpUtil";
+import redisClient, { ICacheService } from "../../../infrastructure/db/Redis/redisClient";
+import { ResetOTPExpiry, SignUpOTPExpiry } from "../../../shared/constants/roles";
+import { AuthMessages } from "../../../shared/constants/authMessages";
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES'
+import { ISignUpOTP } from "../../interface/I-UseCases/Auth/ISignUpOTP"; 
 
-export interface ISignUpOTP{
-    execute(name: string, email: string, password: string, role:UserRole): Promise<{
-    email: string;
-}>
-}
 
+
+
+
+@injectable()
 export class SendSignUpOTPUseCase implements ISignUpOTP{
     constructor(
-        private SQLTool:IUserRepository,
-        private EmailService:IEmailService,
-        private HashService:IHashService,
-        private RedisTool:ICacheService,
+        
+        @inject(TYPES.IUserRepository) private SQLTool:IUserRepository,
+        @inject(TYPES.IEmailService) private EmailService:IEmailService,
+        @inject(TYPES.IHashService)private HashService:IHashService,
+        @inject(TYPES.IRedisService)private RedisTool:ICacheService,
     ){}
 
     async execute(name:string,email:string,password:string,role:UserRole,){

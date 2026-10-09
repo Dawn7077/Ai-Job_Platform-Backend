@@ -1,14 +1,14 @@
-import { CandidateProfile, CandidateProfileProps } from "../../../domain/entities/CandidateProfile.js";
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { CandidateProfile, CandidateProfileProps } from "../../../domain/entities/CandidateProfile";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { ISaveCandidateProfile } from "../../interface/I-UseCases/Candidate/ISaveCandidateProfile";
+import { TYPES } from "../../../di/TYPES";
 
-export interface ISaveCandidateProfile{
-    execute(userId: string, profileData: Partial<CandidateProfileProps>): Promise<CandidateProfile>
-}
-
+@injectable()
 export class SaveCandidateProfile implements ISaveCandidateProfile{
-    constructor(private profileRepo:ICandidateProfileRepository){}
+    constructor(@inject(TYPES.ICandidateProfileRepo) private profileRepo:ICandidateProfileRepository){}
 
     async execute(userId:string,profileData:Partial<CandidateProfileProps>){
         if(!userId){

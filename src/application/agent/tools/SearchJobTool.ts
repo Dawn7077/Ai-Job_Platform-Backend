@@ -1,6 +1,6 @@
 import { tool } from "@langchain/core/tools";
 import {z} from 'zod'
-import { IVectorSearchService } from "../../../infrastructure/Interface/IVectorSearchService.js";
+import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService";
 
 export const createSearchJobTool = (vectorSearchTool:IVectorSearchService)=>{
     return tool(

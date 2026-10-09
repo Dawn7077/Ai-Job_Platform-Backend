@@ -1,24 +1,27 @@
 import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import {IEmailService} from "../../../infrastructure/Interface/IEmailService.js"
+import {IEmailService} from "../../interface/I-Services/IEmailService.js"
 import { AppError } from "../../../shared/AppErrors.js";
 import { StatusCode } from "../../../shared/StatusCode.js";
-import { generateOtp } from '../../../shared/utils.js'
-import redisClient, { ICacheService } from '../../../infrastructure/db/redisClient.js'
+import { generateOtp } from '../../../shared/utils/generateOtpUtil.js'
+import redisClient, { ICacheService } from '../../../infrastructure/db/Redis/redisClient.js'
 import { ExpiryOTP } from "../../../shared/constants/roles.js";
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES.js'
+import { IForgotPasswordUseCase } from "../../interface/I-UseCases/Auth/IForgotPasswordUseCase.js";  
 
 
-export interface IForgotPasswordUseCase{
-    execute(email:string):Promise<void>
-}
+
+
+@injectable()
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase{
     constructor(
-        private SQLTool:IUserRepository, 
-        private EmailService:IEmailService,
-        private RedisService:ICacheService,
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository,
+        @inject(TYPES.IEmailService) private EmailService:IEmailService,
+        @inject(TYPES.IRedisService) private RedisService:ICacheService,
     ){}
 
     async execute(email:string):Promise<void>{
-        const user = await this.SQLTool.findByEmail(email)
+        const user = await this.userRepo.findByEmail(email)
         if(!user)
             throw new AppError(
                 "User not found",

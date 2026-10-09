@@ -1,6 +1,8 @@
 import { OAuth2Client } from "google-auth-library";
-import { GoogleUserInfo, IGoogleAuthService } from "../../domain/repositories/IGoogleAuthService.js";
+import { GoogleUserInfo, IGoogleAuthService } from "../../application/interface/I-UseCases/Auth/IGoogleAuthService"; 
+import { injectable } from 'inversify';
 
+@injectable()
 export class Google_Service implements IGoogleAuthService{
     private client:OAuth2Client;
 

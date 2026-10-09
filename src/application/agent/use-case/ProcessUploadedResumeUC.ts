@@ -1,20 +1,20 @@
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
-import { GatewayModels } from "../../../infrastructure/ai/GatewayModels.js";
-import { ResumeParserService } from "../../../infrastructure/ai/pdfParserService.js";
-import { R2StorageService } from "../../../infrastructure/services/r2StorageService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import { GatewayModels } from "../../../infrastructure/ai/GatewayModels";
+import { ResumeParserService } from "../../../infrastructure/ai/pdfParserService";
+import { R2StorageService } from "../../../infrastructure/services/r2StorageService";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IProcessResumeUseCase } from "../../interface/I-UseCases/Candidate/IProcessResumeUseCase";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IProcessResumeUseCase{
-    execute(userId:string,fileKey:string):Promise<any>
-}
-
+@injectable()
 export class ProcessResumeUseCase implements IProcessResumeUseCase{
     constructor(
-        private candidateRepo:ICandidateProfileRepository,
-        private resumeParserService:ResumeParserService,
-        private aiService:GatewayModels,
-        private r2Service:R2StorageService,
+        @inject(TYPES.ICandidateProfileRepo) private candidateRepo:ICandidateProfileRepository,
+        @inject(TYPES.IResumeParserService) private resumeParserService:ResumeParserService,
+        @inject(TYPES.GatewayModel) private aiService:GatewayModels,
+        @inject(TYPES.IR2StorageService) private r2Service:R2StorageService,
     ){}
 
     async execute(userId: string, fileKey: string): Promise<any> {

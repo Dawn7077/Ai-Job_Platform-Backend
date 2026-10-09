@@ -1,5 +1,5 @@
-import { Interview, InterviewStatusType } from "../entities/Interview.js";
-import { InterviewEvaluation } from "../entities/InterviewEvaluation.js";
+import { Interview, InterviewStatusType } from "../entities/Interview";
+import { InterviewEvaluation } from "../entities/InterviewEvaluation";
 
 export interface IInterviewRepository{
     create(interview:Interview):Promise<Interview>

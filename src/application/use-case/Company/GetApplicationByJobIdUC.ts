@@ -1,19 +1,20 @@
-import { Application, ApplicationStage } from "../../../domain/entities/Application.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Application, ApplicationStage } from "../../../domain/entities/Application";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetApplicationByJobIdUC } from "../../interface/I-UseCases/Company/IGetApplicationByJobIdUC";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetApplicationByJobIdUC{
-    execute(companyId: string, jobId: string, status?: ApplicationStage | undefined): Promise<Application[]>
-}
 
+@injectable()
 export class GetApplicationByJobIdUC implements IGetApplicationByJobIdUC{
     constructor(
-        private applicationRepo:IApplicationRepository,
-        private userRepo:IUserRepository,
-        private jobRepo:IJobRepository,
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository,
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
     ){}
 
     async execute(companyId:string,jobId:string,status?:ApplicationStage){

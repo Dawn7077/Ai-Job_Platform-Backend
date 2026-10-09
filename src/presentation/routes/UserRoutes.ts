@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { AuthController } from "../controller/AuthController.js";
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js";
-import { IAuthMiddleware } from "../middleware/authMiddleware.js";
+import { AuthController } from "../controller/AuthController";
+import { ITokenService } from "../../application/interface/I-Services/ITokenService";
+import { IAuthMiddleware } from "../middleware/authMiddleware";
 
 export function AuthRoutes(
     authController:AuthController,

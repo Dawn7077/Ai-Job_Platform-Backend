@@ -1,16 +1,14 @@
-import { UserStatus } from "../../../domain/entities/User.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { UserStatus } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IUpdateUserStatusUC } from "../../interface/I-UseCases/Admin/IUpdateUserStatusUC";  
+import { TYPES } from "../../../di/TYPES";
 
-export interface IUpdateUserStatusUC{
-    execute(userId: string, status: UserStatus, adminId: string): Promise<{
-    success: boolean;
-    message: string;
-}>
-}
+@injectable()
 export class UpdateUserStatusUC implements IUpdateUserStatusUC{
-    constructor(private userRepo:IUserRepository){}
+    constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
     async execute(userId:string,status:UserStatus,adminId:string){
         if(userId===adminId){
             throw new AppError(

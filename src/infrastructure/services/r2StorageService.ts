@@ -1,5 +1,7 @@
 import {S3Client, PutObjectCommand, GetObjectCommand, Bucket$} from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import {inject,injectable} from 'inversify'
+import  { TYPES } from '../../di/TYPES'
 
 const s3Client = new S3Client({
     region:'auto',
@@ -12,8 +14,9 @@ const s3Client = new S3Client({
 export default s3Client
 
 
+@injectable()
 export class R2StorageService {
-    constructor(private s3Client:S3Client){}
+    constructor(@inject(TYPES.S3Client) private s3Client:S3Client){}
 
 
     // to generate temp Presigned PUT url for direct browser uploads =>

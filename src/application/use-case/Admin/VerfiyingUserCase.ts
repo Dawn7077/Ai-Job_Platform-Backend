@@ -1,18 +1,16 @@
-import { User } from "../../../domain/entities/User.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { AdminMessages } from "../../../shared/constants/adminMessages.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { User } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { AdminMessages } from "../../../shared/constants/adminMessages";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IVerifyCompany } from "../../interface/I-UseCases/Admin/IVerifyCompany";  
+import { TYPES } from "../../../di/TYPES";
 
-export interface IVerifyCompany{
-    execute(userId: string, status: "ACTIVE" | "SUSPENDED",rejectionReason:string): Promise<{
-        success: boolean;
-        message: string;
-    }>
-}
 
+@injectable()
 export class VerifyCompanyUseCase implements IVerifyCompany{
-    constructor(private userRepo:IUserRepository){}
+    constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
     async execute(userId:string, status:'ACTIVE'|'SUSPENDED',rejectionReason?:string){
         const user = await this.userRepo.findById(userId)

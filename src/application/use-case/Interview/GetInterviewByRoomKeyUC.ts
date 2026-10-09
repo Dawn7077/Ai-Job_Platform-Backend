@@ -1,14 +1,15 @@
-import { Interview } from "../../../domain/entities/Interview.js";
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Interview } from "../../../domain/entities/Interview";
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetInterviewByRoomKeyUC } from "../../interface/I-UseCases/Company/IGetInterviewByRoomKeyUC";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetInterviewByRoomKeyUC{
-    execute(roomKey: string): Promise<Interview>
-}
+@injectable()
 export class GetInterviewByRoomKeyUC implements IGetInterviewByRoomKeyUC{
     constructor(
-        private interviewRepo:IInterviewRepository
+        @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository
     ){}
 
     async execute(roomKey:string){

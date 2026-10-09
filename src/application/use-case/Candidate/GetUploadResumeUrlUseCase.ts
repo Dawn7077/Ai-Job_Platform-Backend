@@ -1,18 +1,16 @@
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
-import { R2StorageService } from "../../../infrastructure/services/r2StorageService.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import { R2StorageService } from "../../../infrastructure/services/r2StorageService";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetUploadResumeUrlUseCase } from "../../interface/I-UseCases/Candidate/IGetUploadResumeUrlUseCase";
+import { TYPES } from "../../../di/TYPES";
 
-export interface IGetUploadResumeUrlUseCase{
-    execute(fileName: string, mimeType: string): Promise<{
-        uploadUrl: string;
-        fileKey: string;
-    }>
-}
 
+@injectable()
 export class GetUploadResumeUrlUseCase implements IGetUploadResumeUrlUseCase{
     constructor(
-        private r2Service:R2StorageService, 
+        @inject(TYPES.IR2StorageService) private r2Service:R2StorageService, 
     ){}
 
     async execute(fileName:string,mimeType:string){

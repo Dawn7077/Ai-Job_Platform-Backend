@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import {z} from 'zod'
-import { RunnableConfig } from "@langchain/core/runnables";
-import { IApplyJobUseCase } from "../../use-case/Candidate/ApplyJobUseCase.js";
+import { RunnableConfig } from "@langchain/core/runnables"; 
+import { IApplyJobUseCase } from "../../interface/I-UseCases/Candidate/IApplyJobUseCase";
 
 export const createApplyJobTool = (applyJobUseCase:IApplyJobUseCase)=>{
     return tool(

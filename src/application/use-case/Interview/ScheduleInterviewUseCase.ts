@@ -1,7 +1,10 @@
-import { Application, ApplicationStage } from "../../../domain/entities/Application.js";
-import { Interview } from "../../../domain/entities/Interview.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js";
+import { inject, injectable } from "inversify";
+import { Application, ApplicationStage } from "../../../domain/entities/Application";
+import { Interview } from "../../../domain/entities/Interview";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
+import { IScheduleInterviewUC } from "../../interface/I-UseCases/Company/IScheduleInterviewUC";
+import { TYPES } from "../../../di/TYPES";
 
 export interface ScheduleInterviewPayload{
     applicationId:string
@@ -11,16 +14,11 @@ export interface ScheduleInterviewPayload{
     scheduledAt:Date
 }
 
-export interface IScheduleInterviewUC{
-    execute(payload: ScheduleInterviewPayload): Promise<{
-        interview: Interview;
-        application: Application;
-    }>
-}
-export class ScheduleInterviewUC{
+@injectable()
+export class ScheduleInterviewUC  implements IScheduleInterviewUC {
     constructor(
-        private interviewRepo:IInterviewRepository,
-        private applicationRepo:IApplicationRepository
+        @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository,
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository
     ){}
     async execute(payload:ScheduleInterviewPayload){
         const interview = new Interview({

@@ -1,18 +1,18 @@
-import { Application } from "../../../domain/entities/Application.js";
-import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo.js";
-import { IJobRepository } from "../../../domain/repositories/IJobRepository.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { Application } from "../../../domain/entities/Application";
+import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
+import { IJobRepository } from "../../../domain/repositories/IJobRepository";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IGetApplication_Company } from "../../interface/I-UseCases/Company/IGetApplication_Company";
+import { TYPES } from "../../../di/TYPES";
 
 
-export interface IGetApplication_Company{
-    execute(companyId:string,applicationId: string,jobId:string): Promise<Application>
-}
-
+@injectable()
 export class GetApplication_Company implements IGetApplication_Company{
     constructor(
-        private applicationRepo:IApplicationRepository,
-        private jobRepo:IJobRepository,
+        @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
     ){}
 
     async execute(companyId:string,applicationId: string,jobId:string):Promise<Application>{

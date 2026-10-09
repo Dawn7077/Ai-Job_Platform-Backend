@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
-import { IEmailService } from "../Interface/IEmailService.js";
+import { IEmailService } from "../../application/interface/I-Services/IEmailService";
+import { injectable } from 'inversify';
 
+@injectable()
 export class EmailService implements IEmailService{
     private transporter
 

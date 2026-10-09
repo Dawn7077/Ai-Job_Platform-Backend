@@ -1,15 +1,16 @@
-import { CompanyProfile } from "../../../domain/entities/CompanyProfile.js";
-import { ICompanyProfileRepo } from "../../../domain/repositories/ICompanyProfileRepo.js";
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
+import { inject, injectable } from "inversify";
+import { CompanyProfile } from "../../../domain/entities/CompanyProfile";
+import { ICompanyProfileRepo } from "../../../domain/repositories/ICompanyProfileRepo";
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { TYPES } from "../../../di/TYPES";
+import { IGetProfileCompanyUC } from "../../interface/I-UseCases/Company/IGetProfileCompanyUC";
 
-export interface IGetProfileCompanyUC{
-    execute(userId: string): Promise<CompanyProfile>
-}
 
 
+@injectable()
 export class GetProfileCompanyUC implements IGetProfileCompanyUC{
-    constructor(private profileRepo:ICompanyProfileRepo){}
+    constructor(@inject(TYPES.ICompanyProfileRepo) private profileRepo:ICompanyProfileRepo){}
     async execute(userId:string){
         const profile = await this.profileRepo.findbyUserId(userId)
         if(!profile){

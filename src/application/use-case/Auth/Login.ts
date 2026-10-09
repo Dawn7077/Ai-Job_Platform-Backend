@@ -1,26 +1,31 @@
-import { User } from "../../../domain/entities/User.js";
-import { IUserRepository } from "../../../domain/repositories/IUserRepository.js"; 
-import { AppError } from "../../../shared/AppErrors.js";
-import { StatusCode } from "../../../shared/StatusCode.js";
-import { IHashService } from "../../../infrastructure/Interface/IHashService.js";
-import { ILogin } from "../../interface/ILogin.js";
-import { ITokenService } from "../../../infrastructure/Interface/ITokenService.js";
-import { ICacheService } from "../../../infrastructure/db/redisClient.js";
-import { RefreshExpiry } from "../../../shared/constants/roles.js";
-import { AuthMessages } from "../../../shared/constants/authMessages.js";
-import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo.js";
+import { User } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/repositories/IUserRepository"; 
+import { AppError } from "../../../shared/AppErrors";
+import { StatusCode } from "../../../shared/StatusCode";
+import { IHashService } from "../../interface/I-Services/IHashService";
+import { ILogin } from "../../interface/I-UseCases/Auth/ILogin";    
+import { ITokenService } from "../../interface/I-Services/ITokenService";
+import { ICacheService } from "../../../infrastructure/db/Redis/redisClient";
+import { RefreshExpiry } from "../../../shared/constants/roles";
+import { AuthMessages } from "../../../shared/constants/authMessages";
+import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
+import {logger} from "../../../shared/utils/loggers"
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../../di/TYPES'
 
+@injectable()
 export class LoginUseCase implements ILogin{
     constructor(
-        private UserRepo:IUserRepository,
-        private candidateRepo:ICandidateProfileRepository,
-        private HashService:IHashService,
-        private TokenService:ITokenService,
-        private redisClient:ICacheService
+        @inject(TYPES.IUserRepository) private UserRepo:IUserRepository,
+        @inject(TYPES.ICandidateProfileRepo) private candidateRepo:ICandidateProfileRepository,
+        @inject(TYPES.IHashService)private HashService:IHashService,
+        @inject(TYPES.ITokenService)private TokenService:ITokenService,
+        @inject(TYPES.IRedisService)private redisClient:ICacheService
     ){}
 
     async execute(email: string,password:string): Promise<{ accessToken: string; refreshToken: string; user:User;isOnboarding:boolean}> {
         if(!email || ! password){ 
+            logger.warn({event:"login_validation_falied",reason:"missing_email_or_password",email},'Login attempt failed due to Missing credentials')
             throw new AppError(
                 AuthMessages.MISSING_EMAIL_PASSWORD,
                 StatusCode.BAD_REQUEST,
@@ -30,25 +35,38 @@ export class LoginUseCase implements ILogin{
 
         const user = await this.UserRepo.findByEmail(email)
         
-        if(!user)throw new AppError(
+        if(!user){
+            logger.warn({event:"login_falied",reason:"user_not_found",email},'Login attempt failed:User not found')
+            throw new AppError(
                 AuthMessages.INVALID_CREDENTIALS,
                 StatusCode.UNAUTHORIZED,
                 'INVALID_CREDENTIALS'
             )
+        }
             
         const validPassword = await this.HashService.compare(password,user.getPasswordHash())
         
-        if(!validPassword)throw new AppError(
+        if(!validPassword){
+            logger.warn({event:"login_falied",reason:"invalid_password",userId:user.getId(),email},'Login attempt failed: Invalid password')
+            throw new AppError(
                 AuthMessages.INVALID_CREDENTIALS,
                 StatusCode.UNAUTHORIZED,
                 'INVALID_CREDENTIALS'
-            )
+            )}
         
         if(user.getRole()==='COMPANY' && user.getStatus() !== 'ACTIVE'){
             const status  =  user.getStatus() 
             const rejectionReason = user.getRejectionReason()
             
-            console.log('reason=>',rejectionReason)
+            logger.warn({
+                event:"company_login_blocked",
+                userId:user.getId(),
+                reason:status==='PENDING'?'company_pending':'company_suspended',
+                status,
+                rejectionReason,
+            },'Company login Blocked due to inactive status')
+
+
             const message = status === 'PENDING'
             ?AuthMessages.COMPANY_PENDING
             :AuthMessages.COMPANY_SUSPENDED(rejectionReason||'')

@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express"
-import { ITokenService } from "../../infrastructure/Interface/ITokenService.js"
-import { StatusCode } from "../../shared/StatusCode.js"
-import { AuthMessages } from "../../shared/constants/authMessages.js"
+import { ITokenService } from "../../application/interface/I-Services/ITokenService"
+import { StatusCode } from "../../shared/StatusCode"
+import { AuthMessages } from "../../shared/constants/authMessages"
 
 declare global{
     namespace Express{

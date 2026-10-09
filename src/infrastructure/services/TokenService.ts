@@ -1,6 +1,9 @@
-import { ITokenService, TokenPayload } from "../Interface/ITokenService.js";
+import { ITokenService, TokenPayload } from "../../application/interface/I-Services/ITokenService";
 import jwt from 'jsonwebtoken'
+import { inject, injectable } from "inversify";
+import {TYPES} from '../../di/TYPES'
 
+@injectable()
 export class TokenService implements ITokenService{
     private Access_Secret
     private  Refresh_secret

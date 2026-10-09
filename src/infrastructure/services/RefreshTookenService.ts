@@ -1,12 +1,15 @@
-import { IRefreshToken } from '../Interface/IRefreshToken.js';
-import { IUserRepository } from '../../domain/repositories/IUserRepository.js';
-import { ITokenService } from '../Interface/ITokenService.js';
-import redisClient from '../db/redisClient.js';
+import { IRefreshToken } from '../../application/interface/I-Services/IRefreshToken';
+import { IUserRepository } from '../../domain/repositories/IUserRepository';
+import { ITokenService } from '../../application/interface/I-Services/ITokenService';
+import redisClient from '../db/Redis/redisClient';
+import { TYPES } from '../../di/TYPES';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class RefreshTokenService implements IRefreshToken{
     constructor(
-        private SQLTool:IUserRepository,
-        private HashTool:ITokenService, 
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository,
+        @inject(TYPES.ITokenService) private HashTool:ITokenService, 
     ){}
 
     async execute(token: string): Promise<{ accessToken: string; }> {
@@ -20,7 +23,7 @@ export class RefreshTokenService implements IRefreshToken{
                 throw new Error("Invalid or revoked refresh token session")
             }
 
-            const user  = await this.SQLTool.findByEmail(decoded.userId)
+            const user  = await this.userRepo.findByEmail(decoded.userId)
             if(!user)throw new Error("User not found")
             
             const accessToken  = await this.HashTool.generateAccesToken({userId:user.getId(),role:user.getRole()})

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { AppError } from "../../shared/AppErrors.js";
-import { AuthMessages } from "../../shared/constants/authMessages.js";
+import { AppError } from "../../shared/AppErrors";
+import { AuthMessages } from "../../shared/constants/authMessages";
 import {success, z} from 'zod'
-import { StatusCode } from "../../shared/StatusCode.js";
+import { StatusCode } from "../../shared/StatusCode";
 
 export const errorHandler = (err:Error,req:Request,res:Response,next:NextFunction)=>{
     if(err instanceof AppError){

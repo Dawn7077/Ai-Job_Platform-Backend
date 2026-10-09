@@ -1,4 +1,4 @@
-import { User, UserRole, UserStatus } from "../entities/User.js";
+import { User, UserRole, UserStatus } from "../entities/User";
 
 export interface UserFilterQueryParams{
     page:number

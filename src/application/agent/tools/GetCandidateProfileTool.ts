@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
-import {z} from 'zod'
-import { IGetProfileCandidateUseCase } from "../../use-case/Candidate/GetProfileCandidate.js";
+import {z} from 'zod' 
 import { RunnableConfig } from "@langchain/core/runnables";
+import { IGetProfileCandidateUseCase } from "../../interface/I-UseCases/Candidate/IGetProfileCandidateUseCase";
 
 export const createGetProfileCandidateTool = (getProfileUseCase:IGetProfileCandidateUseCase)=>{
     return tool(

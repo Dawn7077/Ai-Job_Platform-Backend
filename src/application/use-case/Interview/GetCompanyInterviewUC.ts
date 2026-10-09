@@ -1,12 +1,12 @@
-import { Interview } from "../../../domain/entities/Interview.js";
-import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo.js";
+import { inject, injectable } from "inversify";
+import { Interview } from "../../../domain/entities/Interview";
+import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
+import { TYPES } from "../../../di/TYPES";
+import { IGetCompanyInterviewUC } from "../../interface/I-UseCases/Company/IGetCompanyInterviewUC";
 
-export interface IGetCompanyInterviewUC{
-    execute(companyId: string): Promise<Interview[]>
-}
-
+@injectable()
 export class GetCompanyInterviewUC implements IGetCompanyInterviewUC{
-    constructor(private interviewRepo:IInterviewRepository){}
+    constructor(@inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository){}
     async execute(companyId:string):Promise<Interview[]>{
         return await this.interviewRepo.findByCompanyId(companyId)
     }
