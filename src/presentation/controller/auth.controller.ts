@@ -24,6 +24,7 @@ import { ResetPasswordRequestDTO, ResetPasswordSchema } from '../../application/
 import { GetMeRequestDTO, GetMeSchema } from '../../application/dtos/Auth/get-me.dto';
 import { GoogleLoginRequestDTO, GoogleLoginSchema } from '../../application/dtos/Auth/google-login.dto';
 import { ResponseHelper } from '../../shared/models/response.model';
+import { JwtConstants } from '../../shared/constants/roles.constant';
 
 
 @injectable()
@@ -47,20 +48,12 @@ export class AuthController{
             const dto:SendSignUpOTPRequestDTO = SendSignUpOTPSchema.parse(req.body)
             const {name,email,password,role} = dto
             if(!email || !password || !name){
-                res.status(StatusCode.BAD_REQUEST)
-                .json({
-                    success:false,
-                    error:AuthMessages.MISSING_EMAIL_PASSWORD
-                })
-                return
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_EMAIL_PASSWORD)
             }
 
             await this.signUpOtpTool.execute(dto)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                message:AuthMessages.OTP_SENT,
-            })
+            return ResponseHelper.success(res,StatusCode.OK,AuthMessages.OTP_SENT)
         } catch (error) {
             next(error)
         }
@@ -71,12 +64,7 @@ export class AuthController{
             // const {email,otp} =req.body
             const dto:RegisterRequestDTO = RegisterSchema.parse(req.body)
             if(!dto.email || !dto.otp){
-                res.status(StatusCode.BAD_REQUEST)
-                .json({
-                    success:false,
-                    error:AuthMessages.MISSING_OTP_EMAIL
-                })
-                return
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_OTP_EMAIL)
             }
             
 
@@ -94,20 +82,27 @@ export class AuthController{
             res.cookie('access_token',result.accessToken,{
                 httpOnly:true,
                 secure:false,
-                maxAge:15*60*1000
+                maxAge:JwtConstants.ACCESS_TOKEN_MAX_AGE   //Access token from .env
             })
             res.cookie('refresh_token',result.refreshToken,{
                 httpOnly:true,
                 secure:false,
-                maxAge:2*24*60*60*1000
+                maxAge:JwtConstants.REFRESH_TOKEN_MAX_AGE //Refersh token from .env
             })
  
 
-            res.status(StatusCode.CREATED).json({
-                success:true,
-                message:AuthMessages.REGISTER_SUCCESS,
-                user:result.user.toJSON(),
-            })
+            // res.status(StatusCode.CREATED).json({
+            //     success:true,
+            //     message:AuthMessages.REGISTER_SUCCESS,
+            //     user:result.user.toJSON(),
+            // })
+
+            return ResponseHelper.success(
+                res,
+                StatusCode.CREATED,
+                {user:result.user.toJSON()},
+                AuthMessages.REGISTER_SUCCESS
+            )
         } catch (error) {
             next(error)
         }
@@ -117,7 +112,8 @@ export class AuthController{
     async handleLogin(req:Request,res:Response,next:NextFunction){
         try {
             const dto:LoginRequestDTO  = LoginSchema.parse(req.body) 
-            if(!dto.email||!dto.password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
+            if(!dto.email||!dto.password)
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_EMAIL_PASSWORD)
             
             const {accessToken,refreshToken,user,isOnboarding} = await this.loginTool.execute(dto)
 
@@ -127,27 +123,28 @@ export class AuthController{
             res.cookie('access_token',accessToken,{
                 httpOnly:true,
                 secure:false, // development phase https is off
-                maxAge:15*60*1000 //15 mins
+                maxAge:JwtConstants.ACCESS_TOKEN_MAX_AGE   //Access token from .env
             })
 
             res.cookie('refresh_token',refreshToken,{
                 httpOnly:true,
                 secure:false,
-                maxAge:2*24*60*60*1000
+                maxAge:JwtConstants.REFRESH_TOKEN_MAX_AGE   //Refresh token from .env
             })
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                user:user.toJSON(),
-                isOnboarding 
-            })
+            // res.status(StatusCode.OK).json({
+            //     success:true,
+            //     user:user.toJSON(),
+            //     isOnboarding 
+            // })
 
-            // return ResponseHelper.success(res,StatusCode.OK,
-            //     {
-            //         user:user.toJSON(),
-            //         isOnboarding
-            //     }              
-            // )
+            return ResponseHelper.success(
+                res,StatusCode.OK,
+                {
+                    user:user.toJSON(),
+                    isOnboarding
+                }              
+            )
         } catch (error) {
             next(error)
         }
@@ -163,13 +160,10 @@ export class AuthController{
             res.cookie('access_token',accessToken,{
                 httpOnly:true,
                 secure:false,  
-                maxAge:15*60*1000  
+                maxAge:JwtConstants.REFRESH_TOKEN_MAX_AGE   //Refresh token from .env
             })
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                accessToken
-            })
+            return ResponseHelper.success(res,StatusCode.OK,{accessToken})
         } catch (error) {
             next(error)
         }
@@ -185,16 +179,13 @@ export class AuthController{
                     const decoded = this.tokenTool.decodeToken(refreshToken)
                     if(decoded && typeof decoded ==='object' && 'userId' in decoded) 
                             await redisClient.del(`refresh_token:${decoded.userId}`)
-                } catch (error) {
-                   
-                }
+                } catch (error) {}
             }
             res.clearCookie('access_token')
             res.clearCookie('refresh_token')
-            res.status(StatusCode.OK).json({
-                success:true,
-                message:AuthMessages.LOGOUT_SUCCESS
-            })
+            
+            return ResponseHelper.success(res,StatusCode.OK,AuthMessages.LOGOUT_SUCCESS)
+
         } catch (error) {
             next(error)
         }
@@ -204,15 +195,19 @@ export class AuthController{
         try {
             const dto:GetMeRequestDTO = GetMeSchema.parse({userId:req.user?.userId})
             const {userId} = dto
-            if(!userId)return res.status(StatusCode.UNAUTHORIZED)
-                .json({success:false,message:AuthMessages.UNAUTHORIZED})
+            if(!userId)
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,AuthMessages.UNAUTHORIZED)
 
             const user = await this.getMeTool.execute(dto)
-            console.log(userId,user.getId())
-            res.status(StatusCode.OK).json({
-                success:true,
+            // logger.info(userId,user.getId())
+
+            return ResponseHelper.success(res,StatusCode.OK,{
                 user:user.toJSON()
             })
+            // res.status(StatusCode.OK).json({
+            //     success:true,
+            //     user:user.toJSON()
+            // })
         } catch (error) {
             next(error)
         }
@@ -223,18 +218,12 @@ export class AuthController{
             const dto:ForgotPasswordRequestDTO = ForgotPasswordSchema.parse(req.body)
             const {email } = dto
             if(!email ){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    error:AuthMessages.MISSING_EMAIL
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_EMAIL)
             }
             
             await this.forgotPasswordTool.execute(dto)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                message:AuthMessages.OTP_SENT
-            })
+            return ResponseHelper.success(res,StatusCode.OK,AuthMessages.OTP_SENT)
 
             
         }
@@ -247,18 +236,12 @@ export class AuthController{
             const dto:ResetPasswordRequestDTO = ResetPasswordSchema.parse(req.body)
             const {email ,otp,newPassword} = dto
             if(!email || !otp || !newPassword){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    error:AuthMessages.MISSING_FEILDS
-                })                
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_FEILDS)                
             }
 
             await this.resetPasswordTool.execute(dto)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                message:AuthMessages.RESET_SUCCESS
-            })
+            return ResponseHelper.success(res,StatusCode.OK,AuthMessages.RESET_SUCCESS)
         }
         catch (error) {
             next(error)
@@ -270,21 +253,16 @@ export class AuthController{
             const dto:GoogleLoginRequestDTO = GoogleLoginSchema.parse(req.body)
             const {token,role} =dto
             if(!token || !role){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    error:AuthMessages.MISSING_TOKEN_ROLE
-                })  
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AuthMessages.MISSING_TOKEN_ROLE)  
             }
 
             const result = await this.googleServiceTool.execute({token,role})
 
             if('requiresApproval' in  result && result.requiresApproval){
-                return res.status(StatusCode.CREATED).json({
-                    success:true,
-                    message:result.message,
+                return ResponseHelper.success(res,StatusCode.CREATED,{
                     requiresApproval:true,
                     user:result.user.toJSON()
-                })
+                },result.message)
             } 
 
             // const successRes = result as {accessToken:string,refreshToken:string,user:User}
@@ -293,21 +271,18 @@ export class AuthController{
             res.cookie('access_token',accessToken,{
                 httpOnly:true,
                 secure:false, // development phase https is off
-                maxAge:15*60*1000 //15 mins
+                maxAge:JwtConstants.ACCESS_TOKEN_MAX_AGE //15 mins
             })
 
             res.cookie('refresh_token',refreshToken,{
                 httpOnly:true,
                 secure:false,
-                maxAge:2*24*60*60*1000
+                maxAge:JwtConstants.REFRESH_TOKEN_MAX_AGE 
             })
 
-            res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 user:user.toJSON(),
-                isOnboarding
-                // accessToken:accessToken,
-                // refreshToken:refreshToken
+                isOnboarding 
             })
         } catch (error) {
             next(error)
@@ -318,15 +293,12 @@ export class AuthController{
         try {
             const {email} = req.body
             if(!email){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"Email is required for reapplying verification"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST, AuthMessages.MISSING_EMAIL_VERIFICATION)
             }
 
             const result = await this.reapplyVerificationUC.execute(email)
 
-            res.status(StatusCode.OK).json(result)
+            return ResponseHelper.success(res,StatusCode.OK,result)
         } catch (error) {
             next(error)
         }

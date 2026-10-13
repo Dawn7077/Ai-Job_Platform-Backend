@@ -14,25 +14,25 @@ import { GetUsersQuerySchema } from "../../application/dtos/Admin/get-users.dto"
 import { UpdateRoleBodySchema, UpdateRoleParamSchema } from "../../application/dtos/Admin/update-role.dto";
 import { UpdateStatusBodySchema, UpdateStatusParamSchema } from "../../application/dtos/Admin/update-status.dto";
 import { VerifyCompanyBodySchema } from "../../application/dtos/Admin/verify-company.dto";
+import { ResponseHelper } from "../../shared/models/response.model";
 
 @injectable()
 export class AdminController{
     constructor(
-        @inject(TYPES.IGetPendingUsersUseCase) private GetPendingRepo:IGetPendingUsers,
-        @inject(TYPES.IVerifyCompanyUseCase) private VerifyCompanyRepo:IVerifyCompany,
-        @inject(TYPES.IUpdateUserStatusUC) private UpdateUserStatusUC:IUpdateUserStatusUC,
-        @inject(TYPES.IUpdateUserRoleUC) private UpdateUserRoleUC:IUpdateUserRoleUC,
-        @inject(TYPES.IGetUsersUseCase) private GetUsersUC:IGetUsersUseCase,
+        @inject(TYPES.IGetPendingUsersUseCase) private getPendingUsersUseCase:IGetPendingUsers,
+        @inject(TYPES.IVerifyCompanyUseCase) private verifyCompanyUseCase:IVerifyCompany,
+        @inject(TYPES.IUpdateUserStatusUC) private updateUserStatusUseCase:IUpdateUserStatusUC,
+        @inject(TYPES.IUpdateUserRoleUC) private updateUserRoleUseCase:IUpdateUserRoleUC,
+        @inject(TYPES.IGetUsersUseCase) private getUsersUseCase:IGetUsersUseCase,
         @inject(TYPES.IDeleteUserUseCase) private deleteUserUseCase:IDeleteUserUseCase,
     ){}
 
     async handleGetPendingUsers(_:Request,res:Response,next:NextFunction){
         try {
-            const users = await this.GetPendingRepo.execute()
+            const users = await this.getPendingUsersUseCase.execute()
             const pendingCompanies = users.map(user=> user.toJSON())
 
-            res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 companies:pendingCompanies
             })
         } catch (error) {
@@ -46,18 +46,13 @@ export class AdminController{
             const {userId,status,reason}  = dto
 
             if(!userId || !['ACTIVE','SUSPENDED'].includes(status)){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.MISSING_USER_ID_STATUS
-                })
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, AdminMessages.MISSING_USER_ID_STATUS);
             }
 
-            const result = await this.VerifyCompanyRepo.execute(dto)
+            const result = await this.verifyCompanyUseCase.execute(dto)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                message:`${result.message}`
-            })
+            return ResponseHelper.success(res, StatusCode.OK, result.message);
+       
         } catch (error) {
             next(error)
         }
@@ -66,12 +61,9 @@ export class AdminController{
     async getUsers(req:Request,res:Response,next:NextFunction){
         try {
             const dto = GetUsersQuerySchema.parse(req.query)
-            const result = await this.GetUsersUC.execute(dto)
+            const result = await this.getUsersUseCase.execute(dto)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                ...result
-            })
+            return ResponseHelper.success(res,StatusCode.OK,result)
 
         } catch (error) {
             next(error)
@@ -82,33 +74,24 @@ export class AdminController{
         try {
             const adminId = req.user?.userId
             if(!adminId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:'Unauthorised access of user management.'
-                })
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,AdminMessages.UNAUTHORIZED_ACCESS)
             }
 
             const {id:userId} = UpdateStatusParamSchema.parse(req.params)
             const {status} = UpdateStatusBodySchema.parse(req.body)
 
             if(!status || !['ACTIVE','SUSPENDED',"PENDING"].includes(status)){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.INVALID_STATUS
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AdminMessages.INVALID_STATUS)
             }   
             if(!userId || typeof userId !== 'string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.MISSING_USER_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AdminMessages.MISSING_USER_ID)
             }
             
 
-            const result = await this.UpdateUserStatusUC.execute(userId,status,adminId)
-            console.log('StatusUpdate=>',status,userId) 
-            console.log('StatusUpdate=>',status,userId) 
-            res.status(StatusCode.OK).json(result)
+            const result = await this.updateUserStatusUseCase.execute(userId,status,adminId)
+            // console.log('StatusUpdate=>',status,userId) 
+            // console.log('StatusUpdate=>',status,userId) 
+            return ResponseHelper.success(res,StatusCode.OK,result)
                 
         } catch (error) {
             next(error)
@@ -119,10 +102,7 @@ export class AdminController{
         try {
             const adminId = req.user?.userId
             if(!adminId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:'Unauthorised access of user management.'
-                })
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,AdminMessages.UNAUTHORIZED_ACCESS)
             }
 
             const {id:userId} = UpdateRoleParamSchema.parse(req.params)
@@ -131,21 +111,15 @@ export class AdminController{
             console.log('update role hit',userId)
             
             if(!role || !['CANDIDATE','COMPANY',"ADMIN"].includes(role)){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.INVALID_STATUS
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AdminMessages.INVALID_STATUS)
             }   
             if(!userId || typeof userId !== 'string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.MISSING_USER_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AdminMessages.MISSING_USER_ID)
             }
             
 
-            const result = await this.UpdateUserRoleUC.execute(userId,role,adminId)
-            res.status(StatusCode.OK).json(result)
+            const result = await this.updateUserRoleUseCase.execute(userId,role,adminId)
+            return ResponseHelper.success(res,StatusCode.OK,result)
                 
         } catch (error) {
             next(error)
@@ -159,24 +133,16 @@ export class AdminController{
             const adminId = req.user?.userId
 
             if(!userId || typeof userId !== 'string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:AdminMessages.MISSING_USER_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,AdminMessages.MISSING_USER_ID)
             }
 
             if(!adminId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:'Unauthorised access of user management.'
-                })
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,AdminMessages.UNAUTHORIZED_ACCESS)
+
             }
             await this.deleteUserUseCase.execute(dto,adminId)
             
-            return res.status(StatusCode.OK).json({
-                success:true,
-                message:`Successfully deleted the user account with user ID:${userId} `
-            })
+            return ResponseHelper.success(res,StatusCode.OK,AdminMessages.SUCCESS_DELETE(userId))
 
 
         } catch (error) {

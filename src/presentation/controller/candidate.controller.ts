@@ -18,19 +18,20 @@ import { SaveCandidateProfileSchema } from "../../application/dtos/Candidate/sav
 import { GetProfileCandidateSchema } from "../../application/dtos/Candidate/get-profile-candidate.dto";
 import { GetUploadResumeURLSchema } from "../../application/dtos/Candidate/get-upload-resume-url.dto";
 import { GetResumeUrlSchema } from "../../application/dtos/Candidate/get-resume-url.dto";
+import { ResponseHelper } from "../../shared/models/response.model";
 
 @injectable()
 export class CandidateController{
     constructor( 
-        @inject(TYPES.IMentorChatUseCase) private MentorUseCaseRepo:MentorChatUseCase,
+        @inject(TYPES.IMentorChatUseCase) private mentorChatUseCase:MentorChatUseCase,
         @inject(TYPES.IGetActiveJobsUseCase) private getAllJobsUseCase:IGETActiveJobs,
         @inject(TYPES.IGetActiveJobById) private getJobDetailsUseCase:IGetActiveJobById,
         @inject(TYPES.ISaveCandidateProfile) private saveProfileuseCase:ISaveCandidateProfile,
         @inject(TYPES.IGetProfileCanidateUseCase) private getProfileCase:IGetProfileCandidateUseCase,
-        @inject(TYPES.IGetUploadResumeUrlUseCase) private getUploadRESUseCase:IGetUploadResumeUrlUseCase,
+        @inject(TYPES.IGetUploadResumeUrlUseCase) private getUploadResumeUrlUseCase:IGetUploadResumeUrlUseCase,
         @inject(TYPES.IProcessResumeUseCase) private processResumeUseCase:IProcessResumeUseCase,
         @inject(TYPES.IGetResumeUrlUseCase) private getReadResumeUrlUseCase: IGetResumeUrlUseCase,
-        @inject(TYPES.IGetCandidateInterviewUC) private getCandidateInterviewUC:IGetCandidateInterviewUC,
+        @inject(TYPES.IGetCandidateInterviewUC) private getCandidateInterviewUseCase:IGetCandidateInterviewUC,
 
     ){}
 
@@ -40,18 +41,19 @@ export class CandidateController{
             const dto:MentorChatRequestDTO = MentorChatSchema.parse(req.body)
             const {userId,message} =dto
             if(!userId || !message){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"UserId and message prompt are required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"UserId and message prompt are required")
             }
 
-            const response = await this.MentorUseCaseRepo.execute(dto)
+            const response = await this.mentorChatUseCase.execute(dto)
             console.log(response)
-            res.status(StatusCode.OK).json({
-                success:true,
+
+            return ResponseHelper.success(res,StatusCode.OK,{
                 data:response
             })
+            // res.status(StatusCode.OK).json({
+            //     success:true,
+            //     data:response
+            // })
 
 
 
@@ -64,10 +66,13 @@ export class CandidateController{
         try {
             const jobs = await this.getAllJobsUseCase.execute()
 
-            res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 data:jobs
             })
+            // res.status(StatusCode.OK).json({
+            //     success:true,
+            //     data:jobs
+            // })
             
         } catch (error) {
             next(error)
@@ -79,16 +84,17 @@ export class CandidateController{
             const dto:GetActiveJobRequestDTO = GetActiveJobSchema.parse({jobId:req.params.id})
             const { jobId } =dto
             if(!jobId ||typeof jobId !=='string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"JobId is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"JobId is required")
             }
             const jobData = await this.getJobDetailsUseCase.execute(dto)
-            res.status(StatusCode.OK).json({
-                success:true,
+            
+            return ResponseHelper.success(res,StatusCode.OK,{
                 data:typeof jobData.toJSON()==='function'? jobData.toJSON():jobData
             })
+            // res.status(StatusCode.OK).json({
+            //     success:true,
+            //     data:typeof jobData.toJSON()==='function'? jobData.toJSON():jobData
+            // })
 
         } catch (error) {
             next(error)
@@ -103,19 +109,20 @@ export class CandidateController{
                 profileData : req.body
             })
             if(!dto.userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"User Id is required")
             }
             // const profileData = req.body
             const profile = await this.saveProfileuseCase.execute(dto)
 
-            return res.status(StatusCode.OK).json({
-                success:true,
-                message:"Profile saved successfully",
-                data: profile.toJSON()
-            })
+
+            return ResponseHelper.success(res,StatusCode.OK,{
+                data:profile.toJSON()
+            },"Profile saved successfully")
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     message:"Profile saved successfully",
+            //     data: profile.toJSON()
+            // })
         } catch (error) {
             next(error)
         }
@@ -127,18 +134,18 @@ export class CandidateController{
             const {userId} = dto
 
             if(!userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"User Id is required")
             }
 
             const profile = await this.getProfileCase.execute(dto) 
 
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 data: profile.toJSON()
             })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     data: profile.toJSON()
+            // })
         } catch (error) {
             next(error)
         }
@@ -149,17 +156,17 @@ export class CandidateController{
             const dto = GetUploadResumeURLSchema.parse(req.body)
             const {fileName,mimeType} = dto
             if(!fileName || !mimeType){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"fileName and mimeType are required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"fileName and mimeType are required")
             }
-            const result = await this.getUploadRESUseCase.execute(dto)
+            const result = await this.getUploadResumeUrlUseCase.execute(dto)
             
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 result
             })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     result
+            // })
 
         } catch (error) {
             next(error)
@@ -171,24 +178,21 @@ export class CandidateController{
             const userId = req.user?.userId
             const {fileKey} = req.body
             if(!userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"User Id is required")
             }
             if(!fileKey){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"fileKey is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"fileKey is required")
             }
 
             const result = await this.processResumeUseCase.execute(userId,fileKey)
 
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 result
             })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     result
+            // })
 
         } catch (error) {
             next(error)
@@ -198,17 +202,17 @@ export class CandidateController{
         try {
             const dto = GetResumeUrlSchema.parse({userId :req.user?.userId}) 
             if(!dto.userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"User Id is required")
             }
             const url = await this.getReadResumeUrlUseCase.execute(dto)
 
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 resumeUrl:url 
             })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     resumeUrl:url 
+            // })
 
         } catch (error) {
             next(error)
@@ -219,18 +223,17 @@ export class CandidateController{
         try { 
             const candidateId  = req.user?.userId 
             if(!candidateId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,"User Id is required")
             }
-            const interviews = await this.getCandidateInterviewUC.execute(candidateId)
+            const interviews = await this.getCandidateInterviewUseCase.execute(candidateId)
              
-
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{
                 interviews
             })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     interviews
+            // })
 
         } catch (error) {
             next(error)

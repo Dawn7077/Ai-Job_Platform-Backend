@@ -10,6 +10,7 @@ export const AuthMessages = {
     MISSING_FEILDS:"Missing required fields!",
     MISSING_EMAIL_PASSWORD:"Missing required email or password fields!",
     MISSING_EMAIL:"Missing required email field!",
+    MISSING_EMAIL_VERIFICATION:"Email is required for reapplying verification",
     MISSING_TOKEN_ROLE:"Missing Token or Role fields!",
     MISSING_OTP_EMAIL:"Email and OTP are required!",
 
@@ -39,5 +40,8 @@ export const AuthMessages = {
     
 
 }as const 
+
+
+
 
 export type AuthMessage  = typeof AuthMessages[keyof typeof AuthMessages]

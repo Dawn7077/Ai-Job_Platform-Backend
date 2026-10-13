@@ -64,16 +64,7 @@ export class CompanyController{
         try {
             const userId = req.user?.userId
             if(!userId){
-                return ResponseHelper.error(
-                    res,
-                    StatusCode.BAD_REQUEST,
-                    'User Id is required'
-                )
-
-                // return res.status(StatusCode.BAD_REQUEST).json({
-                //     success:false,
-                //     message:'User Id is required'
-                // })
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, 'User Id is required');
             }
             const profileData = req.body
             const profile = await this.saveProfileUseCase.execute(userId,profileData)
@@ -87,7 +78,8 @@ export class CompanyController{
             return ResponseHelper.success(
                 res,
                 StatusCode.OK,
-                profile.toJSON(),
+                {data:profile.toJSON()},
+                "Company profile saved successfully"
             )
              
         } catch (error) {
@@ -99,15 +91,11 @@ export class CompanyController{
         try {
             const userId = req.user?.userId
             if(!userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:'User Id is required'
-                })
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, 'User Id is required');
             } 
             const profile = await this.getProfileUseCase.execute(userId)
 
-            return res.status(StatusCode.OK).json({
-                success:true, 
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 data:profile.toJSON()
             })
         } catch (error) {
@@ -126,10 +114,7 @@ export class CompanyController{
             // const companyName =req.uyse
 
             if(!companyId  ){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:CompanyMessages.MISSING_NAME_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,CompanyMessages.MISSING_NAME_ID)
             }
 
             const job  = await this.createJobUseCase.execute(
@@ -137,8 +122,7 @@ export class CompanyController{
                 validatedData
             )
 
-            res.status(StatusCode.CREATED).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.CREATED,{ 
                 data: job.toJSON(),
             })
              
@@ -151,16 +135,13 @@ export class CompanyController{
         try {
             const companyId = req.user?.userId
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:CompanyMessages.UNAUTHORIZED
-                })
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,CompanyMessages.UNAUTHORIZED)
+               
             }
 
             const data = await this.getJobsUseCase.execute(companyId)
             
-            res.status(StatusCode.OK).json({
-                success:true, 
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 data:data.jobList, 
             })
 
@@ -176,16 +157,12 @@ export class CompanyController{
             const companyId = req.user?.userId 
 
             if(!companyId  ){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:CompanyMessages.MISSING_NAME_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,CompanyMessages.MISSING_NAME_ID)
+                
             }
             if(!jobId || typeof jobId !== 'string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:'job Id missing'
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,CompanyMessages.MISSING_JOB_ID)
+                
             }
 
             const job  = await this.udpateJobUseCase.execute(
@@ -193,8 +170,7 @@ export class CompanyController{
                 validatedData
             )
 
-            res.status(StatusCode.CREATED).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.CREATED,{ 
                 data: job.toJSON(),
             })
              
@@ -209,26 +185,17 @@ export class CompanyController{
             const companyId = req.user?.userId 
 
             if(!companyId  ){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:CompanyMessages.MISSING_NAME_ID
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,CompanyMessages.MISSING_NAME_ID)
             }
             if(!jobId || typeof jobId !== 'string'){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:'job Id missing'
-                })
+                return ResponseHelper.error(res,StatusCode.BAD_REQUEST,CompanyMessages.MISSING_JOB_ID)
             }
 
             await this.deleteJobUseCase.execute(
                 jobId,companyId,  
             )
 
-            res.status(StatusCode.CREATED).json({
-                success:true,
-                message: "Job successfully deleted",
-            })
+            return ResponseHelper.success(res,StatusCode.CREATED,CompanyMessages.SUCCESSFUL_JOB_DELETE)
              
         } catch (error) {
             next(error)
@@ -242,16 +209,12 @@ export class CompanyController{
             const dto  = GetCompanyApplicationsSchema.parse(req.user?.userId)
             const {companyId} = dto
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:CompanyMessages.UNAUTHORIZED
-                })
+                return ResponseHelper.error(res,StatusCode.UNAUTHORIZED,CompanyMessages.UNAUTHORIZED)
             }
             const applications = await this.getAllapplicationUseCase.execute(dto)
             const results = applications.map(app=>app.toJSON())
             
-            res.status(StatusCode.OK).json({
-                success:true, 
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 applications:results, 
             })
 
@@ -267,22 +230,16 @@ export class CompanyController{
             const {status} = (req.body)
 
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:CompanyMessages.UNAUTHORIZED
-                })
+                return ResponseHelper.error(res, StatusCode.UNAUTHORIZED, CompanyMessages.UNAUTHORIZED);
             }
-            if(!jobId || typeof jobId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
-                success:false,
-                error:"Invalid Job ID"
-            })
+            if(!jobId || typeof jobId !== 'string')
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, CompanyMessages.INVALID_JOB_ID);
             
             const applications = await this.getApplicationsByJobIdUC.execute(companyId,jobId,status)
 
-            res.status(StatusCode.OK).json({
-                success:true, 
-                applications:applications, 
-            })
+            return ResponseHelper.success(res, StatusCode.OK, {
+                applications
+            });
             
 
         } catch (error) {
@@ -299,26 +256,19 @@ export class CompanyController{
             const {jobId,id:applicationId} = dto
 
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:CompanyMessages.UNAUTHORIZED
-                })
+                return ResponseHelper.error(res, StatusCode.UNAUTHORIZED, CompanyMessages.UNAUTHORIZED);
             }
-            if(!applicationId || typeof applicationId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
-                success:false,
-                error:"Invalid Application ID"
-            })
-            if(!jobId || typeof jobId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
-                success:false,
-                error:"Invalid Job ID"
-            })
+            if(!applicationId || typeof applicationId !== 'string')
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST,CompanyMessages.INVALID_APPLICATION_ID );
+                 
+            if(!jobId || typeof jobId !== 'string')
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST,  CompanyMessages.INVALID_JOB_ID);
             
             const application = await this.getApplicationdetailsUC.execute(companyId,dto)
 
-            res.status(StatusCode.OK).json({
-                success:true, 
-                application:application.toJSON(), 
-            })
+            return ResponseHelper.success(res, StatusCode.OK, {
+                application: application.toJSON()
+            });
             
 
         } catch (error) {
@@ -332,10 +282,7 @@ export class CompanyController{
             const companyId = req.user?.userId
 
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    error:"User Id missing, UNAUTHORIZED"
-                })
+                return ResponseHelper.error(res, StatusCode.UNAUTHORIZED, "User Id missing, UNAUTHORIZED");
             }
 
             const applicationDTO =UpdateApplicationParamSchema.parse(req.params)
@@ -344,25 +291,25 @@ export class CompanyController{
             const {id:applicationId} =applicationDTO
             const {stage} = stageDTO
 
-            if(!applicationId || typeof applicationId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
-                success:false,
-                error:"Invalid Application ID"
-            })
+            if(!applicationId || typeof applicationId !== 'string')
+            {
+                 return ResponseHelper.error(res, StatusCode.BAD_REQUEST,CompanyMessages.INVALID_APPLICATION_ID );
+            }
+            //     return res.status(StatusCode.UNAUTHORIZED).json({
+            //     success:false,
+            //     error:"Invalid Application ID"
+            // })
 
 
             if(!stage || !Object.values(ApplicationStage).includes(stage)){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    error:"Invalid application stage provided"
-                })
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, "Invalid application stage provided");
             }
 
             const updatedApplication = await this.updateApplicationUseCase.execute(companyId,applicationDTO,stageDTO)
 
-            res.status(StatusCode.OK).json({
-                success:true,
-                data:updatedApplication.toJSON(),
-            })
+            return ResponseHelper.success(res, StatusCode.OK, {
+                data: updatedApplication.toJSON()
+            });
 
             
         } catch (error) {
@@ -377,10 +324,7 @@ export class CompanyController{
             const companyId = req.user?.userId
             
             if(!companyId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:CompanyMessages.UNAUTHORIZED
-                })
+                return ResponseHelper.error(res, StatusCode.UNAUTHORIZED, CompanyMessages.UNAUTHORIZED);
             }
             const dto = ScheduleInterviewSchema.parse(req.body)
             // const {applicationId,candidateId,scheduledAt} = dto
@@ -390,10 +334,7 @@ export class CompanyController{
                 interview:result.interview.toJSON(), 
                 application:result.application.toJSON(), 
             }
-            res.status(StatusCode.OK).json({
-                success:true, 
-                data,
-            })
+            return ResponseHelper.success(res, StatusCode.OK, { data });
             
 
         } catch (error) {
@@ -404,15 +345,18 @@ export class CompanyController{
     getByRoomKey = async(req:Request,res:Response,next:NextFunction)=>{
         try {
             const {roomKey} = GetInterviewByRoomKeyParamSchema.parse(req.params)
-            if(!roomKey || typeof roomKey !== 'string')return res.status(StatusCode.BAD_REQUEST).json({
-                success:false,
-                error:"Invalid roomKey provided"
-            })
+            if(!roomKey || typeof roomKey !== 'string'){
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, "Invalid roomKey provided");
+            }
+            // return res.status(StatusCode.BAD_REQUEST).json({
+            //     success:false,
+            //     error:"Invalid roomKey provided"
+            // })
             const result = await this.getByRoomKeyUC.execute({roomKey})
-            res.status(StatusCode.OK).json({
-                success:true, 
-                interview:result.toJSON(), 
-            })
+            
+            return ResponseHelper.success(res, StatusCode.OK, {
+                interview: result.toJSON()
+            });
 
         } catch (error) {
             next(error)
@@ -424,20 +368,27 @@ export class CompanyController{
             const {interviewId} = SubmitEvaluationParamSchema.parse(req.params)
             const dto = SubmitEvaluationBodySchema.parse(req.body)
             
-            if(!interviewId || typeof interviewId !== 'string')return res.status(StatusCode.BAD_REQUEST).json({
-                success:false,
-                error:"Invalid interview ID"
-            }) 
+            if(!interviewId || typeof interviewId !== 'string'){
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST, "Invalid interview ID");
+            }
+                
+            //     return res.status(StatusCode.BAD_REQUEST).json({
+            //     success:false,
+            //     error:"Invalid interview ID"
+            // }) 
             
             const result = await this.submitEvalutionUsecase.execute({
                 interviewId,
                 ...dto
             })
 
-            res.status(StatusCode.OK).json({
-                success:true, 
-                data:result.toJSON()
+            return ResponseHelper.success(res, StatusCode.OK, {
+                data: result.toJSON()
             })
+            // res.status(StatusCode.OK).json({
+            //     success:true, 
+            //     data:result.toJSON()
+            // })
             
 
         } catch (error) {
@@ -449,15 +400,11 @@ export class CompanyController{
         try {
             const companyId  = req.user?.userId 
             if(!companyId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:"User Id is required"
-                })
+                return ResponseHelper.error(res, StatusCode.BAD_REQUEST,CompanyMessages.MISSING_ID);
             }
             const interviews = await this.getCompanyInterviewUC.execute(companyId)
 
-            return res.status(StatusCode.OK).json({
-                success:true,
+            return ResponseHelper.success(res,StatusCode.OK,{ 
                 interviews
             })
 
