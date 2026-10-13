@@ -1,0 +1,335 @@
+import {injectable,inject} from 'inversify'
+import {TYPES} from '../../di/TYPES'
+import { NextFunction, Request, Response } from "express";
+import { StatusCode } from "../../shared/constants/status-code.constant";
+import { IRegisterUser } from '../../application/interface/use-cases/Auth/i-register.use-case'; 
+import { ILogin } from '../../application/interface/use-cases/Auth/i-login.use-case';  
+import { IRefreshToken } from "../../application/interface/services/i-refresh-token.service";
+import redisClient from "../../infrastructure/db/Redis/redis-client.db";
+import { ITokenService } from "../../application/interface/services/i-token.service";
+import { IGetMe } from '../../application/interface/use-cases/Auth/i-get-me.use-case';  
+import { IForgotPasswordUseCase } from '../../application/interface/use-cases/Auth/i-forgot-password.use-case';  
+import { IResetPasswordUseCase } from '../../application/interface/use-cases/Auth/i-reset-password.use-case';  
+import { ISignUpOTP } from '../../application/interface/use-cases/Auth/i-signup-otp.use-case';  
+import { IGoogleService } from '../../application/interface/use-cases/Auth/i-google-service.use-case'; 
+import { User } from "../../domain/entities/user.entity";
+import { AuthMessages } from "../../shared/constants/auth-messages.constant";
+import { IReapplyVerificationUseCase } from "../../application/use-case/Company/reapply-verification.use-case";
+import { LoginRequestDTO, LoginSchema } from '../../application/dtos/Auth/login.dto';
+import { logger } from '../../shared/utils/loggers.util';
+import { RegisterRequestDTO, RegisterSchema } from '../../application/dtos/Auth/register.dto';
+import { SendSignUpOTPRequestDTO, SendSignUpOTPSchema } from '../../application/dtos/Auth/signup.dto';
+import { ForgotPasswordRequestDTO, ForgotPasswordSchema } from '../../application/dtos/Auth/forgot-password.dto';
+import { ResetPasswordRequestDTO, ResetPasswordSchema } from '../../application/dtos/Auth/reset-password.dto';
+import { GetMeRequestDTO, GetMeSchema } from '../../application/dtos/Auth/get-me.dto';
+import { GoogleLoginRequestDTO, GoogleLoginSchema } from '../../application/dtos/Auth/google-login.dto';
+import { ResponseHelper } from '../../shared/models/response.model';
+
+
+@injectable()
+export class AuthController{
+    constructor(
+        @inject(TYPES.IRegisterUseCase) private registerTool:IRegisterUser,
+        @inject(TYPES.ISignupOTPUseCase) private signUpOtpTool:ISignUpOTP,
+        @inject(TYPES.ILoginUseCase) private loginTool:ILogin,
+        @inject(TYPES.IRefreshToken) private refreshTool:IRefreshToken,
+        @inject(TYPES.ITokenService) private tokenTool:ITokenService,
+        @inject(TYPES.IGetMeUseCase) private getMeTool:IGetMe,
+        @inject(TYPES.IForgotPasswordUseCase) private forgotPasswordTool:IForgotPasswordUseCase,
+        @inject(TYPES.IResetPasswordUseCase) private resetPasswordTool:IResetPasswordUseCase,
+        @inject(TYPES.IGoogleAuthService) private googleServiceTool:IGoogleService,
+        @inject(TYPES.IReapplyVerificationUseCase) private reapplyVerificationUC:IReapplyVerificationUseCase,
+
+    ){}
+
+    async handleSendSignUpOTP(req:Request,res:Response,next:NextFunction){
+        try {
+            const dto:SendSignUpOTPRequestDTO = SendSignUpOTPSchema.parse(req.body)
+            const {name,email,password,role} = dto
+            if(!email || !password || !name){
+                res.status(StatusCode.BAD_REQUEST)
+                .json({
+                    success:false,
+                    error:AuthMessages.MISSING_EMAIL_PASSWORD
+                })
+                return
+            }
+
+            await this.signUpOtpTool.execute(dto)
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                message:AuthMessages.OTP_SENT,
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleRegister(req:Request,res:Response,next:NextFunction){
+        try {
+            // const {email,otp} =req.body
+            const dto:RegisterRequestDTO = RegisterSchema.parse(req.body)
+            if(!dto.email || !dto.otp){
+                res.status(StatusCode.BAD_REQUEST)
+                .json({
+                    success:false,
+                    error:AuthMessages.MISSING_OTP_EMAIL
+                })
+                return
+            }
+            
+
+            const result = await this.registerTool.execute(dto)
+
+            if('requiresApproval' in result && result.requiresApproval){
+                return res.status(StatusCode.CREATED).json({
+                    success:true,
+                    message:result.message,
+                    requiresApproval:true,
+                    user:result.user.toJSON()
+                })
+            }
+
+            res.cookie('access_token',result.accessToken,{
+                httpOnly:true,
+                secure:false,
+                maxAge:15*60*1000
+            })
+            res.cookie('refresh_token',result.refreshToken,{
+                httpOnly:true,
+                secure:false,
+                maxAge:2*24*60*60*1000
+            })
+ 
+
+            res.status(StatusCode.CREATED).json({
+                success:true,
+                message:AuthMessages.REGISTER_SUCCESS,
+                user:result.user.toJSON(),
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+    async handleLogin(req:Request,res:Response,next:NextFunction){
+        try {
+            const dto:LoginRequestDTO  = LoginSchema.parse(req.body) 
+            if(!dto.email||!dto.password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
+            
+            const {accessToken,refreshToken,user,isOnboarding} = await this.loginTool.execute(dto)
+
+            console.log("isOnboarding=>",isOnboarding)
+            //store in redis not done
+
+            res.cookie('access_token',accessToken,{
+                httpOnly:true,
+                secure:false, // development phase https is off
+                maxAge:15*60*1000 //15 mins
+            })
+
+            res.cookie('refresh_token',refreshToken,{
+                httpOnly:true,
+                secure:false,
+                maxAge:2*24*60*60*1000
+            })
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                user:user.toJSON(),
+                isOnboarding 
+            })
+
+            // return ResponseHelper.success(res,StatusCode.OK,
+            //     {
+            //         user:user.toJSON(),
+            //         isOnboarding
+            //     }              
+            // )
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+    async handleRefreshToke(req:Request,res:Response,next:NextFunction){
+        try {
+            // const {refreshToken} = req.body
+            const refreshToken = req.cookies.refresh_token
+            const {accessToken} = await this.refreshTool.execute(refreshToken)
+
+            res.cookie('access_token',accessToken,{
+                httpOnly:true,
+                secure:false,  
+                maxAge:15*60*1000  
+            })
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                accessToken
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleLogout(req:Request,res:Response,next:NextFunction){
+        try {
+            const refreshToken = req.cookies.refresh_token
+
+            if(refreshToken){ 
+                //redis clear req.user
+                try { 
+                    const decoded = this.tokenTool.decodeToken(refreshToken)
+                    if(decoded && typeof decoded ==='object' && 'userId' in decoded) 
+                            await redisClient.del(`refresh_token:${decoded.userId}`)
+                } catch (error) {
+                   
+                }
+            }
+            res.clearCookie('access_token')
+            res.clearCookie('refresh_token')
+            res.status(StatusCode.OK).json({
+                success:true,
+                message:AuthMessages.LOGOUT_SUCCESS
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleGetMe(req:Request,res:Response,next:NextFunction){
+        try {
+            const dto:GetMeRequestDTO = GetMeSchema.parse({userId:req.user?.userId})
+            const {userId} = dto
+            if(!userId)return res.status(StatusCode.UNAUTHORIZED)
+                .json({success:false,message:AuthMessages.UNAUTHORIZED})
+
+            const user = await this.getMeTool.execute(dto)
+            console.log(userId,user.getId())
+            res.status(StatusCode.OK).json({
+                success:true,
+                user:user.toJSON()
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleForgotPassword(req:Request,res:Response,next:NextFunction){
+        try{
+            const dto:ForgotPasswordRequestDTO = ForgotPasswordSchema.parse(req.body)
+            const {email } = dto
+            if(!email ){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    error:AuthMessages.MISSING_EMAIL
+                })
+            }
+            
+            await this.forgotPasswordTool.execute(dto)
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                message:AuthMessages.OTP_SENT
+            })
+
+            
+        }
+        catch (error) {
+            next(error)
+        }
+    }
+    async handleResetPassword(req:Request,res:Response,next:NextFunction){
+        try{
+            const dto:ResetPasswordRequestDTO = ResetPasswordSchema.parse(req.body)
+            const {email ,otp,newPassword} = dto
+            if(!email || !otp || !newPassword){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    error:AuthMessages.MISSING_FEILDS
+                })                
+            }
+
+            await this.resetPasswordTool.execute(dto)
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                message:AuthMessages.RESET_SUCCESS
+            })
+        }
+        catch (error) {
+            next(error)
+        }
+    }
+
+    async handleGoogleLogin(req:Request,res:Response,next:NextFunction){
+        try {
+            const dto:GoogleLoginRequestDTO = GoogleLoginSchema.parse(req.body)
+            const {token,role} =dto
+            if(!token || !role){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    error:AuthMessages.MISSING_TOKEN_ROLE
+                })  
+            }
+
+            const result = await this.googleServiceTool.execute({token,role})
+
+            if('requiresApproval' in  result && result.requiresApproval){
+                return res.status(StatusCode.CREATED).json({
+                    success:true,
+                    message:result.message,
+                    requiresApproval:true,
+                    user:result.user.toJSON()
+                })
+            } 
+
+            // const successRes = result as {accessToken:string,refreshToken:string,user:User}
+            const {accessToken,refreshToken,user,isOnboarding} = result as {accessToken:string,refreshToken:string,user:User,isOnboarding:boolean}
+
+            res.cookie('access_token',accessToken,{
+                httpOnly:true,
+                secure:false, // development phase https is off
+                maxAge:15*60*1000 //15 mins
+            })
+
+            res.cookie('refresh_token',refreshToken,{
+                httpOnly:true,
+                secure:false,
+                maxAge:2*24*60*60*1000
+            })
+
+            res.status(StatusCode.OK).json({
+                success:true,
+                user:user.toJSON(),
+                isOnboarding
+                // accessToken:accessToken,
+                // refreshToken:refreshToken
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async handleReapplyVerication(req:Request,res:Response,next:NextFunction){
+        try {
+            const {email} = req.body
+            if(!email){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:"Email is required for reapplying verification"
+                })
+            }
+
+            const result = await this.reapplyVerificationUC.execute(email)
+
+            res.status(StatusCode.OK).json(result)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+}

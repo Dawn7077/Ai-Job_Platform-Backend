@@ -1,5 +1,5 @@
 import {  z} from 'zod'
-import { User } from '../../../domain/entities/User'
+import { User } from '../../../domain/entities/user.entity'
 
 export const LoginSchema = z.object({
     email:z.string().email("Invalid email address format.").toLowerCase().trim(),

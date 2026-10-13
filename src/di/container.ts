@@ -3,15 +3,15 @@ import {Container} from 'inversify'
 import {TYPES} from './TYPES'
 
 import {PrismaClient} from '@prisma/client'
-import clientConnection from '../infrastructure/db/Mongo/MongoConnection'  
-import redisClient from '../infrastructure/db/Redis/redisClient'
-import s3Client,{R2StorageService} from '../infrastructure/services/r2StorageService'
-import { GatewayModels } from '../infrastructure/ai/GatewayModels'
+import clientConnection from '../infrastructure/db/mongo/mongo-connection.db'  
+import redisClient from '../infrastructure/db/Redis/redis-client.db'
+import s3Client,{R2StorageService} from '../infrastructure/services/r2-storage.service'
+import { GatewayModels } from '../infrastructure/ai/gateway.models'
  
 import {authModule} from './modules/auth.module'
 import { candidateModule } from './modules/candidate.module'
 import { companyModule } from './modules/company.module'
-import { adminModule } from './modules/adminModule'
+import { adminModule } from './modules/admin.module'
 
 
 const container = new Container()

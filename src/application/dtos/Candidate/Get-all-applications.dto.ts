@@ -1,6 +1,6 @@
 import {  z} from 'zod'
-import { ApplicationProps } from '../../../domain/entities/Application'
-import { JobProps } from '../../../domain/entities/Job'
+import { ApplicationProps } from '../../../domain/entities/application.entity'
+import { JobProps } from '../../../domain/entities/job.entity'
 
 //all candidate applicatioins 
     export const GetAllApplicationSchema_Candidate = z.object({
