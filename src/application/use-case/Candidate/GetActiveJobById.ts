@@ -5,12 +5,14 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetActiveJobById } from "../../interface/I-UseCases/Candidate/IGetActiveJobById";
 import { TYPES } from "../../../di/TYPES";
+import { GetActiveJobRequestDTO } from "../../dtos/Candidate/Get-Active-JobId.dto";
 
 @injectable()
 export class GetActiveJobById implements IGetActiveJobById{
     constructor(@inject(TYPES.IJobRepo)private jobRepo:IJobRepository){}
 
-    async execute(jobId:string):Promise<Job>{
+    async execute(dto:GetActiveJobRequestDTO):Promise<Job>{
+        const {jobId}=dto
         const job = await this.jobRepo.findById(jobId)
         if(!job|| job.status!=='OPEN'){
             throw new AppError(

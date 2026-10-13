@@ -9,6 +9,7 @@ import { RefreshExpiry } from "../../../shared/constants/roles";
 import { AuthMessages } from "../../../shared/constants/authMessages";
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES'
+import { RegisterRequestDTO } from "../../dtos/Auth/register.dto";
 
 @injectable()
 export default class Register implements IRegisterUser{
@@ -18,7 +19,8 @@ export default class Register implements IRegisterUser{
         @inject(TYPES.IRedisService) private RedisTool:ICacheService,
     ){}
 
-    async execute(email:string,otp:string){ 
+    async execute(dto:RegisterRequestDTO){ 
+        const {email,otp} = dto
         const cachedData = await this.RedisTool.get(`signup_otp:${email}`)
         if(!cachedData){
             throw new AppError(
@@ -63,8 +65,8 @@ export default class Register implements IRegisterUser{
             }
         }
 
-        const accessToken = this.TokenTool.generateAccesToken({userId:newUser.getId(),role:newUser.getRole()})
-        const refreshToken = this.TokenTool.generateRefreshToken({userId:newUser.getId(),role:newUser.getRole()})
+        const accessToken = this.TokenTool.generateAccesToken({userId:newUser.getId(),role:newUser.getRole(),status:newUser.getStatus()})
+        const refreshToken = this.TokenTool.generateRefreshToken({userId:newUser.getId(),role:newUser.getRole(),status:newUser.getStatus()})
         const refreshTokenKey = `refresh_token:${newUser.getId()}`
         await this.RedisTool.set(refreshTokenKey,refreshToken,RefreshExpiry)
 

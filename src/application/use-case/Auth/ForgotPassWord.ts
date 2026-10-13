@@ -8,6 +8,7 @@ import { ExpiryOTP } from "../../../shared/constants/roles.js";
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES.js'
 import { IForgotPasswordUseCase } from "../../interface/I-UseCases/Auth/IForgotPasswordUseCase.js";  
+import { ForgotPasswordRequestDTO } from "../../dtos/Auth/forgot-password.dto.js";
 
 
 
@@ -20,7 +21,8 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase{
         @inject(TYPES.IRedisService) private RedisService:ICacheService,
     ){}
 
-    async execute(email:string):Promise<void>{
+    async execute(dto:ForgotPasswordRequestDTO):Promise<void>{
+        const {email} = dto
         const user = await this.userRepo.findByEmail(email)
         if(!user)
             throw new AppError(

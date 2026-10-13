@@ -9,6 +9,7 @@ import { ICandidateProfileRepository } from "../../../domain/repositories/ICandi
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES'
 import { IGoogleService } from "../../interface/I-UseCases/Auth/IGoogleService"; 
+import { GoogleLoginRequestDTO, GoogleLoginResponseDTO } from "../../dtos/Auth/googleLogin.dto";
 
 export interface GoogleLoginInput{
     token:string
@@ -26,10 +27,7 @@ export class GoogleLoginUseCase implements IGoogleService{
         @inject(TYPES.IRedisService) private RedisService:ICacheService
     ){}
 
-    async execute(inputData:GoogleLoginInput):Promise<
-        | {user:User; requiresApproval:true ; message:string}
-        | { accessToken: string; refreshToken: string; user:User ; isOnboarding:boolean}
-    >{
+    async execute(inputData:GoogleLoginRequestDTO):Promise<GoogleLoginResponseDTO>{
         const profile = await this.googleAuthService.verifyandGetProfile(inputData.token)
 
         let user = await this.UserRepo.findByEmail(profile.email)

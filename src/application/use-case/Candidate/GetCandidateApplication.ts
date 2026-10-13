@@ -7,12 +7,10 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetCandidateApplication } from "../../interface/I-UseCases/Candidate/IGetCandidateApplication";
 import { TYPES } from "../../../di/TYPES";
+import { ApplicationDetailsResponse, GetCandidateApplicationRequestDTO } from "../../dtos/Candidate/Get-all-applications.dto";
 
 
-export interface ApplicationDetailsResponse{
-    application:ApplicationProps,
-    job:JobProps|null
-}
+
 
 @injectable()
 export class  GetCandidateApplication implements IGetCandidateApplication {
@@ -21,7 +19,9 @@ export class  GetCandidateApplication implements IGetCandidateApplication {
         @inject(TYPES.IJobRepo) private jobRepo:IJobRepository
     ){}
 
-    async execute(candidateId:string,applicationId:string):Promise<ApplicationDetailsResponse>{
+    async execute(dto:GetCandidateApplicationRequestDTO):Promise<ApplicationDetailsResponse>{
+        const{candidateId,applicationId} = dto
+        
         const application = await this.applicationRepo.findById(applicationId)
 
         if(!application){

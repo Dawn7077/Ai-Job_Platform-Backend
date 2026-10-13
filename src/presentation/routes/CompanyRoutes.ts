@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { ITokenService } from "../../application/interface/I-Services/ITokenService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { authorizeRole } from "../middleware/roleMiddleware";
-import { UserRoleConstants } from "../../shared/constants/roles";
+import { UserRole } from "../../shared/constants/roles";
 import { CompanyController } from "../controller/CompanyController";
 
 export function CompanyRouter(
@@ -11,7 +11,7 @@ export function CompanyRouter(
     const router = Router()
 
     router.use(authMiddleware(tokenService))
-    router.use(authorizeRole(UserRoleConstants.COMPANY))
+    router.use(authorizeRole(UserRole.COMPANY))
 
 
 // profile
@@ -30,20 +30,26 @@ export function CompanyRouter(
     router.post('/jobs',(req:Request,res:Response,next:NextFunction)=>{
         companyController.postJob(req,res,next)
     })
+    router.put('/jobs/:jobId',(req:Request,res:Response,next:NextFunction)=>{
+        companyController.updateJob(req,res,next)
+    })
+    router.delete('/jobs/:jobId',(req:Request,res:Response,next:NextFunction)=>{
+        companyController.deleteJob(req,res,next)
+    })
 
 // application routes
 
-    router.get('/applications',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
+    router.get('/applications',authorizeRole(UserRole.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
         companyController.getAllApplications(req,res,next)
     })
 
-    router.get('/application/:id/:jobId',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
+    router.get('/application/:id/:jobId',authorizeRole(UserRole.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
         companyController.getApplicationById(req,res,next)
     })
-    router.get('/applications/:jobId',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
+    router.get('/applications/:jobId',authorizeRole(UserRole.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
         companyController.getApplicationByJobId(req,res,next)
     })
-    router.patch('/applications/:id/stage',authorizeRole(UserRoleConstants.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
+    router.patch('/applications/:id/stage',authorizeRole(UserRole.COMPANY),(req:Request,res:Response,next:NextFunction)=>{
         companyController.updateApplication(req,res,next)
     })
     

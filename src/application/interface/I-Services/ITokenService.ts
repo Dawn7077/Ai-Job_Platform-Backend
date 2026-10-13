@@ -1,9 +1,10 @@
-import { UserRole } from "../../../domain/entities/User"
+import { UserRole, UserStatus } from "../../../domain/entities/User"
 import jwt from 'jsonwebtoken' 
 
 export interface TokenPayload{
     userId:string
     role:UserRole
+    status:UserStatus
 }
 
 export interface ITokenService{

@@ -15,6 +15,15 @@ import { IGoogleService } from '../../application/interface/I-UseCases/Auth/IGoo
 import { User } from "../../domain/entities/User";
 import { AuthMessages } from "../../shared/constants/authMessages";
 import { IReapplyVerificationUseCase } from "../../application/use-case/Company/ReapplyVerificationUseCase";
+import { LoginRequestDTO, LoginSchema } from '../../application/dtos/Auth/login.dto';
+import { logger } from '../../shared/utils/loggers';
+import { RegisterRequestDTO, RegisterSchema } from '../../application/dtos/Auth/register.dto';
+import { SendSignUpOTPRequestDTO, SendSignUpOTPSchema } from '../../application/dtos/Auth/sigup.dto';
+import { ForgotPasswordRequestDTO, ForgotPasswordSchema } from '../../application/dtos/Auth/forgot-password.dto';
+import { ResetPasswordRequestDTO, ResetPasswordSchema } from '../../application/dtos/Auth/reset-password.dto';
+import { GetMeRequestDTO, GetMeSchema } from '../../application/dtos/Auth/GetMe.dto';
+import { GoogleLoginRequestDTO, GoogleLoginSchema } from '../../application/dtos/Auth/googleLogin.dto';
+import { ResponseHelper } from '../../shared/models/response.model';
 
 
 @injectable()
@@ -35,7 +44,8 @@ export class AuthController{
 
     async handleSendSignUpOTP(req:Request,res:Response,next:NextFunction){
         try {
-            const {name,email,password,role} = req.body
+            const dto:SendSignUpOTPRequestDTO = SendSignUpOTPSchema.parse(req.body)
+            const {name,email,password,role} = dto
             if(!email || !password || !name){
                 res.status(StatusCode.BAD_REQUEST)
                 .json({
@@ -45,7 +55,7 @@ export class AuthController{
                 return
             }
 
-            await this.signUpOtpTool.execute(name,email,password,role)
+            await this.signUpOtpTool.execute(dto)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -58,8 +68,9 @@ export class AuthController{
 
     async handleRegister(req:Request,res:Response,next:NextFunction){
         try {
-            const {email,otp} =req.body
-            if(!email || !otp){
+            // const {email,otp} =req.body
+            const dto:RegisterRequestDTO = RegisterSchema.parse(req.body)
+            if(!dto.email || !dto.otp){
                 res.status(StatusCode.BAD_REQUEST)
                 .json({
                     success:false,
@@ -69,7 +80,7 @@ export class AuthController{
             }
             
 
-            const result = await this.registerTool.execute(email,otp)
+            const result = await this.registerTool.execute(dto)
 
             if('requiresApproval' in result && result.requiresApproval){
                 return res.status(StatusCode.CREATED).json({
@@ -105,10 +116,10 @@ export class AuthController{
 
     async handleLogin(req:Request,res:Response,next:NextFunction){
         try {
-            const {email,password} =req.body
-            if(!email||!password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
+            const dto:LoginRequestDTO  = LoginSchema.parse(req.body) 
+            if(!dto.email||!dto.password)return res.status(StatusCode.BAD_REQUEST).json({success:false,err:AuthMessages.MISSING_EMAIL_PASSWORD})
             
-            const {accessToken,refreshToken,user,isOnboarding} = await this.loginTool.execute(email,password)
+            const {accessToken,refreshToken,user,isOnboarding} = await this.loginTool.execute(dto)
 
             console.log("isOnboarding=>",isOnboarding)
             //store in redis not done
@@ -128,10 +139,15 @@ export class AuthController{
             res.status(StatusCode.OK).json({
                 success:true,
                 user:user.toJSON(),
-                isOnboarding
-                // accessToken:accessToken,
-                // refreshToken:refreshToken
+                isOnboarding 
             })
+
+            // return ResponseHelper.success(res,StatusCode.OK,
+            //     {
+            //         user:user.toJSON(),
+            //         isOnboarding
+            //     }              
+            // )
         } catch (error) {
             next(error)
         }
@@ -186,11 +202,12 @@ export class AuthController{
 
     async handleGetMe(req:Request,res:Response,next:NextFunction){
         try {
-            const userId = req.user?.userId
+            const dto:GetMeRequestDTO = GetMeSchema.parse({userId:req.user?.userId})
+            const {userId} = dto
             if(!userId)return res.status(StatusCode.UNAUTHORIZED)
                 .json({success:false,message:AuthMessages.UNAUTHORIZED})
 
-            const user = await this.getMeTool.execute(userId)
+            const user = await this.getMeTool.execute(dto)
             console.log(userId,user.getId())
             res.status(StatusCode.OK).json({
                 success:true,
@@ -203,7 +220,8 @@ export class AuthController{
 
     async handleForgotPassword(req:Request,res:Response,next:NextFunction){
         try{
-            const {email } = req.body
+            const dto:ForgotPasswordRequestDTO = ForgotPasswordSchema.parse(req.body)
+            const {email } = dto
             if(!email ){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
@@ -211,7 +229,7 @@ export class AuthController{
                 })
             }
             
-            await this.forgotPasswordTool.execute(email)
+            await this.forgotPasswordTool.execute(dto)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -226,7 +244,8 @@ export class AuthController{
     }
     async handleResetPassword(req:Request,res:Response,next:NextFunction){
         try{
-            const {email ,otp,newPassword} = req.body
+            const dto:ResetPasswordRequestDTO = ResetPasswordSchema.parse(req.body)
+            const {email ,otp,newPassword} = dto
             if(!email || !otp || !newPassword){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
@@ -234,7 +253,7 @@ export class AuthController{
                 })                
             }
 
-            await this.resetPasswordTool.execute(email,otp,newPassword)
+            await this.resetPasswordTool.execute(dto)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -248,7 +267,8 @@ export class AuthController{
 
     async handleGoogleLogin(req:Request,res:Response,next:NextFunction){
         try {
-            const {token,role} =req.body
+            const dto:GoogleLoginRequestDTO = GoogleLoginSchema.parse(req.body)
+            const {token,role} =dto
             if(!token || !role){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,

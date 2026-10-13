@@ -1,6 +1,6 @@
 import { InterviewEvaluation } from "../../../../domain/entities/InterviewEvaluation";
-import { EvaluationPayload } from "../../../use-case/Interview/SubmitEvaludationUseCase";
+import { SubmitEvaluationPayloadDTO } from "../../../dtos/Interview/submitEvaluation.dto";
 
 export interface ISubmitInterviewEvaluationUC{
-    execute(payload: EvaluationPayload): Promise<InterviewEvaluation>
+    execute(payload:SubmitEvaluationPayloadDTO): Promise<InterviewEvaluation>
 }

@@ -7,7 +7,7 @@ export type IAuthorizeRole = (...allowedRoles:string[])=>RequestHandler
 
 
 export const authorizeRole:IAuthorizeRole = (...allowedRoles:string[]):RequestHandler=>{
-    return(req:Request,res:Response,next:NextFunction):void=>{
+    return(req:Request,_:Response,next:NextFunction):void=>{
         if(!req.user || !req.user.role){
             return next(new AppError(
                 AuthMessages.UNAUTHORIZED,

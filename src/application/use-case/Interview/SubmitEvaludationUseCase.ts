@@ -5,15 +5,16 @@ import { AppError } from "../../../shared/AppErrors"
 import { StatusCode } from "../../../shared/StatusCode"
 import { ISubmitInterviewEvaluationUC } from "../../interface/I-UseCases/Company/ISubmitInterviewEvaluationUC"
 import { TYPES } from "../../../di/TYPES"
+import { SubmitEvaluationPayloadDTO } from "../../dtos/Interview/submitEvaluation.dto"
 
-export interface EvaluationPayload{
-    interviewId:string
-    technicalScore:number
-    communicationScore:number 
-    problemSolvingScore:number      
-    notes:string        
-    decision:"HIRED"|"REJECTED"|"NEXT_ROUND"|"PENDING" 
-}
+// export interface EvaluationPayload{
+//     interviewId:string
+//     technicalScore:number
+//     communicationScore:number 
+//     problemSolvingScore:number      
+//     notes:string        
+//     decision:"HIRED"|"REJECTED"|"NEXT_ROUND"|"PENDING" 
+// }
 
 
 @injectable()
@@ -22,7 +23,7 @@ export class SubmitInterviewEvaluationUC implements ISubmitInterviewEvaluationUC
         @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository
     ){}
 
-    async execute(payload:EvaluationPayload){
+    async execute(payload:SubmitEvaluationPayloadDTO){
         const interview = await this.interviewRepo.findById(payload.interviewId)
         if(!interview){
             throw new AppError(

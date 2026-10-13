@@ -8,7 +8,7 @@ import { StatusCode } from "../../../shared/StatusCode";
 import { IGetApplicationByJobIdUC } from "../../interface/I-UseCases/Company/IGetApplicationByJobIdUC";
 import { TYPES } from "../../../di/TYPES";
 
-
+// get all applications per jobs for a company
 @injectable()
 export class GetApplicationByJobIdUC implements IGetApplicationByJobIdUC{
     constructor(

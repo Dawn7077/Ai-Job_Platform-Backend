@@ -1,7 +1,5 @@
-import { UserRole } from "../../../domain/entities/User";
+import { SendSignUpOTPRequestDTO, SendSignUpOTPResponseDTO } from "../../../dtos/Auth/sigup.dto";
 
 export interface ISignUpOTP{
-    execute(name: string, email: string, password: string, role:UserRole): Promise<{
-        email: string;
-    }>
+    execute(dto:SendSignUpOTPRequestDTO): Promise<SendSignUpOTPResponseDTO>
 }

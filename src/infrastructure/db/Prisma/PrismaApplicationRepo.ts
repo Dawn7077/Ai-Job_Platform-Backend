@@ -2,11 +2,15 @@ import {PrismaClient} from '@prisma/client'
 import { CreateApplicationInputDTO, IApplicationRepository } from '../../../domain/repositories/IApplicationRepo';
 import { Application , ApplicationStage as JobAppStage} from '../../../domain/entities/Application';
 import { ApplicationMapper } from '../mappers/ApplicationMapper';
-import {  injectable } from 'inversify'; 
+import {  inject, injectable } from 'inversify'; 
 import { BaseRepository } from './BaseRepository';
+import { TYPES } from '../../../di/TYPES';
 
 @injectable()
 export class PrismaApplicationRepo extends BaseRepository implements IApplicationRepository {
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    }
 
     async create(data: CreateApplicationInputDTO): Promise<Application> {
         const raw = await this.prisma.application.create({

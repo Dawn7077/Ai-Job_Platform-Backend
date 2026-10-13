@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { ITokenService } from "../../application/interface/I-Services/ITokenService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { authorizeRole } from "../middleware/roleMiddleware";
-import { UserRoleConstants } from "../../shared/constants/roles";
+import { UserRole } from "../../shared/constants/roles";
 import { AdminController } from "../controller/AdminController";
 
 
@@ -13,7 +13,7 @@ export function AdminRouter(
 ){
     const router = Router()
     router.use(authMiddleware(tokenTool))
-    router.use(authorizeRole(UserRoleConstants.ADMIN))
+    router.use(authorizeRole(UserRole.ADMIN))
 
      
     router.get('/pending-companies',(req,res,next)=>{

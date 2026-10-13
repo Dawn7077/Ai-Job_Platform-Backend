@@ -2,6 +2,8 @@ import { NextFunction, Request, RequestHandler, Response } from "express"
 import { ITokenService } from "../../application/interface/I-Services/ITokenService"
 import { StatusCode } from "../../shared/StatusCode"
 import { AuthMessages } from "../../shared/constants/authMessages"
+import { UserStatus } from "../../domain/entities/User"
+import redisClient from "../../infrastructure/db/Redis/redisClient"
 
 declare global{
     namespace Express{
@@ -9,15 +11,16 @@ declare global{
             user?:{
                 userId:string 
                 role:string
+                status:UserStatus
             }
         }
     }
 }
 export interface authReq extends Request{
     user?:{
-        userId:string
-        // email:string
+        userId:string 
         role:string
+        status:UserStatus
     }
 }
 
@@ -37,6 +40,22 @@ export const authMiddleware:IAuthMiddleware = (tokenTool:ITokenService)=>{
             }
 
             const decodedUser =  tokenTool.verifyAccessToken(accesstToken)
+
+
+            if(decodedUser.status ==='DELETED'){
+                res.status(StatusCode.FORBIDDEN).json({
+                    success:false,
+                    message:AuthMessages.DELETED_ACCOUNT
+                })
+                return
+            }
+            if(decodedUser.status ==='SUSPENDED'){
+                res.status(StatusCode.FORBIDDEN).json({
+                    success:false,
+                    message:AuthMessages.SUSPENDED_ACCOUNT
+                })
+                return
+            }
 
             req.user = decodedUser 
 

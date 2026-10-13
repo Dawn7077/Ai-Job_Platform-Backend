@@ -8,6 +8,7 @@ import { CompanyMessages } from "../../../shared/constants/CompanyMessages"
 import { StatusCode } from "../../../shared/StatusCode"
 import { ICreateJobUseCase } from "../../interface/I-UseCases/Company/ICreateJobUseCase"
 import { TYPES } from "../../../di/TYPES"
+import { CreateJobRequestDTO } from "../../dtos/Company/createJob.dto"
 
 
 export interface CreateJobInputData{
@@ -30,8 +31,8 @@ export class CreateJobUseCase implements ICreateJobUseCase{
         @inject(TYPES.IVectorSearchService)private vectorSearchService:IVectorSearchService
     ){}
 
-    async execute(Job_data:CreateJobInputData){
-        const company = await this.userRepo.findById(Job_data.companyId)
+    async execute(companyId:string,Job_data:CreateJobRequestDTO){
+        const company = await this.userRepo.findById(companyId)
 
         if(!company){
             throw new AppError(
@@ -44,7 +45,7 @@ export class CreateJobUseCase implements ICreateJobUseCase{
 
 
         const job =  new Job({
-            companyId:Job_data.companyId,
+            companyId:companyId,
             title:Job_data.title,
             jobType:Job_data.jobType,
             description:Job_data.description,

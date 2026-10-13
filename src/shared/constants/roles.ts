@@ -1,8 +1,15 @@
-export enum UserRoleConstants{
+export enum UserRole{
     CANDIDATE = 'CANDIDATE',
     COMPANY ='COMPANY',
     ADMIN = 'ADMIN'
-}
+} 
+export enum UserStatus{
+    ACTIVE = 'ACTIVE',
+    SUSPENDED ='SUSPENDED',
+    PENDING = 'PENDING',
+    DELETED="DELETED"
+}  
+
 
 export const ExpiryOTP = 60
 export const ResetOTPExpiry = 60

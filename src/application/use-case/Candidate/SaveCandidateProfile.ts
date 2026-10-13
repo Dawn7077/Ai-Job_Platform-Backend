@@ -5,12 +5,15 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { ISaveCandidateProfile } from "../../interface/I-UseCases/Candidate/ISaveCandidateProfile";
 import { TYPES } from "../../../di/TYPES";
+import { SaveCandidateProfileRequestDTO } from "../../dtos/Candidate/save-profile.dto";
 
 @injectable()
 export class SaveCandidateProfile implements ISaveCandidateProfile{
     constructor(@inject(TYPES.ICandidateProfileRepo) private profileRepo:ICandidateProfileRepository){}
 
-    async execute(userId:string,profileData:Partial<CandidateProfileProps>){
+    async execute(dto:SaveCandidateProfileRequestDTO){
+        // userId:string,profileData:Partial<CandidateProfileProps>
+        const{userId,profileData} = dto
         if(!userId){
             throw new AppError(
                 'Unauthorized: User ID missing',

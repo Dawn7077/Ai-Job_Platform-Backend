@@ -2,14 +2,14 @@ import { NextFunction, Request, Response, Router } from "express";
 import { ITokenService } from "../../application/interface/I-Services/ITokenService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import {authorizeRole}from '../middleware/roleMiddleware'
-import { UserRoleConstants } from "../../shared/constants/roles";
+import { UserRole } from "../../shared/constants/roles";
 import { CandidateController } from "../controller/CandidateController";
 
 export function CandidateRoute(candidateController:CandidateController,tokenTool:ITokenService){
     const router = Router()
 
     router.use(authMiddleware(tokenTool))
-    router.use(authorizeRole(UserRoleConstants.CANDIDATE))
+    router.use(authorizeRole(UserRole.CANDIDATE))
 
     // router.get('/home',(req:Request,res:Response,next:NextFunction)=>{
     //     candidateController.getHome(req,res)

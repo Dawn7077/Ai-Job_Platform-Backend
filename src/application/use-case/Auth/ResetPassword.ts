@@ -7,6 +7,7 @@ import { StatusCode } from "../../../shared/StatusCode";
 import redisClient, { ICacheService } from '../../../infrastructure/db/Redis/redisClient'
 import { AuthMessages } from "../../../shared/constants/authMessages";
 import { IResetPasswordUseCase } from '../../interface/I-UseCases/Auth/IResetPasswordUseCase'; 
+import { ResetPasswordRequestDTO } from '../../dtos/Auth/reset-password.dto';
 
 
 
@@ -18,7 +19,9 @@ export class ResetPassswordUseCase  implements IResetPasswordUseCase{
         @inject(TYPES.IRedisService) private RedisTool:ICacheService,
     ){}
 
-    async execute (email:string,otp:string,newPassword:string): Promise <void> {
+    async execute (dto:ResetPasswordRequestDTO): Promise <void> {
+        const {email,otp,newPassword} = dto
+        
         const user = await this.SQLTool.findByEmail(email)
         if(!user)
             throw new AppError(

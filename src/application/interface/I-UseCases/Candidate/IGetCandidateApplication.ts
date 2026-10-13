@@ -1,5 +1,7 @@
-import { ApplicationDetailsResponse } from "../../../use-case/Candidate/GetCandidateApplication";
+import { ApplicationDetailsResponse, GetCandidateApplicationRequestDTO } from "../../../dtos/Candidate/Get-all-applications.dto"; 
 
 export interface IGetCandidateApplication{
-    execute(candidateId: string, applicationId: string): Promise<ApplicationDetailsResponse>
+    execute(dto:GetCandidateApplicationRequestDTO): Promise<ApplicationDetailsResponse>
 }
+
+

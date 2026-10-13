@@ -1,5 +1,7 @@
-import { User } from "../../domain/entities/User";
+import { User } from "../../../../domain/entities/User";
+import { GetMeRequestDTO } from "../../../dtos/Auth/GetMe.dto";
+ 
 
 export interface IGetMe{
-    execute(userId:string):Promise<User>
+    execute(dto: GetMeRequestDTO):Promise<User>
 }

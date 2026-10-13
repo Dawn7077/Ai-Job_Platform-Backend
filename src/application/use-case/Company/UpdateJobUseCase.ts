@@ -4,6 +4,9 @@ import { IUserRepository } from "../../../domain/repositories/IUserRepository";
 import { IVectorSearchService } from "../../interface/I-Services/IVectorSearchService";
 import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
+import { UpdateJobRequestDTO } from "../../dtos/Company/createJob.dto";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../../di/TYPES";
  
 
 export interface UpdateJobInputData{
@@ -18,17 +21,17 @@ export interface UpdateJobInputData{
 }
 
 export interface IUpdateJobUseCase{
-    execute(jobId: string, updateData: UpdateJobInputData): Promise<Job>
+    execute(jobId: string, companyId:string,updateData: UpdateJobRequestDTO): Promise<Job>
 }
-
+@injectable()
 export class UpdateJobUseCase implements IUpdateJobUseCase{
     constructor(
-        private jobRepo:IJobRepository,
-        private userRepo:IUserRepository,
-        private vectorService:IVectorSearchService
+        @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
+        @inject(TYPES.IUserRepository) private userRepo:IUserRepository,
+        @inject(TYPES.IVectorSearchService) private vectorService:IVectorSearchService
     ){}
 
-    async execute(jobId:string, updateData:UpdateJobInputData):Promise<Job>{
+    async execute(jobId: string, companyId:string,updateData: UpdateJobRequestDTO):Promise<Job>{
         const existingJob = await this.jobRepo.findById(jobId)
         if(!existingJob){
             throw new AppError(
@@ -38,7 +41,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase{
             )
         }
 
-        if(existingJob.companyId !== updateData.companyId){
+        if(existingJob.companyId !== companyId){
             throw new AppError(
                 'Unauthorized:You do not have the premission to udpate this job.',
                 StatusCode.FORBIDDEN,
@@ -46,7 +49,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase{
             )
         }
 
-        const company = await this.userRepo.findById(updateData.companyId)
+        const company = await this.userRepo.findById(companyId)
         if(!company){
             throw new AppError(
                 'company account not found',

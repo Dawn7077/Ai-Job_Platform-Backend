@@ -1,4 +1,5 @@
 import { Job } from "../../../../domain/entities/Job"
+import { GetActiveJobRequestDTO } from "../../../dtos/Candidate/Get-Active-JobId.dto"
 export interface IGetActiveJobById{
-    execute(jobId: string): Promise<Job>    
+    execute(dto:GetActiveJobRequestDTO): Promise<Job>    
 }

@@ -5,6 +5,7 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetResumeUrlUseCase } from "../../interface/I-UseCases/Candidate/IGetResumeUrlUseCase";
 import { TYPES } from "../../../di/TYPES";
+import { GetResumeUrlRequestDTO } from "../../dtos/Candidate/Get-ResumeUrl.dto";
 
 
 @injectable()
@@ -14,7 +15,8 @@ export class GetResumeUrlUseCase implements IGetResumeUrlUseCase{
         @inject(TYPES.ICandidateProfileRepo) private candidateProfileRepo:ICandidateProfileRepository,
     ){}
 
-    async execute(userId:string){
+    async execute(dto:GetResumeUrlRequestDTO){
+        const {userId}=dto
         const profile = await this.candidateProfileRepo.findByUserId(userId)
 
         if(!profile || !profile.resumeKey){

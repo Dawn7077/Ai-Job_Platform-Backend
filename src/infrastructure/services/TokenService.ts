@@ -37,7 +37,8 @@ export class TokenService implements ITokenService{
              
             return {
                 userId:decoded.userId,
-                role:decoded.role
+                role:decoded.role,
+                status:decoded.status
             }
         } catch (error) {
             throw new Error("Invalid or expired access token")
@@ -53,7 +54,8 @@ export class TokenService implements ITokenService{
 
             return {
                 userId:decoded.userId, 
-                role:decoded.role
+                role:decoded.role,
+                status:decoded.status
             }
         } catch (error) {
             throw new Error("Invalid or expired refresh token")

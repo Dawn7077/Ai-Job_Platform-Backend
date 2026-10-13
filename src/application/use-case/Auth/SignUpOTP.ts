@@ -11,6 +11,7 @@ import { AuthMessages } from "../../../shared/constants/authMessages";
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES'
 import { ISignUpOTP } from "../../interface/I-UseCases/Auth/ISignUpOTP"; 
+import { SendSignUpOTPRequestDTO, SendSignUpOTPResponseDTO } from "../../dtos/Auth/sigup.dto";
 
 
 
@@ -26,7 +27,8 @@ export class SendSignUpOTPUseCase implements ISignUpOTP{
         @inject(TYPES.IRedisService)private RedisTool:ICacheService,
     ){}
 
-    async execute(name:string,email:string,password:string,role:UserRole,){
+    async execute(dto:SendSignUpOTPRequestDTO):Promise<SendSignUpOTPResponseDTO>{
+        const {name,email,password,role}= dto
         const existingUser = await this.SQLTool.findByEmail(email)
         
         if(existingUser){

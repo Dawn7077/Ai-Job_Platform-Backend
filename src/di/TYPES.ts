@@ -67,6 +67,8 @@ export const TYPES = {
 
 // Company Use Cases
     ICreateJob:Symbol.for('ICreateJob'),
+    IUpdateJobUseCase:Symbol.for("IUpdateJobUseCase"),
+    IDeleteJobUseCase:Symbol.for("IDeleteJobUseCase"),
     IGetJobsUseCase:Symbol.for('IGetJobsUseCase'),
     IGetJobsTypeUseCase:Symbol.for('IGetJobsTypeUseCase'),
     IUpdateApplicationStageUseCase:Symbol.for('IUpdateApplicationStageUseCase'),

@@ -1,4 +1,5 @@
+import { GetResumeUrlRequestDTO } from "../../../dtos/Candidate/Get-ResumeUrl.dto";
 
 export interface IGetResumeUrlUseCase{
-    execute(userId: string): Promise<string>
+    execute(dto:GetResumeUrlRequestDTO): Promise<string>
 }

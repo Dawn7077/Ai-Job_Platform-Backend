@@ -2,11 +2,16 @@ import { PrismaClient } from "@prisma/client";
 import { ICompanyProfileRepo } from "../../../domain/repositories/ICompanyProfileRepo";
 import { CompanyProfile, CompanyProfileProps } from "../../../domain/entities/CompanyProfile";
 import { CompanyProfileMapper } from "../mappers/CompanyProfileMapper";
-import {  injectable } from "inversify"; 
+import {  inject, injectable } from "inversify"; 
 import { BaseRepository } from "./BaseRepository";
+import { TYPES } from "../../../di/TYPES";
 
 @injectable()
 export class PrismaCompanyProfileRepo extends BaseRepository implements ICompanyProfileRepo{
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    }
+
     async findbyUserId(userId: string): Promise<CompanyProfile|null> {
         const raw = await this.prisma.companyProfile.findUnique({
             where:{userId}

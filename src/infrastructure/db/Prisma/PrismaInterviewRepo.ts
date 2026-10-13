@@ -3,11 +3,15 @@ import { IInterviewRepository } from "../../../domain/repositories/IInterviewRep
 import { Interview, InterviewStatusType } from "../../../domain/entities/Interview";
 import { InterviewEvaluation } from "../../../domain/entities/InterviewEvaluation";
 import { InterviewMapper } from "../mappers/InterviewMapper";
-import { injectable } from "inversify"; 
+import { inject, injectable } from "inversify"; 
 import { BaseRepository } from "./BaseRepository";
+import { TYPES } from "../../../di/TYPES";
 
 @injectable()
 export class PrismaInterviewRepo extends BaseRepository implements IInterviewRepository{ 
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    }
 
     async create(interview: Interview): Promise<Interview> {
         const raw = interview.toJSON()

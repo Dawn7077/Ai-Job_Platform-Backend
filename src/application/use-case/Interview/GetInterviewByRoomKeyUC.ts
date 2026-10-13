@@ -5,6 +5,7 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetInterviewByRoomKeyUC } from "../../interface/I-UseCases/Company/IGetInterviewByRoomKeyUC";
 import { TYPES } from "../../../di/TYPES";
+import { GetInterviewByRoomKeyParamDTO } from "../../dtos/Interview/GetByRoomKey.dto";
 
 @injectable()
 export class GetInterviewByRoomKeyUC implements IGetInterviewByRoomKeyUC{
@@ -12,7 +13,8 @@ export class GetInterviewByRoomKeyUC implements IGetInterviewByRoomKeyUC{
         @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository
     ){}
 
-    async execute(roomKey:string){
+    async execute(dto:GetInterviewByRoomKeyParamDTO){
+        const {roomKey} = dto
         const interview = await this.interviewRepo.findByRoomKey(roomKey)
         if(!interview){
             throw new AppError(

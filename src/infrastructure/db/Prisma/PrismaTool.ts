@@ -1,13 +1,17 @@
 import {PrismaClient } from '@prisma/client'
 import { IUserRepository, PaginatedUsersList, UserFilterQueryParams } from '../../../domain/repositories/IUserRepository'
 import { User, UserRole, UserStatus } from '../../../domain/entities/User'
-import { injectable } from "inversify" 
+import { inject, injectable } from "inversify" 
 import { UserMapper } from '../mappers/UserMapper'
 import { BaseRepository } from './BaseRepository'
+import { logger } from '../../../shared/utils/loggers'
+import { TYPES } from '../../../di/TYPES'
  
 @injectable()
 export class PrismaTool extends BaseRepository implements IUserRepository{
-    
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    }
     async Save(user: User): Promise<void> {
         await this.prisma.user.upsert({
             where:{email:user.getEmail()},
@@ -34,9 +38,11 @@ export class PrismaTool extends BaseRepository implements IUserRepository{
 
 
     async findByEmail(email: string): Promise<User | null> {
+        logger.error(`findbyEmail => this:${this.prisma}`)
         const record  = await this.prisma.user.findUnique({
             where:{email}
         })
+        logger.error(`findbyEmail => record:${record}`)
         if(!record)return null
 
         return UserMapper.toDomain(record)
@@ -112,9 +118,19 @@ export class PrismaTool extends BaseRepository implements IUserRepository{
     
     }
 
-    async deleteUser(id: string): Promise<void> {
+    async HardDeleteUser(id: string): Promise<void> {
         await this.prisma.user.delete({
             where:{id},
+        })
+    }
+
+    async deleteUser(id: string): Promise<void> {
+        await this.prisma.user.update({
+            where:{id},
+            data:{
+                status:"DELETED",
+                deletedAt:new Date()
+            }
         })
     }
 

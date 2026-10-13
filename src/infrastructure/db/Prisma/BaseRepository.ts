@@ -4,5 +4,5 @@ import { TYPES } from "../../../di/TYPES";
 
 @injectable()
 export class BaseRepository{
-    constructor(@inject(TYPES.PrismaClient) protected readonly prisma:PrismaClient){}
+    constructor(protected readonly prisma: PrismaClient){}
 }

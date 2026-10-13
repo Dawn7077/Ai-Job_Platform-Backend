@@ -101,12 +101,12 @@ async function startApp() {
     const mongoClient  = await clientConnection
     const s3clientConnect = await s3Client
 
-    const userRepoTool = new PrismaTool(prismaClientConnect) // prisma tool
-    const jobRepo = new PrismaJobRepository(prismaClientConnect)
-    const applicationRepo = new PrismaApplicationRepo(prismaClientConnect)
-    const candidateProfileRepo = new PrismaCandidateProfileRepo(prismaClientConnect)
-    const companyProfileRepo = new PrismaCompanyProfileRepo(prismaClientConnect)
-    const interviewRepo = new PrismaInterviewRepo(prismaClientConnect)
+    const userRepoTool = new PrismaTool( prismaClientConnect) // prisma tool
+    const jobRepo = new PrismaJobRepository( prismaClientConnect)
+    const applicationRepo = new PrismaApplicationRepo( prismaClientConnect)
+    const candidateProfileRepo = new PrismaCandidateProfileRepo( prismaClientConnect)
+    const companyProfileRepo = new PrismaCompanyProfileRepo( prismaClientConnect)
+    const interviewRepo = new PrismaInterviewRepo(prismaClientConnect )
 
     const gatewayModel = new GatewayModels()
     const MongoServiceTool = new MongoVectorSearchService(mongoClient,gatewayModel.EmbeddingsModel)
@@ -170,7 +170,7 @@ async function startApp() {
     const getUsersAdminUC = new GetUsersUseCase(userRepoTool)
     const updateUsersStatusAdminUC = new UpdateUserStatusUC(userRepoTool)
     const updateUserRoleAdminUC = new UpdateUserRoleUC(userRepoTool)
-    const deleteUserAdminUC = new DeleteUserUseCase(userRepoTool,jobRepo,MongoServiceTool)
+    const deleteUserAdminUC = new DeleteUserUseCase(userRepoTool,jobRepo,MongoServiceTool,redisServiceTool)
     const reapplyVerificationUC = new ReapplyVerificationUseCase(userRepoTool)
 
     
@@ -221,10 +221,10 @@ async function startApp() {
         ,getCandidateApplicationuseCase
     )
 
-    const authControllerTool =   container.get<AuthController>(TYPES.AuthController)
-    const candidateControllerTool =  container.get<CandidateController>(TYPES.CandidateController)
-    const companyControllerTool = container.get<CompanyController>(TYPES.CandidateController)
-    const adminControllerTool = container.get<AdminController>(TYPES.AdminController)
+    const authControllerTool = await  container.getAsync<AuthController>(TYPES.AuthController)
+    const candidateControllerTool =  await container.getAsync<CandidateController>(TYPES.CandidateController)
+    const companyControllerTool = await container.getAsync<CompanyController>(TYPES.CompanyController)
+    const adminControllerTool = await container.getAsync<AdminController>(TYPES.AdminController)
 
     const userRoutes = AuthRoutes(authControllerTool,tokenTool,authMiddleware)
     const adminRoutes = AdminRouter(adminControllerTool,tokenTool)

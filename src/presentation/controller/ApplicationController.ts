@@ -7,6 +7,8 @@ import { IUpdateApplicationStageUseCase } from "../../application/interface/I-Us
 import { ApplicationStage } from "../../domain/entities/Application";
 import { IGetAllApplications_Company } from "../../application/interface/I-UseCases/Company/IGetAllApplications_Company";  
 import { IGetApplication_Company } from "../../application/interface/I-UseCases/Company/IGetApplication_Company";  
+import { ApplyJobSchema } from "../../application/dtos/Candidate/Apply-job.dto";
+import { GetCandidateApplicationSchema } from "../../application/dtos/Candidate/Get-all-applications.dto";
 
 
 export class ApplicationController{
@@ -25,7 +27,11 @@ export class ApplicationController{
                 success:false,
                 error:"User Id missing, UNAUTHORIZED"
             })
-            const application = await this.applyJobUseCase.execute(candidateId,jobId,resumeUrl)
+            const dto = ApplyJobSchema.parse({
+                ...req.body,
+                candidateId
+            })
+            const application = await this.applyJobUseCase.execute(dto) 
             console.log('application=>\n',application.toJSON())
             res.status(StatusCode.OK).json({
                 success:true,
@@ -44,7 +50,7 @@ export class ApplicationController{
                 error:"User Id missing, UNAUTHORIZED"
             })
 
-            const applications = await this.getAllJobsUseCase.execute(candidateId)
+            const applications = await this.getAllJobsUseCase.execute({candidateId})
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -57,20 +63,25 @@ export class ApplicationController{
     }
 
     getApplicationById = async(req:Request,res:Response,next:NextFunction)=>{
-        try {
-        //    const {applicationId} = req.body
-           const {id : applicationId} = req.params
-           const candidateId = req.user?.userId
+        try { 
+
+            const candidateId = req.user?.userId
             if(!candidateId)return res.status(StatusCode.UNAUTHORIZED).json({
                 success:false,
                 error:"User Id missing, UNAUTHORIZED"
             })
+
+            const {id : applicationId} = req.params
             if(!applicationId || typeof applicationId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
                 success:false,
                 error:"Invalid Application ID"
             })
+            const dto = GetCandidateApplicationSchema.parse({
+                candidateId,
+                applicationId
+            })
 
-            const result = await this.findApplicationUseCase.execute(candidateId,applicationId)
+            const result = await this.findApplicationUseCase.execute(dto)//error
 
             res.status(StatusCode.OK).json({
                 success:true,

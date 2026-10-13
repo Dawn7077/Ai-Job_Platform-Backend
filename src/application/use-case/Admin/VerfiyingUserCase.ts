@@ -6,13 +6,15 @@ import { AdminMessages } from "../../../shared/constants/adminMessages";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IVerifyCompany } from "../../interface/I-UseCases/Admin/IVerifyCompany";  
 import { TYPES } from "../../../di/TYPES";
+import { VerifyCompanyBodyDTO } from "../../dtos/Admin/VerifyCompany.dto";
 
 
 @injectable()
 export class VerifyCompanyUseCase implements IVerifyCompany{
     constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
-    async execute(userId:string, status:'ACTIVE'|'SUSPENDED',rejectionReason?:string){
+    async execute(payload:VerifyCompanyBodyDTO){
+        const {userId,status,reason:rejectionReason} = payload
         const user = await this.userRepo.findById(userId)
         if(!user){
             throw new AppError(

@@ -1,13 +1,8 @@
-import { UserRole, UserStatus } from "../../../domain/entities/User";
+import { UserRole, UserStatus } from "../../../../domain/entities/User";
+import { GetUsersQueryDTO } from "../../../dtos/Admin/getUsers.dto";
 
 export interface IGetUsersUseCase{
-    execute(query: {
-    page?: string | undefined;
-    limit?: string | undefined;
-    role?: string | undefined;
-    status?: string | undefined;
-    search?: string | undefined;
-}): Promise<{
+    execute(query:GetUsersQueryDTO): Promise<{
     users: {
         id: string;
         name: string;

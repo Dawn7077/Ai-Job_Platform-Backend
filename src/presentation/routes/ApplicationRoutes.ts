@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { ITokenService } from "../../application/interface/I-Services/ITokenService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { authorizeRole } from "../middleware/roleMiddleware";
-import { UserRoleConstants } from "../../shared/constants/roles";
+import { UserRole } from "../../shared/constants/roles";
 import { ApplicationController } from "../controller/ApplicationController";
 
 
@@ -14,11 +14,11 @@ export function ApplicationRouter(
 
     router.use(authMiddleware(tokenService)) 
 
-    router.post('/apply',authorizeRole(UserRoleConstants.CANDIDATE),(req:Request,res:Response,next:NextFunction)=>{
+    router.post('/apply',authorizeRole(UserRole.CANDIDATE),(req:Request,res:Response,next:NextFunction)=>{
         applicationController.apply(req,res,next)
     })
 
-    router.get('/my-applications',authorizeRole(UserRoleConstants.CANDIDATE),(req:Request,res:Response,next:NextFunction)=>{
+    router.get('/my-applications',authorizeRole(UserRole.CANDIDATE),(req:Request,res:Response,next:NextFunction)=>{
         applicationController.AllMyApplications(req,res,next)
     })
 

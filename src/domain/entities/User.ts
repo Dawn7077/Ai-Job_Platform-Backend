@@ -1,6 +1,6 @@
 
 export type UserRole = "CANDIDATE"|"COMPANY"|"ADMIN"
-export type UserStatus = "ACTIVE" | "SUSPENDED" |"PENDING"
+export type UserStatus = "ACTIVE" | "SUSPENDED" |"PENDING"|"DELETED"
 
 export interface UserProps {
   id?:string;
@@ -12,6 +12,7 @@ export interface UserProps {
   rejectionReason?:string
   createdAt?:Date; 
   updatedAt?:Date;
+  deletedAt?:Date|null;
 }
 
 export class User {
@@ -19,6 +20,7 @@ export class User {
   private props:Required<Omit<UserProps,'updatedAt' |'rejectionReason'>>  & {
     updatedAt?:Date
     rejectionReason?:string
+    deletedAt?:Date|null
   }
   constructor (props:UserProps){
     this.props = { 
@@ -29,7 +31,8 @@ export class User {
       role:props.role,
       rejectionReason:props.rejectionReason,
       status:props.status ?? 'ACTIVE',
-      createdAt:props.createdAt ?? new Date()
+      createdAt:props.createdAt ?? new Date(),
+      deletedAt:props.deletedAt ?? null
     }
   }
 
@@ -40,9 +43,13 @@ export class User {
   getRole():UserRole{return this.props.role}
   getStatus():UserStatus { return this.props.status} 
   getRejectionReason() :string|undefined { return this.props.rejectionReason} 
+  getDeletedAt() :Date|null|undefined { return this.props.deletedAt} 
 
   public isActive():boolean{
     return this.props.status === "ACTIVE"
+  }
+  public isDeleted():boolean{
+    return this.props.status === "DELETED"
   }
 
   public toJSON(){
@@ -54,7 +61,8 @@ export class User {
       status:this.props.status,
       rejectionReason:this.props.rejectionReason,
       createdAt:this.props.createdAt,
-      updatedAt:this.props.updatedAt
+      updatedAt:this.props.updatedAt,
+      deletedAt:this.props.deletedAt 
     }
   }
 }

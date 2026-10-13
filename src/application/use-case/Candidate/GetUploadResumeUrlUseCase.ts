@@ -5,6 +5,7 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetUploadResumeUrlUseCase } from "../../interface/I-UseCases/Candidate/IGetUploadResumeUrlUseCase";
 import { TYPES } from "../../../di/TYPES";
+import { GetUploadResumeURLRequestDTO, GetUploadResumeURLResponsetDTO } from "../../dtos/Candidate/get-upload-resumeURL.dto";
 
 
 @injectable()
@@ -13,7 +14,8 @@ export class GetUploadResumeUrlUseCase implements IGetUploadResumeUrlUseCase{
         @inject(TYPES.IR2StorageService) private r2Service:R2StorageService, 
     ){}
 
-    async execute(fileName:string,mimeType:string){
+    async execute(dto:GetUploadResumeURLRequestDTO):Promise<GetUploadResumeURLResponsetDTO>{
+        const {fileName,mimeType} =dto
         const allowedMimeTypes = [
             'application/pdf',
             'application/msword',

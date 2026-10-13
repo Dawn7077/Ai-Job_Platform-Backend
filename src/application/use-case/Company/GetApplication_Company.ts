@@ -6,8 +6,9 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { IGetApplication_Company } from "../../interface/I-UseCases/Company/IGetApplication_Company";
 import { TYPES } from "../../../di/TYPES";
+import { ApplicationDetailsParamDTO } from "../../dtos/Company/applicationDetails.dto";
 
-
+// get application details
 @injectable()
 export class GetApplication_Company implements IGetApplication_Company{
     constructor(
@@ -15,7 +16,8 @@ export class GetApplication_Company implements IGetApplication_Company{
         @inject(TYPES.IJobRepo) private jobRepo:IJobRepository,
     ){}
 
-    async execute(companyId:string,applicationId: string,jobId:string):Promise<Application>{
+    async execute(companyId:string,dto:ApplicationDetailsParamDTO):Promise<Application>{
+        const {jobId,id:applicationId} = dto
         console.log('hit GetApplication_Company detail')
         const job = await this.jobRepo.findById(jobId)
         if(!job){

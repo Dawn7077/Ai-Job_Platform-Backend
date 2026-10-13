@@ -7,6 +7,7 @@ import { AppError } from "../../../shared/AppErrors"
 import { StatusCode } from "../../../shared/StatusCode"
 import { IApplyJobUseCase } from "../../interface/I-UseCases/Candidate/IApplyJobUseCase"
 import { TYPES } from "../../../di/TYPES"
+import { ApplyJobRequestDTO } from "../../dtos/Candidate/Apply-job.dto"
 
 export interface ApplyJobInputDTO{
     candidateId:string
@@ -22,7 +23,8 @@ export class ApplyJobUseCase implements IApplyJobUseCase{
         @inject(TYPES.IJobRepo) private JobRepo:IJobRepository, 
     ){}
 
-    async execute(candidateId:string,jobID:string,resumeUrl?:string):Promise<Application>{
+    async execute(dto:ApplyJobRequestDTO):Promise<Application>{
+        const {candidateId,jobID,resumeUrl} = dto
         console.log('applyUsecase Executing ...')
         const job = await this.JobRepo.findById(jobID)
         if(!job){

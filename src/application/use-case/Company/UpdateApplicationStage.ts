@@ -6,6 +6,7 @@ import { AppError } from "../../../shared/AppErrors";
 import { StatusCode } from "../../../shared/StatusCode";
 import { TYPES } from "../../../di/TYPES";
 import { IUpdateApplicationStageUseCase } from "../../interface/I-UseCases/Company/IUpdateApplicationStageUseCase";
+import { UpdateApplicationParamDTO, UpdateApplicationStageRequestDTO } from "../../dtos/Company/updateApplication.dto";
  
 
 @injectable()
@@ -15,7 +16,11 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
         @inject(TYPES.IJobRepo) private jobRepo:IJobRepository
     ){}
 
-    async execute(companyId:string,applicationId:string,stage:ApplicationStage){
+    async execute(
+        companyId:string,
+        {id:applicationId}:UpdateApplicationParamDTO,
+        {stage}:UpdateApplicationStageRequestDTO
+    ){
 
         const application  = await this.applicationRepo.findById(applicationId)
         if(!application){

@@ -17,6 +17,7 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   PENDING
+  DELETED
 }
 
 model User {
@@ -28,6 +29,7 @@ model User {
   status       UserStatus     @default(ACTIVE) 
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
+  deletedAt    DateTime?      @map("deleted_at")
   rejectionReason String?
 
   // Relations

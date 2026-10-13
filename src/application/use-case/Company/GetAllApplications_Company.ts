@@ -3,16 +3,18 @@ import { Application } from "../../../domain/entities/Application";
 import { IApplicationRepository } from "../../../domain/repositories/IApplicationRepo";
 import { TYPES } from "../../../di/TYPES";
 import { IGetAllApplications_Company } from "../../interface/I-UseCases/Company/IGetAllApplications_Company";
+import { GetCompanyApplicationsRequestDTO } from "../../dtos/Company/applications.dto";
 
 
-
+//get all application of the company
 @injectable()
 export class GetAllApplications_Company implements IGetAllApplications_Company{
     constructor(
         @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository,
     ){}
 
-    async execute(companyId:string):Promise<Application[]>{
+    async execute(dto:GetCompanyApplicationsRequestDTO):Promise<Application[]>{
+        const {companyId} = dto
         return this.applicationRepo.findByCompanyId(companyId)
     }
 }

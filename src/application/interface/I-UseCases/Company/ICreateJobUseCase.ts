@@ -1,6 +1,6 @@
 import { Job } from "../../../../domain/entities/Job";
-import { CreateJobInputData } from "../../../use-case/Company/CreateJobUseCase";
+import { CreateJobRequestDTO } from "../../../dtos/Company/createJob.dto"; 
 
 export interface ICreateJobUseCase{
-    execute(data: CreateJobInputData): Promise<Job>
+    execute(companyId:string,Job_data:CreateJobRequestDTO): Promise<Job>
 }

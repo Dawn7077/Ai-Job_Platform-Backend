@@ -9,6 +9,11 @@ import { IGetUsersUseCase } from "../../application/interface/I-UseCases/Admin/I
 import { IDeleteUserUseCase } from "../../application/interface/I-UseCases/Admin/IDeleteUserUseCase";  
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/TYPES";
+import { DeleteUserParamSchema } from "../../application/dtos/Admin/DeleteUsers.dto";
+import { GetUsersQuerySchema } from "../../application/dtos/Admin/getUsers.dto";
+import { UpdateRoleBodySchema, UpdateRoleParamSchema } from "../../application/dtos/Admin/updateRole.dto";
+import { UpdateStatusBodySchema, UpdateStatusParamSchema } from "../../application/dtos/Admin/updateStatus.dto";
+import { VerifyCompanyBodySchema } from "../../application/dtos/Admin/VerifyCompany.dto";
 
 @injectable()
 export class AdminController{
@@ -21,7 +26,7 @@ export class AdminController{
         @inject(TYPES.IDeleteUserUseCase) private deleteUserUseCase:IDeleteUserUseCase,
     ){}
 
-    async handleGetPendingUsers(req:Request,res:Response,next:NextFunction){
+    async handleGetPendingUsers(_:Request,res:Response,next:NextFunction){
         try {
             const users = await this.GetPendingRepo.execute()
             const pendingCompanies = users.map(user=> user.toJSON())
@@ -37,7 +42,8 @@ export class AdminController{
 
     async verifyCompany(req:Request,res:Response,next:NextFunction){
         try {
-            const {userId,status,reason} = req.body
+            const dto= VerifyCompanyBodySchema.parse(req.body)
+            const {userId,status,reason}  = dto
 
             if(!userId || !['ACTIVE','SUSPENDED'].includes(status)){
                 return res.status(StatusCode.BAD_REQUEST).json({
@@ -46,7 +52,7 @@ export class AdminController{
                 })
             }
 
-            const result = await this.VerifyCompanyRepo.execute(userId,status,reason)
+            const result = await this.VerifyCompanyRepo.execute(dto)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -59,14 +65,8 @@ export class AdminController{
 
     async getUsers(req:Request,res:Response,next:NextFunction){
         try {
-            const {page,limit,role,status,search} = req.query
-            const result = await this.GetUsersUC.execute({
-                page:page as string,
-                limit:limit as string,
-                role:role as string,
-                status:status as string,
-                search:search as string
-            })
+            const dto = GetUsersQuerySchema.parse(req.query)
+            const result = await this.GetUsersUC.execute(dto)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -80,9 +80,16 @@ export class AdminController{
     
     async UpdateUserStatus(req:Request,res:Response,next:NextFunction){
         try {
-            const {id:userId} = req.params
-            const {status} = req.body
             const adminId = req.user?.userId
+            if(!adminId){
+                return res.status(StatusCode.UNAUTHORIZED).json({
+                    success:false,
+                    message:'Unauthorised access of user management.'
+                })
+            }
+
+            const {id:userId} = UpdateStatusParamSchema.parse(req.params)
+            const {status} = UpdateStatusBodySchema.parse(req.body)
 
             if(!status || !['ACTIVE','SUSPENDED',"PENDING"].includes(status)){
                 return res.status(StatusCode.BAD_REQUEST).json({
@@ -96,12 +103,7 @@ export class AdminController{
                     message:AdminMessages.MISSING_USER_ID
                 })
             }
-            if(!adminId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:'Unauthorised access of user management.'
-                })
-            }
+            
 
             const result = await this.UpdateUserStatusUC.execute(userId,status,adminId)
             console.log('StatusUpdate=>',status,userId) 
@@ -115,11 +117,19 @@ export class AdminController{
 
     async UpdateUserRole(req:Request,res:Response,next:NextFunction){
         try {
-            const {id:userId} = req.params
-            const {role} = req.body
             const adminId = req.user?.userId
-            console.log('update role hit',userId)
+            if(!adminId){
+                return res.status(StatusCode.UNAUTHORIZED).json({
+                    success:false,
+                    message:'Unauthorised access of user management.'
+                })
+            }
 
+            const {id:userId} = UpdateRoleParamSchema.parse(req.params)
+            const {role} = UpdateRoleBodySchema.parse(req.body)
+            
+            console.log('update role hit',userId)
+            
             if(!role || !['CANDIDATE','COMPANY',"ADMIN"].includes(role)){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
@@ -132,12 +142,7 @@ export class AdminController{
                     message:AdminMessages.MISSING_USER_ID
                 })
             }
-            if(!adminId){
-                return res.status(StatusCode.UNAUTHORIZED).json({
-                    success:false,
-                    message:'Unauthorised access of user management.'
-                })
-            }
+            
 
             const result = await this.UpdateUserRoleUC.execute(userId,role,adminId)
             res.status(StatusCode.OK).json(result)
@@ -149,7 +154,8 @@ export class AdminController{
 
     async DeleteUser(req:Request,res:Response,next:NextFunction){
         try {
-            const {id:userId} = req.params
+            const dto = DeleteUserParamSchema.parse(req.params)
+            const {id:userId} = dto
             const adminId = req.user?.userId
 
             if(!userId || typeof userId !== 'string'){
@@ -165,7 +171,7 @@ export class AdminController{
                     message:'Unauthorised access of user management.'
                 })
             }
-            await this.deleteUserUseCase.execute(userId,adminId)
+            await this.deleteUserUseCase.execute(dto,adminId)
             
             return res.status(StatusCode.OK).json({
                 success:true,

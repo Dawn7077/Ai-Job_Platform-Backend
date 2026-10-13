@@ -1,6 +1,9 @@
-import { User } from "../../../domain/entities/User";  
+import { User } from "../../../../domain/entities/User";
+import { RegisterRequestDTO } from "../../../dtos/Auth/register.dto";
+
+ 
 export interface IRegisterUser{
-    execute(email: string, otp: string): Promise<{
+    execute(dto:RegisterRequestDTO): Promise<{
         message: string;
         requiresApproval: boolean;
         user: User;

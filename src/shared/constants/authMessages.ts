@@ -15,6 +15,8 @@ export const AuthMessages = {
 
     // Authentication and Authorization 
     INVALID_CREDENTIALS:'Invalid email or password credentials',
+    DELETED_ACCOUNT:'This account has been deleted.',
+    SUSPENDED_ACCOUNT:'This account has been suspended.',
     COMPANY_PENDING:"Your company account is pending admin approval. Please wait for the verification.",
     COMPANY_PENDING_GOOGLE:"Your company account is pending admin verification. You cannot log in yet. Please wait for the verification.",
     COMPANY_SUSPENDED:(reason:string)=>`Account suspended:${reason || "Your company account has been suspended. contact for more details"}`,

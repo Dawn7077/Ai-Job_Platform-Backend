@@ -1,5 +1,6 @@
 import { Application } from "../../../../domain/entities/Application"
+import { ApplyJobRequestDTO } from "../../../dtos/Candidate/Apply-job.dto"
 
 export interface IApplyJobUseCase{
-    execute(candidateId: string, jobID: string, resumeUrl?: string | undefined): Promise<Application>
+    execute(dto:ApplyJobRequestDTO): Promise<Application>
 }

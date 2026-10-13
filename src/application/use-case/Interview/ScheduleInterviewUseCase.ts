@@ -5,14 +5,10 @@ import { IApplicationRepository } from "../../../domain/repositories/IApplicatio
 import { IInterviewRepository } from "../../../domain/repositories/IInterviewRepo";
 import { IScheduleInterviewUC } from "../../interface/I-UseCases/Company/IScheduleInterviewUC";
 import { TYPES } from "../../../di/TYPES";
+import {  ScheduleInterviewPayloadDTO } from "../../dtos/Company/scheduleInterview.dto";
 
-export interface ScheduleInterviewPayload{
-    applicationId:string
-    candidateId:string
-    companyId:string
-    // interviewerId:string
-    scheduledAt:Date
-}
+
+
 
 @injectable()
 export class ScheduleInterviewUC  implements IScheduleInterviewUC {
@@ -20,7 +16,7 @@ export class ScheduleInterviewUC  implements IScheduleInterviewUC {
         @inject(TYPES.IInterviewRepo) private interviewRepo:IInterviewRepository,
         @inject(TYPES.IApplicationRepo) private applicationRepo:IApplicationRepository
     ){}
-    async execute(payload:ScheduleInterviewPayload){
+    async execute(payload:ScheduleInterviewPayloadDTO){
         const interview = new Interview({
             applicationId:payload.applicationId,
             candidateId:payload.candidateId,

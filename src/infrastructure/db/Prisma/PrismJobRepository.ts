@@ -8,7 +8,9 @@ import { BaseRepository } from './BaseRepository'
 
 @injectable()
 export class PrismaJobRepository extends BaseRepository implements IJobRepository{ 
-
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    }
 
     async create(job: Job): Promise<Job> {
         const rawData = job.toJSON()

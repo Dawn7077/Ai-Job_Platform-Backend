@@ -23,4 +23,5 @@ export interface IUserRepository{ //blue print for usecase db tool
 
     findUsers(params:UserFilterQueryParams):Promise<PaginatedUsersList>
     deleteUser(id:string):Promise<void>
+    HardDeleteUser(id:string):Promise<void>
 }

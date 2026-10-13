@@ -1,6 +1,5 @@
+import { GetUploadResumeURLRequestDTO, GetUploadResumeURLResponsetDTO } from "../../../dtos/Candidate/get-upload-resumeURL.dto";
+
 export interface IGetUploadResumeUrlUseCase{
-    execute(fileName: string, mimeType: string): Promise<{
-        uploadUrl: string;
-        fileKey: string;
-    }>
+    execute(dto:GetUploadResumeURLRequestDTO): Promise<GetUploadResumeURLResponsetDTO>
 }

@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { IEmailService } from "../../application/interface/I-Services/IEmailService";
 import { injectable } from 'inversify';
+import { logger } from '../../shared/utils/loggers';
 
 @injectable()
 export class EmailService implements IEmailService{
@@ -15,6 +16,7 @@ export class EmailService implements IEmailService{
                 pass:process.env.SMTP_Password
             }
         })
+        logger.info(this.transporter.verify())
     }
 
     async sendOtpEmail(email: string, otp: string,subject:string):Promise<void> {

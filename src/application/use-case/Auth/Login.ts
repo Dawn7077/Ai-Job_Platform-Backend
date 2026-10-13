@@ -12,6 +12,7 @@ import { ICandidateProfileRepository } from "../../../domain/repositories/ICandi
 import {logger} from "../../../shared/utils/loggers"
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES'
+import { LoginRequestDTO, LoginResponseDTO } from "../../dtos/Auth/login.dto";
 
 @injectable()
 export class LoginUseCase implements ILogin{
@@ -23,7 +24,8 @@ export class LoginUseCase implements ILogin{
         @inject(TYPES.IRedisService)private redisClient:ICacheService
     ){}
 
-    async execute(email: string,password:string): Promise<{ accessToken: string; refreshToken: string; user:User;isOnboarding:boolean}> {
+    async execute(dto:LoginRequestDTO): Promise<LoginResponseDTO> {
+        const {email,password} = dto
         if(!email || ! password){ 
             logger.warn({event:"login_validation_falied",reason:"missing_email_or_password",email},'Login attempt failed due to Missing credentials')
             throw new AppError(
@@ -32,9 +34,9 @@ export class LoginUseCase implements ILogin{
                 'EMAIL_AND_PASSWORD_MISSING'
             )
         }
-
+ 
         const user = await this.UserRepo.findByEmail(email)
-        
+         
         if(!user){
             logger.warn({event:"login_falied",reason:"user_not_found",email},'Login attempt failed:User not found')
             throw new AppError(
@@ -52,8 +54,18 @@ export class LoginUseCase implements ILogin{
                 AuthMessages.INVALID_CREDENTIALS,
                 StatusCode.UNAUTHORIZED,
                 'INVALID_CREDENTIALS'
-            )}
+                )
+            }
         
+        if(user.getStatus() === "DELETED"){
+            logger.warn({event:"login_Blocked",reason:"account_deleted",userId:user.getId(),email},'Login Blocked:Account is deleted.')
+            throw new AppError(
+                AuthMessages.DELETED_ACCOUNT,
+                StatusCode.FORBIDDEN,
+                'ACCOUNT_DELETED'
+            )
+        }
+    
         if(user.getRole()==='COMPANY' && user.getStatus() !== 'ACTIVE'){
             const status  =  user.getStatus() 
             const rejectionReason = user.getRejectionReason()
@@ -84,12 +96,14 @@ export class LoginUseCase implements ILogin{
             isOnboarding = candidateProfile !== null //if no profile candidate profile ==null is onboarding turn true and leads to onboarding page
         }
 
-        const accessToken =  this.TokenService.generateAccesToken({userId:user.getId(), role:user.getRole()})
-        const refreshToken = this.TokenService.generateRefreshToken({userId:user.getId(), role:user.getRole()})
+        const accessToken =  this.TokenService.generateAccesToken({userId:user.getId(), role:user.getRole(),status:user.getStatus()})
+        const refreshToken = this.TokenService.generateRefreshToken({userId:user.getId(), role:user.getRole(),status:user.getStatus()})
         
         const refreshTokenKey = `refresh_token:${user.getId()}`
         // await this.redisClient.set(refreshTokenKey,refreshToken,'EX',2*24*60*60)
         await this.redisClient.set(refreshTokenKey,refreshToken,RefreshExpiry)
+        
+        // await this.redisClient.set(`user_status:${user.getId()}`, user.getStatus(), 15 * 60) 
         
         // console.log('redis-stored->',await this.redisClient.get(refreshTokenKey))
         

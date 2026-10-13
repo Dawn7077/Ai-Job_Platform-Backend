@@ -1,6 +1,7 @@
 import { Application } from "../../../../domain/entities/Application";
+import { ApplicationDetailsParamDTO } from "../../../dtos/Company/applicationDetails.dto";
 
 
 export interface IGetApplication_Company{
-    execute(companyId:string,applicationId: string,jobId:string): Promise<Application>
+    execute(companyId:string,dto:ApplicationDetailsParamDTO): Promise<Application>
 }

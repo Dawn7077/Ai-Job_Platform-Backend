@@ -4,6 +4,7 @@ import { GatewayModels } from "../../../infrastructure/ai/GatewayModels";
 import { IClassfierIntent } from "../../agent/Models/Classifier";
 import { MentorAgent } from "../../agent/Models/MentorAgent";
 import { TYPES } from "../../../di/TYPES";
+import { MentorChatRequestDTO } from "../../dtos/Candidate/mentor-chat.dto";
 type intentType = 'STATIC_PROFILE'|'SEARCH_JOB'|'GENERAL_CHAT'
 
 @injectable()
@@ -15,7 +16,9 @@ export class MentorChatUseCase{
         // private vectorSearch: VectorSearchService,
     ){}
 
-    async execute({userId,message}:{userId:string,message:string}){
+    // async execute({userId,message}:{userId:string,message:string}){
+    async execute(dto:MentorChatRequestDTO){
+        const {userId,message} = dto
         const intent = await this.classifier.classify(message) as intentType
 
         // if(intent === 'STATIC_PROFILE'){

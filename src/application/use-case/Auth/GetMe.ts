@@ -5,12 +5,14 @@ import { StatusCode } from "../../../shared/StatusCode";
 import { IGetMe } from "../../interface/I-UseCases/Auth/IGetMe";   
 import {injectable,inject} from 'inversify'
 import {TYPES} from '../../../di/TYPES'
+import { GetMeRequestDTO } from "../../dtos/Auth/GetMe.dto";
 
 @injectable()
 export class GetMeUseCase implements IGetMe{
     constructor(@inject(TYPES.IUserRepository) private userRepo:IUserRepository){}
 
-    async execute(userId: string): Promise<User> {
+    async execute(dto: GetMeRequestDTO): Promise<User> {
+        const {userId} = dto
         if(!userId){
             throw new AppError(
             'User Id missing',

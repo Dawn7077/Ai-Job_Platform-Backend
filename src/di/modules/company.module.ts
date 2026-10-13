@@ -14,12 +14,16 @@ import { SubmitInterviewEvaluationUC } from "../../application/use-case/Intervie
 import { SaveProfileCompanyUC } from "../../application/use-case/Company/SaveProfileCompanyUC";
 import { GetProfileCompanyUC } from "../../application/use-case/Company/GetProfileCompanyUC";
 import { GetCompanyInterviewUC } from "../../application/use-case/Interview/GetCompanyInterviewUC";
+import { UpdateJobUseCase } from "../../application/use-case/Company/UpdateJobUseCase";
+import { DeleteJobUseCase } from "../../application/use-case/Company/DeleteJobUseCase";
 
 export const companyModule = new ContainerModule(({bind})=>{
     bind(TYPES.ICompanyProfileRepo).to(PrismaCompanyProfileRepo).inSingletonScope()
 
     // use cases
     bind(TYPES.ICreateJob).to(CreateJobUseCase)
+    bind(TYPES.IUpdateJobUseCase).to(UpdateJobUseCase)
+    bind(TYPES.IDeleteJobUseCase).to(DeleteJobUseCase)
     bind(TYPES.IGetJobsUseCase).to(GetJobsUseCase)
     bind(TYPES.IGetJobsTypeUseCase).to(GetJobsTypeUseCase)
     bind(TYPES.IUpdateApplicationStageUseCase).to(UpdateApplicationStageUseCase)

@@ -1,14 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import { ICandidateProfileRepository } from "../../../domain/repositories/ICandidateProfileRepo";
 import { CandidateProfile, CandidateProfileProps,} from "../../../domain/entities/CandidateProfile";
-import { injectable } from "inversify" 
+import { inject, injectable } from "inversify" 
 import { CandidateProfileMapper } from "../mappers/CandidateProfileMapper";
 import { BaseRepository } from "./BaseRepository";
+import { TYPES } from "../../../di/TYPES";
 
 
 @injectable() 
 export class PrismaCandidateProfileRepo extends BaseRepository implements ICandidateProfileRepository{
-     
+    constructor(@inject(TYPES.PrismaClient)protected readonly prisma: PrismaClient){
+        super(prisma)
+    } 
+
     async findByUserId(userId: string): Promise<CandidateProfile | null> {
         const raw = await this.prisma.candidateProfile.findUnique({
             where:{userId},

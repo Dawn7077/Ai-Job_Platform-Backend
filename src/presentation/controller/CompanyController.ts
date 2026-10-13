@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ICreateJobUseCase } from "../../application/interface/I-UseCases/Company/ICreateJobUseCase";  
-import { z } from 'zod'
+import { string, z } from 'zod'
 import { StatusCode } from "../../shared/StatusCode";
 import { CompanyMessages } from "../../shared/constants/CompanyMessages";
 import { IGetJOBCompany } from "../../application/interface/I-UseCases/Company/IGETJobCompany";
@@ -17,6 +17,17 @@ import { IGetProfileCompanyUC } from "../../application/interface/I-UseCases/Com
 import { IGetCompanyInterviewUC } from "../../application/interface/I-UseCases/Company/IGetCompanyInterviewUC"; 
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/TYPES";
+import { CreateJobSchema, UpdateJobSchema } from "../../application/dtos/Company/createJob.dto";
+import { IUpdateJobUseCase } from "../../application/use-case/Company/UpdateJobUseCase";
+import { DeleteJobParamSchema } from "../../application/dtos/Company/DeleteJob.dto";
+import { IDeleteJobUseCase } from "../../application/use-case/Company/DeleteJobUseCase";
+import { GetCompanyApplicationsSchema } from "../../application/dtos/Company/applications.dto";
+import { ResponseHelper } from "../../shared/models/response.model";
+import { ApplicationDetailsParamSchema } from "../../application/dtos/Company/applicationDetails.dto";
+import { UpdateApplicationParamSchema, UpdateApplicationStageRequestSchema } from "../../application/dtos/Company/updateApplication.dto";
+import { ScheduleInterviewSchema } from "../../application/dtos/Company/scheduleInterview.dto";
+import { GetInterviewByRoomKeyParamSchema } from "../../application/dtos/Interview/GetByRoomKey.dto";
+import { SubmitEvaluationBodySchema, SubmitEvaluationParamSchema } from "../../application/dtos/Interview/submitEvaluation.dto";
 
 const createJobSchema = z.object({
     title:z.string().min(3,'Title must be at least 3 characters'),
@@ -32,6 +43,8 @@ const createJobSchema = z.object({
 export class CompanyController{
     constructor(
         @inject(TYPES.ICreateJob) private createJobUseCase:ICreateJobUseCase,
+        @inject(TYPES.IUpdateJobUseCase) private udpateJobUseCase:IUpdateJobUseCase,
+        @inject(TYPES.IDeleteJobUseCase) private deleteJobUseCase:IDeleteJobUseCase,
         @inject(TYPES.IGetJobsUseCase) private getJobsUseCase:IGetJOBCompany,
         @inject(TYPES.IGetAllApplications_Company) private getAllapplicationUseCase:IGetAllApplications_Company,
         @inject(TYPES.IGetApplicationByJobIdUC) private getApplicationsByJobIdUC:IGetApplicationByJobIdUC,
@@ -51,19 +64,31 @@ export class CompanyController{
         try {
             const userId = req.user?.userId
             if(!userId){
-                return res.status(StatusCode.BAD_REQUEST).json({
-                    success:false,
-                    message:'User Id is required'
-                })
+                return ResponseHelper.error(
+                    res,
+                    StatusCode.BAD_REQUEST,
+                    'User Id is required'
+                )
+
+                // return res.status(StatusCode.BAD_REQUEST).json({
+                //     success:false,
+                //     message:'User Id is required'
+                // })
             }
             const profileData = req.body
             const profile = await this.saveProfileUseCase.execute(userId,profileData)
 
-            return res.status(StatusCode.OK).json({
-                success:true,
-                message:"Company profile saved successfully",
-                data:profile.toJSON()
-            })
+            // return res.status(StatusCode.OK).json({
+            //     success:true,
+            //     message:"Company profile saved successfully",
+            //     data:profile.toJSON()
+            // })
+
+            return ResponseHelper.success(
+                res,
+                StatusCode.OK,
+                profile.toJSON(),
+            )
              
         } catch (error) {
             next(error)
@@ -94,7 +119,7 @@ export class CompanyController{
 
     postJob = async(req:Request,res:Response,next:NextFunction)=>{
         try {
-            const validatedData = createJobSchema.parse(req.body)
+            const validatedData = CreateJobSchema.parse(req.body)
             // or 
             const companyId = req.user?.userId
             // const { companyId,companyName} 
@@ -107,10 +132,10 @@ export class CompanyController{
                 })
             }
 
-            const job  = await this.createJobUseCase.execute({
+            const job  = await this.createJobUseCase.execute(
                 companyId, 
-                ...validatedData
-            })
+                validatedData
+            )
 
             res.status(StatusCode.CREATED).json({
                 success:true,
@@ -144,16 +169,85 @@ export class CompanyController{
         }
     }
 
+    updateJob =  async(req:Request,res:Response,next:NextFunction)=>{
+        try {
+            const jobId = req.params.jobId
+            const validatedData = UpdateJobSchema.parse(req.body) 
+            const companyId = req.user?.userId 
+
+            if(!companyId  ){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:CompanyMessages.MISSING_NAME_ID
+                })
+            }
+            if(!jobId || typeof jobId !== 'string'){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:'job Id missing'
+                })
+            }
+
+            const job  = await this.udpateJobUseCase.execute(
+                jobId,companyId, 
+                validatedData
+            )
+
+            res.status(StatusCode.CREATED).json({
+                success:true,
+                data: job.toJSON(),
+            })
+             
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    deleteJob =  async(req:Request,res:Response,next:NextFunction)=>{
+        try {
+            const {jobId} = DeleteJobParamSchema.parse(req.params) 
+            const companyId = req.user?.userId 
+
+            if(!companyId  ){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:CompanyMessages.MISSING_NAME_ID
+                })
+            }
+            if(!jobId || typeof jobId !== 'string'){
+                return res.status(StatusCode.BAD_REQUEST).json({
+                    success:false,
+                    message:'job Id missing'
+                })
+            }
+
+            await this.deleteJobUseCase.execute(
+                jobId,companyId,  
+            )
+
+            res.status(StatusCode.CREATED).json({
+                success:true,
+                message: "Job successfully deleted",
+            })
+             
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+
     getAllApplications = async(req:Request,res:Response,next:NextFunction)=>{
         try {
-            const companyId = req.user?.userId
+            const dto  = GetCompanyApplicationsSchema.parse(req.user?.userId)
+            const {companyId} = dto
             if(!companyId){
                 return res.status(StatusCode.UNAUTHORIZED).json({
                     success:false,
                     message:CompanyMessages.UNAUTHORIZED
                 })
             }
-            const applications = await this.getAllapplicationUseCase.execute(companyId)
+            const applications = await this.getAllapplicationUseCase.execute(dto)
             const results = applications.map(app=>app.toJSON())
             
             res.status(StatusCode.OK).json({
@@ -170,7 +264,7 @@ export class CompanyController{
         try {
             const companyId = req.user?.userId
             const {jobId} = req.params
-            const {status} = req.body
+            const {status} = (req.body)
 
             if(!companyId){
                 return res.status(StatusCode.UNAUTHORIZED).json({
@@ -201,7 +295,8 @@ export class CompanyController{
     getApplicationById = async(req:Request,res:Response,next:NextFunction)=>{
         try {
             const companyId = req.user?.userId
-            const {id:applicationId,jobId} = req.params
+            const dto = ApplicationDetailsParamSchema.parse(req.params)
+            const {jobId,id:applicationId} = dto
 
             if(!companyId){
                 return res.status(StatusCode.UNAUTHORIZED).json({
@@ -218,7 +313,7 @@ export class CompanyController{
                 error:"Invalid Job ID"
             })
             
-            const application = await this.getApplicationdetailsUC.execute(companyId,applicationId,jobId)
+            const application = await this.getApplicationdetailsUC.execute(companyId,dto)
 
             res.status(StatusCode.OK).json({
                 success:true, 
@@ -232,16 +327,9 @@ export class CompanyController{
     }
 
     updateApplication = async(req:Request,res:Response,next:NextFunction)=>{
-        try {
-            console.log('req hit updateApplication')
-            const {id:applicationId} =req.params
-            const {stage} = req.body
-            const companyId = req.user?.userId
+        try { 
 
-            if(!applicationId || typeof applicationId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
-                success:false,
-                error:"Invalid Application ID"
-            })
+            const companyId = req.user?.userId
 
             if(!companyId){
                 return res.status(StatusCode.UNAUTHORIZED).json({
@@ -250,6 +338,18 @@ export class CompanyController{
                 })
             }
 
+            const applicationDTO =UpdateApplicationParamSchema.parse(req.params)
+            const stageDTO = UpdateApplicationStageRequestSchema.parse(req.body)
+           
+            const {id:applicationId} =applicationDTO
+            const {stage} = stageDTO
+
+            if(!applicationId || typeof applicationId !== 'string')return res.status(StatusCode.UNAUTHORIZED).json({
+                success:false,
+                error:"Invalid Application ID"
+            })
+
+
             if(!stage || !Object.values(ApplicationStage).includes(stage)){
                 return res.status(StatusCode.BAD_REQUEST).json({
                     success:false,
@@ -257,7 +357,7 @@ export class CompanyController{
                 })
             }
 
-            const updatedApplication = await this.updateApplicationUseCase.execute(companyId,applicationId,stage)
+            const updatedApplication = await this.updateApplicationUseCase.execute(companyId,applicationDTO,stageDTO)
 
             res.status(StatusCode.OK).json({
                 success:true,
@@ -275,16 +375,17 @@ export class CompanyController{
     scheduleInterview= async(req:Request,res:Response,next:NextFunction)=>{
         try {
             const companyId = req.user?.userId
-            const {applicationId,candidateId,scheduledAt} = req.body
-
+            
             if(!companyId){
                 return res.status(StatusCode.UNAUTHORIZED).json({
                     success:false,
                     message:CompanyMessages.UNAUTHORIZED
                 })
             }
+            const dto = ScheduleInterviewSchema.parse(req.body)
+            // const {applicationId,candidateId,scheduledAt} = dto
 
-            const result = await this.scheduleUseCase.execute({applicationId,candidateId,companyId,scheduledAt})
+            const result = await this.scheduleUseCase.execute({...dto,companyId})
             const data = {
                 interview:result.interview.toJSON(), 
                 application:result.application.toJSON(), 
@@ -302,12 +403,12 @@ export class CompanyController{
 
     getByRoomKey = async(req:Request,res:Response,next:NextFunction)=>{
         try {
-            const {roomKey} = req.params
+            const {roomKey} = GetInterviewByRoomKeyParamSchema.parse(req.params)
             if(!roomKey || typeof roomKey !== 'string')return res.status(StatusCode.BAD_REQUEST).json({
                 success:false,
                 error:"Invalid roomKey provided"
             })
-            const result = await this.getByRoomKeyUC.execute(roomKey)
+            const result = await this.getByRoomKeyUC.execute({roomKey})
             res.status(StatusCode.OK).json({
                 success:true, 
                 interview:result.toJSON(), 
@@ -320,21 +421,17 @@ export class CompanyController{
 
     submitEvalution = async(req:Request,res:Response,next:NextFunction)=>{
         try {
-            const {interviewId} = req.params
-            const {technicalScore,communicationScore,
-                problemSolvingScore,notes,decision} = req.body
+            const {interviewId} = SubmitEvaluationParamSchema.parse(req.params)
+            const dto = SubmitEvaluationBodySchema.parse(req.body)
+            
             if(!interviewId || typeof interviewId !== 'string')return res.status(StatusCode.BAD_REQUEST).json({
                 success:false,
                 error:"Invalid interview ID"
-            })
-            console.log('submitEvalution==>')
+            }) 
             
             const result = await this.submitEvalutionUsecase.execute({
                 interviewId,
-                technicalScore:Number(technicalScore),
-                communicationScore:Number(communicationScore),
-                problemSolvingScore:Number(problemSolvingScore),
-                notes,decision
+                ...dto
             })
 
             res.status(StatusCode.OK).json({
