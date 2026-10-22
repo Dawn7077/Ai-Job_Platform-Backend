@@ -1,4 +1,3 @@
-
-export interface IProcessResumeUseCase{
-    execute(userId:string,fileKey:string):Promise<any>
+export interface IProcessResumeUseCase {
+  execute(userId: string, fileKey: string): Promise<any>;
 }

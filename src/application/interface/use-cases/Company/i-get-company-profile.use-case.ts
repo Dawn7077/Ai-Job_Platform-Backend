@@ -1,5 +1,5 @@
-import { CompanyProfile } from "../../../../domain/entities/company-profile.entity" 
+import { CompanyProfile } from '../../../../domain/entities/company-profile.entity';
 
-export interface IGetProfileCompanyUC{
-    execute(userId: string): Promise<CompanyProfile>
+export interface IGetProfileCompanyUC {
+  execute(userId: string): Promise<CompanyProfile>;
 }

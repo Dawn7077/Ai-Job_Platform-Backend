@@ -1,16 +1,16 @@
-import {  z} from 'zod'
-import { User } from '../../../domain/entities/user.entity'
+import { z } from 'zod';
+import { User } from '../../../domain/entities/user.entity';
 
 export const LoginSchema = z.object({
-    email:z.string().email("Invalid email address format.").toLowerCase().trim(),
-    password:z.string().min(1,'password is required')
-})
+  email: z.string().email('Invalid email address format.').toLowerCase().trim(),
+  password: z.string().min(1, 'password is required'),
+});
 
-export type LoginRequestDTO = z.infer<typeof LoginSchema>
+export type LoginRequestDTO = z.infer<typeof LoginSchema>;
 
 export interface LoginResponseDTO {
-    accessToken:string
-    refreshToken:string
-    user:User
-    isOnboarding:boolean
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+  isOnboarding: boolean;
 }

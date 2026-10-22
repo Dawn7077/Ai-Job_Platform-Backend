@@ -1,66 +1,71 @@
-import {S3Client, PutObjectCommand, GetObjectCommand, Bucket$} from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import {inject,injectable} from 'inversify'
-import  { TYPES } from '../../di/TYPES'
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  Bucket$,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../di/types';
 
 const s3Client = new S3Client({
-    region:'auto',
-    endpoint:process.env.R2_ENDPOINT,
-    credentials:{
-        accessKeyId:process.env.R2_ACCESS_KEY_ID || '',
-        secretAccessKey:process.env.R2_SECRET_ACCESS_KEY_ID || ''
-    },
-})
-export default s3Client
-
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY_ID || '',
+  },
+});
+export default s3Client;
 
 @injectable()
 export class R2StorageService {
-    constructor(@inject(TYPES.S3Client) private s3Client:S3Client){}
+  constructor(@inject(TYPES.S3Client) private s3Client: S3Client) {}
 
+  // to generate temp Presigned PUT url for direct browser uploads =>
+  // this url will be  by react to upload directly performing a http put req with actual pdf file which R2 receives and saves sends back a 200 ok resp
+  async getPresignedUploadUrl(
+    fileName: string,
+    mimeType: string
+  ): Promise<{ uploadUrl: string; fileKey: string }> {
+    const fileExtension = fileName.split('.').pop();
+    const fileKey = `resume/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
 
-    // to generate temp Presigned PUT url for direct browser uploads =>
-    // this url will be  by react to upload directly performing a http put req with actual pdf file which R2 receives and saves sends back a 200 ok resp
-    async getPresignedUploadUrl(fileName:string, mimeType:string):Promise<{uploadUrl: string;fileKey: string;}>{
-        const fileExtension = fileName.split('.').pop()
-        const fileKey = `resume/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: fileKey,
+      ContentType: mimeType,
+    });
+    // Signed URL(mockUrl for public usage) that expires in 10 minutes
+    const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 600 });
 
-        const command = new PutObjectCommand({
-            Bucket:process.env.R2_BUCKET_NAME,
-            Key:fileKey,
-            ContentType:mimeType,
-        })
-        // Signed URL(mockUrl for public usage) that expires in 10 minutes
-        const uploadUrl = await getSignedUrl(s3Client,command,{expiresIn:600})
+    return { uploadUrl, fileKey };
+  }
 
-        return  {uploadUrl, fileKey}
+  // r2 will be sending the data in streams which then Downloads
+  // the file into buffer bucket from R2 for local processing/parsing
+  async getFileBuffer(fileKey: string) {
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: fileKey,
+    });
+
+    const response = await s3Client.send(command);
+    const byteArray = await response.Body?.transformToByteArray();
+
+    if (!byteArray) {
+      throw new Error('Error on retriving file stream from R2');
     }
 
-    // r2 will be sending the data in streams which then Downloads 
-    // the file into buffer bucket from R2 for local processing/parsing
-    async getFileBuffer(fileKey:string){
-        const command = new GetObjectCommand({
-            Bucket:process.env.R2_BUCKET_NAME, 
-            Key:fileKey
-        })
+    return Buffer.from(byteArray);
+  }
 
-        const response  = await s3Client.send(command)
-        const byteArray = await response.Body?.transformToByteArray()
+  async getPresignedReadUrl(fileKey: string): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: fileKey,
+    });
 
-        if(!byteArray){
-            throw new Error("Error on retriving file stream from R2")
-        }
-
-        return Buffer.from(byteArray)
-    }
-
-
-    async getPresignedReadUrl(fileKey:string):Promise<string>{
-        const command = new GetObjectCommand({
-            Bucket:process.env.R2_BUCKET_NAME,
-            Key:fileKey,
-        })
-
-        return await getSignedUrl(s3Client,command,{expiresIn:3600})
-    }
+    return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  }
 }

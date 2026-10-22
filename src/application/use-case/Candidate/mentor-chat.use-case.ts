@@ -1,58 +1,56 @@
-import { inject, injectable } from "inversify";
-import { IUserRepository } from "../../../domain/repositories/i-user.repository";
-import { GatewayModels } from "../../../infrastructure/ai/gateway.models";
-import { IClassfierIntent } from "../../agent/models/classifier.model";
-import { MentorAgent } from "../../agent/models/mentor-agent.model";
-import { TYPES } from "../../../di/TYPES";
-import { MentorChatRequestDTO } from "../../dtos/Candidate/mentor-chat.dto";
-type intentType = 'STATIC_PROFILE'|'SEARCH_JOB'|'GENERAL_CHAT'
+import { inject, injectable } from 'inversify';
+import { IUserRepository } from '../../../domain/repositories/i-user.repository';
+import { GatewayModels } from '../../../infrastructure/ai/gateway.models';
+import { IClassfierIntent } from '../../agent/models/classifier.model';
+import { MentorAgent } from '../../agent/models/mentor-agent.model';
+import { TYPES } from '../../../di/types';
+import { MentorChatRequestDTO } from '../../dtos/candidate/mentor-chat.dto';
+type intentType = 'STATIC_PROFILE' | 'SEARCH_JOB' | 'GENERAL_CHAT';
 
 @injectable()
-export class MentorChatUseCase{
-    constructor(
-        @inject(TYPES.IntentClassifier) private classifier:IClassfierIntent,
-        @inject(TYPES.IMentorAgent) private mentorAgent:MentorAgent, 
-        @inject(TYPES.IUserRepository) private userRepo:IUserRepository
-        // private vectorSearch: VectorSearchService,
-    ){}
+export class MentorChatUseCase {
+  constructor(
+    @inject(TYPES.IntentClassifier) private classifier: IClassfierIntent,
+    @inject(TYPES.IMentorAgent) private mentorAgent: MentorAgent,
+    @inject(TYPES.IUserRepository) private userRepo: IUserRepository
+    // private vectorSearch: VectorSearchService,
+  ) {}
 
-    // async execute({userId,message}:{userId:string,message:string}){
-    async execute(dto:MentorChatRequestDTO){
-        const {userId,message} = dto
-        const intent = await this.classifier.classify(message) as intentType
+  // async execute({userId,message}:{userId:string,message:string}){
+  async execute(dto: MentorChatRequestDTO) {
+    const { userId, message } = dto;
+    const intent = (await this.classifier.classify(message)) as intentType;
 
-        // if(intent === 'STATIC_PROFILE'){
-        //     const user = await this.userRepo.findById(userId)
-        //     return{
-        //         userReq:message,
-        //         intent,
-        //         response:`Here is your profile data:\n
-        //             ${user?.toJSON()}
-        //         `
-        //     }
-        // }
-        // else if(intent === 'SEARCH_JOB'){
-        //     const agentResult =  await this.mentorAgent.run(message,userId)
-        //     const lastMessage = agentResult.messages[agentResult.messages.length-1]
-            
-        //     console.log('----> SEARCH_JOB_AgentSuccess')
-        //     return{
-        //         userReq:message,
-        //         intent,
-        //         response:lastMessage?.content || "I couldn't process that request"
-        //     }
-        // }
-        //default general chat
+    // if(intent === 'STATIC_PROFILE'){
+    //     const user = await this.userRepo.findById(userId)
+    //     return{
+    //         userReq:message,
+    //         intent,
+    //         response:`Here is your profile data:\n
+    //             ${user?.toJSON()}
+    //         `
+    //     }
+    // }
+    // else if(intent === 'SEARCH_JOB'){
+    //     const agentResult =  await this.mentorAgent.run(message,userId)
+    //     const lastMessage = agentResult.messages[agentResult.messages.length-1]
 
-        const agentResult =  await this.mentorAgent.run(message,userId)
-        const lastMessage = agentResult.messages[agentResult.messages.length-1]
+    //     console.log('----> SEARCH_JOB_AgentSuccess')
+    //     return{
+    //         userReq:message,
+    //         intent,
+    //         response:lastMessage?.content || "I couldn't process that request"
+    //     }
+    // }
+    //default general chat
 
-        return{
-            userReq:message,
-            intent,
-            response:lastMessage?.content || "I couldn't process that request"
-        }
+    const agentResult = await this.mentorAgent.run(message, userId);
+    const lastMessage = agentResult.messages[agentResult.messages.length - 1];
 
-
-    }
+    return {
+      userReq: message,
+      intent,
+      response: lastMessage?.content || "I couldn't process that request",
+    };
+  }
 }

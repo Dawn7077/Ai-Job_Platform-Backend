@@ -1,36 +1,44 @@
-import 'reflect-metadata'
-import {Container} from 'inversify'
-import {TYPES} from './TYPES'
+import 'reflect-metadata';
+import { Container } from 'inversify';
+import { TYPES } from './types';
 
-import {PrismaClient} from '@prisma/client'
-import clientConnection from '../infrastructure/db/mongo/mongo-connection.db'  
-import redisClient from '../infrastructure/db/Redis/redis-client.db'
-import s3Client,{R2StorageService} from '../infrastructure/services/r2-storage.service'
-import { GatewayModels } from '../infrastructure/ai/gateway.models'
- 
-import {authModule} from './modules/auth.module'
-import { candidateModule } from './modules/candidate.module'
-import { companyModule } from './modules/company.module'
-import { adminModule } from './modules/admin.module'
+import { PrismaClient } from '@prisma/client';
+import clientConnection from '../infrastructure/db/mongo/mongo-connection.db';
+import redisClient from '../infrastructure/db/redis/redis-client.db';
+import s3Client from '../infrastructure/services/r2-storage.service';
+import { GatewayModels } from '../infrastructure/ai/gateway.models';
 
+import { authModule } from './modules/auth.module';
+import { candidateModule } from './modules/candidate.module';
+import { companyModule } from './modules/company.module';
+import { adminModule } from './modules/admin.module';
 
-const container = new Container()
+const container = new Container();
 
-container.bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(new PrismaClient())
-container.bind(TYPES.RedisClient).toConstantValue(redisClient)
-container.bind(TYPES.MongoClient).toConstantValue(clientConnection)
-container.bind(TYPES.S3Client).toConstantValue(s3Client)
+container
+  .bind<PrismaClient>(TYPES.PrismaClient)
+  .toConstantValue(new PrismaClient());
+container.bind(TYPES.RedisClient).toConstantValue(redisClient);
+container.bind(TYPES.MongoClient).toConstantValue(clientConnection);
+container.bind(TYPES.S3Client).toConstantValue(s3Client);
 
-container.bind(TYPES.JwtSecret).toConstantValue(process.env.JWT_SECRET || '"Default_SecretKey"')
-container.bind(TYPES.GatewayModel).to(GatewayModels)
-container.bind(TYPES.EmbeddingsModel).toDynamicValue(()=>{
-    const gateway= container.get<GatewayModels>(TYPES.GatewayModel)
-    return gateway.EmbeddingsModel
-}).inSingletonScope() 
+container
+  .bind(TYPES.JwtSecret)
+  .toConstantValue(process.env.JWT_SECRET || '"Default_SecretKey"');
 
-container.load(authModule)
-container.load(candidateModule)
-container.load(companyModule)
-container.load(adminModule)
+container.bind(TYPES.GatewayModel).to(GatewayModels);
 
-export {container}
+container
+  .bind(TYPES.EmbeddingsModel)
+  .toDynamicValue(() => {
+    const gateway = container.get<GatewayModels>(TYPES.GatewayModel);
+    return gateway.EmbeddingsModel;
+  })
+  .inSingletonScope();
+
+container.load(authModule);
+container.load(candidateModule);
+container.load(companyModule);
+container.load(adminModule);
+
+export { container };

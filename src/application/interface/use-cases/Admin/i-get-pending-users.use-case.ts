@@ -1,7 +1,5 @@
-import { User } from "../../../../domain/entities/user.entity";
+import { User } from '../../../../domain/entities/user.entity';
 
- 
-
-export interface IGetPendingUsers{
-    execute(): Promise<User[]>
+export interface IGetPendingUsers {
+  execute(): Promise<User[]>;
 }

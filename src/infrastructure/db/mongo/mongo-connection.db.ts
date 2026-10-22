@@ -1,17 +1,17 @@
-import { MongoClient } from "mongodb";
-import { AppError } from "../../../shared/utils/app-errors.util";  
-import { StatusCode } from "../../../shared/constants/status-code.constant";  
+import { MongoClient } from 'mongodb';
+import { AppError } from '../../../shared/utils/app-errors.util';
+import { StatusCode } from '../../../shared/constants/status-code.constant';
 
-const uri = process.env.MONGO_URL ?? "";
+const uri = process.env.MONGO_URL ?? '';
 
 if (!uri) {
   throw new AppError(
-    "Please define the MONGO_URI environment variable",
+    'Please define the MONGO_URI environment variable',
     StatusCode.NOT_FOUND,
-    "MONGO_URI_NOT_FOUND"
+    'MONGO_URI_NOT_FOUND'
   );
 }
- 
+
 const client = new MongoClient(uri, {
   tls: true,
   tlsAllowInvalidCertificates: true,

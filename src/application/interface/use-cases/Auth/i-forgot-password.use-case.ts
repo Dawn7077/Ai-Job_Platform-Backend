@@ -1,5 +1,8 @@
-import { ForgotPasswordRequestDTO, ForgotPasswordResponseDTO } from "../../../dtos/Auth/forgot-password.dto";
+import {
+  ForgotPasswordRequestDTO,
+  ForgotPasswordResponseDTO,
+} from '../../../dtos/auth/forgot-password.dto';
 
-export interface IForgotPasswordUseCase{
-    execute(dto:ForgotPasswordRequestDTO):Promise<ForgotPasswordResponseDTO>
+export interface IForgotPasswordUseCase {
+  execute(dto: ForgotPasswordRequestDTO): Promise<ForgotPasswordResponseDTO>;
 }

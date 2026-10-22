@@ -1,3 +1,3 @@
-export interface IGetResumeTextUseCase{
-    execute(userId: string): Promise<string> 
-} 
+export interface IGetResumeTextUseCase {
+  execute(userId: string): Promise<string>;
+}

@@ -1,24 +1,23 @@
-export interface JobVectorSearchResults{
-    jobId:string
-    title:string
-    company:string
-    description:string
-    score:number
+export interface JobVectorSearchResults {
+  jobId: string;
+  title: string;
+  company: string;
+  description: string;
+  score: number;
 }
 
+export interface IVectorSearchService {
+  searchJobs(query: string, limit?: number): Promise<JobVectorSearchResults[]>;
 
-export interface IVectorSearchService{
-    searchJobs(query:string,limit?:number):Promise<JobVectorSearchResults[]>
+  indexJob(job: {
+    id: string;
+    title: string;
+    company: string;
+    description: string;
+    skills: string[];
+    status: string;
+  }): Promise<void>;
 
-    indexJob(job:{
-        id:string;
-        title:string;
-        company:string;
-        description:string;
-        skills:string[];
-        status:string;
-    }):Promise<void>
-
-    deleteJobEmbedding(jobId:string):Promise<void>
-    deleteJobEmbeddingsbyJobIds(jobIds:string[]):Promise<void>
+  deleteJobEmbedding(jobId: string): Promise<void>;
+  deleteJobEmbeddingsbyJobIds(jobIds: string[]): Promise<void>;
 }

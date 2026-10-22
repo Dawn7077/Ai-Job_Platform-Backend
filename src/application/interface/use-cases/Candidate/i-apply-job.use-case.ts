@@ -1,6 +1,6 @@
-import { Application } from "../../../../domain/entities/application.entity"
-import { ApplyJobRequestDTO } from "../../../dtos/Candidate/apply-job.dto"
+import { Application } from '../../../../domain/entities/application.entity';
+import { ApplyJobRequestDTO } from '../../../dtos/candidate/apply-job.dto';
 
-export interface IApplyJobUseCase{
-    execute(dto:ApplyJobRequestDTO): Promise<Application>
+export interface IApplyJobUseCase {
+  execute(dto: ApplyJobRequestDTO): Promise<Application>;
 }

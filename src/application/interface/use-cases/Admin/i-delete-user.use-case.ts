@@ -1,5 +1,5 @@
-import { DeleteUserParamDTO } from "../../../dtos/Admin/delete-users.dto";
+import { DeleteUserParamDTO } from '../../../dtos/admin/delete-users.dto';
 
-export interface IDeleteUserUseCase{
-    execute(id:DeleteUserParamDTO,adminId: string): Promise<void>
+export interface IDeleteUserUseCase {
+  execute(id: DeleteUserParamDTO, adminId: string): Promise<void>;
 }

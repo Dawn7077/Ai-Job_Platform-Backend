@@ -1,5 +1,8 @@
-import { GoogleLoginRequestDTO, GoogleLoginResponseDTO } from "../../../dtos/Auth/google-login.dto"; 
+import {
+  GoogleLoginRequestDTO,
+  GoogleLoginResponseDTO,
+} from '../../../dtos/auth/google-login.dto';
 
-export interface IGoogleService{
-    execute(inputData:GoogleLoginRequestDTO):Promise<GoogleLoginResponseDTO>
+export interface IGoogleService {
+  execute(inputData: GoogleLoginRequestDTO): Promise<GoogleLoginResponseDTO>;
 }

@@ -39,7 +39,8 @@ model User {
   companyProfile     CompanyProfile?
   candidateInterview Interview[]  @relation("CandidateInterview")
   companyInterview   Interview[]  @relation("CompanyInterview")
- 
+  mockInterviews     MockInterview[] 
+
   @@map("users")
 }
 
@@ -202,7 +203,6 @@ model Interview {
   @@index([companyId,scheduledAt])
   @@index([candidateId,scheduledAt])
   @@map("interviews")
-
 }
 
 model InterviewEvaluation{
@@ -219,5 +219,35 @@ model InterviewEvaluation{
   interview       Interview     @relation(fields:[interviewId],references:[id],onDelete:Cascade)
 
   @@map("Interview_evaluations")
-  
+}
+
+enum MockInterviewType {
+  BEHAVIOUR
+  TECHNICAL
+  SYSTEM_DESIGN
+}
+
+enum MockInterviewStatus { 
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+
+
+model MockInterview {
+  id              String              @id @default(uuid()) 
+  candidateId     String              @map("candidate_id")
+  jobId           String?             @map("job_id") 
+  type            MockInterviewType   @default(BEHAVIOUR) 
+  targetRole      String              @map("target_role") 
+  status          MockInterviewStatus @default(IN_PROGRESS)
+  transcript      Json               
+  feedback        Json?              
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @default(now()) @map("updated_at")
+
+  candidate       User                @relation(fields:[candidateId],references:[id],onDelete:Cascade)
+
+  @@map("mock_interview_sessions")
 }

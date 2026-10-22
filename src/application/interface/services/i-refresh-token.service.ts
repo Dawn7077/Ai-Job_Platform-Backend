@@ -1,3 +1,3 @@
-export interface IRefreshToken{
-    execute(token:string):Promise<{accessToken:string}>
+export interface IRefreshToken {
+  execute(token: string): Promise<{ accessToken: string }>;
 }

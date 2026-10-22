@@ -1,5 +1,5 @@
-import crypto from "crypto";
+import crypto from 'crypto';
 
-export function generateOtp():string{
-    return crypto.randomInt(100000,999999).toString();
+export function generateOtp(): string {
+  return crypto.randomInt(100000, 999999).toString();
 }

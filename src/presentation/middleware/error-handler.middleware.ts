@@ -1,33 +1,38 @@
-import { NextFunction, Request, Response } from "express";
-import { AppError } from "../../shared/utils/app-errors.util";
-import { AuthMessages } from "../../shared/constants/auth-messages.constant";
-import {success, z} from 'zod'
-import { StatusCode } from "../../shared/constants/status-code.constant";
+import { NextFunction, Request, Response } from 'express';
+import { AppError } from '../../shared/utils/app-errors.util';
+import { AuthMessages } from '../../shared/constants/auth-messages.constant';
+import { z } from 'zod';
+import { StatusCode } from '../../shared/constants/status-code.constant';
 
-export const errorHandler = (err:Error,req:Request,res:Response,next:NextFunction)=>{
-    if(err instanceof AppError){
-        console.log('AppError=>',err.message)
-        return res.status(err.statusCode).json({
-            success:false,
-            errorCode:err.errorCode,
-            message:err.message
-        })
-    }
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  _: NextFunction
+) => {
+  if (err instanceof AppError) {
+    console.log('AppError=>', err.message);
+    return res.status(err.statusCode).json({
+      success: false,
+      errorCode: err.errorCode,
+      message: err.message,
+    });
+  }
 
-    if(err instanceof z.ZodError){
-        console.log('ZodError=>',err.message)
-        return res.status(StatusCode.BAD_REQUEST).json({
-            success:false,
-            errorCode:'VALIDATION_ERROR',
-            message:err.message, 
-        })
-    }
-    
-    console.log(err.message)
-    console.error('Unhandled_Error',err)
-    return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
-        success:false,
-        errorCode:'INTERNAL_SERVER_ERROR',
-        message:AuthMessages.INTERNAL_ERROR
-    })
-}
+  if (err instanceof z.ZodError) {
+    console.log('ZodError=>', err.message);
+    return res.status(StatusCode.BAD_REQUEST).json({
+      success: false,
+      errorCode: 'VALIDATION_ERROR',
+      message: err.message,
+    });
+  }
+
+  console.log(err.message);
+  console.error('Unhandled_Error', err);
+  return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+    success: false,
+    errorCode: 'INTERNAL_SERVER_ERROR',
+    message: AuthMessages.INTERNAL_ERROR,
+  });
+};
