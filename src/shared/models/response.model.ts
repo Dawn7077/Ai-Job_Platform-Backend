@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse {
   success: boolean;
   message?: string;
   error?: string;
@@ -28,7 +28,7 @@ export class ResponseHelper {
       // ...(payloadOrMessage!==undefined && {payloadOrMessage}) ,
     });
   }
-  static error<T>(res: Response, statuscode: number, error: string) {
+  static error(res: Response, statuscode: number, error: string) {
     return res.status(statuscode).json({
       success: false,
       error,

@@ -54,7 +54,7 @@ export class AdminController {
   async verifyCompany(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = VerifyCompanyBodySchema.parse(req.body);
-      const { userId, status, reason } = dto;
+      const { userId, status } = dto;
 
       if (!userId || !['ACTIVE', 'SUSPENDED'].includes(status)) {
         return ResponseHelper.error(

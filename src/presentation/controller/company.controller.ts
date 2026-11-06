@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { ICreateJobUseCase } from '../../application/interface/use-cases/company/i-create-job.use-case';
-import { z } from 'zod';
 import { StatusCode } from '../../shared/constants/status-code.constant';
 import { CompanyMessages } from '../../shared/constants/company-messages.constant';
 import { IGetJOBCompany } from '../../application/interface/use-cases/company/i-get-company-jobs.use-case';

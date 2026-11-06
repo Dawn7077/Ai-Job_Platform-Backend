@@ -5,7 +5,7 @@ import { ResumeParserService } from '../../../infrastructure/ai/pdf-parser.servi
 import { R2StorageService } from '../../../infrastructure/services/r2-storage.service';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
-import { IProcessResumeUseCase } from '../../interface/use-cases/candidate/i-process-resume.use-case';
+import { IProcessResumeUseCase } from '../interfaces/i-process-resume.use-case';
 import { TYPES } from '../../../di/types';
 
 @injectable()
@@ -62,7 +62,7 @@ export class ProcessResumeUseCase implements IProcessResumeUseCase {
         .replace(/```json|```/g, '')
         .trim();
       parsedJSON = JSON.parse(cleanedContent);
-    } catch (error) {
+    } catch (_error) {
       console.error('Error on parsing AI JSON output:', aiResponse.content);
       throw new AppError(
         'Failed to format resume data into structured profile.',

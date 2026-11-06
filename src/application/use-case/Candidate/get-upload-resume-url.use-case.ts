@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { ICandidateProfileRepository } from '../../../domain/repositories/i-candidate-profile.repository';
+// import { ICandidateProfileRepository } from '../../../domain/repositories/i-candidate-profile.repository';
 import { R2StorageService } from '../../../infrastructure/services/r2-storage.service';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';

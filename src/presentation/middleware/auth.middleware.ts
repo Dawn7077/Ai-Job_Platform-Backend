@@ -3,7 +3,6 @@ import { ITokenService } from '../../application/interface/services/i-token.serv
 import { StatusCode } from '../../shared/constants/status-code.constant';
 import { AuthMessages } from '../../shared/constants/auth-messages.constant';
 import { UserStatus } from '../../domain/entities/user.entity';
-import redisClient from '../../infrastructure/db/redis/redis-client.db';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -62,7 +61,7 @@ export const authMiddleware: IAuthMiddleware = (tokenTool: ITokenService) => {
       // console.log(req.user)
 
       next();
-    } catch (error) {
+    } catch (_error) {
       res.status(StatusCode.UNAUTHORIZED).json({
         success: false,
         message: 'Invalid or expired access Token.',

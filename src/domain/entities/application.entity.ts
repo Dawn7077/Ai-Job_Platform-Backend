@@ -15,6 +15,7 @@ export interface ApplicationProps {
   candidateId: string;
   stage: ApplicationStage;
   resumeKey?: string | null;
+  matchScore?: number | null;
   createdAt: Date;
   updatedAt: Date;
   //referral
@@ -30,6 +31,7 @@ export class Application {
       candidateId: props.candidateId,
       stage: props.stage,
       resumeKey: props.resumeKey ?? null,
+      matchScore: props.matchScore ?? 0.0,
       createdAt: props.createdAt ?? new Date(),
       updatedAt: props.updatedAt ?? new Date(),
     };
@@ -49,6 +51,9 @@ export class Application {
   }
   get resumeKey(): string | null | undefined {
     return this.props.resumeKey;
+  }
+  get matchScore(): number | null {
+    return this.props.matchScore!;
   }
   get createdAt(): Date {
     return this.props.createdAt;

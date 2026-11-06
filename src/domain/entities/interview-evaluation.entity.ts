@@ -4,7 +4,7 @@ export interface InterviewEvaluationProps {
   technicalScore: number;
   communicationScore: number;
   problemSolvingScore: number;
-  notes: string;
+  feedback: string;
   decision: 'HIRED' | 'REJECTED' | 'NEXT_ROUND' | 'PENDING';
   createdAt?: Date;
 }
@@ -34,8 +34,8 @@ export class InterviewEvaluation {
   get problemSolvingScore(): number {
     return this.props.problemSolvingScore;
   }
-  get notes(): string {
-    return this.props.notes;
+  get feedback(): string {
+    return this.props.feedback;
   }
   get decision() {
     return this.props.decision;

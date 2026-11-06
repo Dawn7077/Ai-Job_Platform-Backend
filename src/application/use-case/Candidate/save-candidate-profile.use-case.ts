@@ -1,8 +1,4 @@
 import { inject, injectable } from 'inversify';
-import {
-  CandidateProfile,
-  CandidateProfileProps,
-} from '../../../domain/entities/candidate-profile.entity';
 import { ICandidateProfileRepository } from '../../../domain/repositories/i-candidate-profile.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
@@ -11,7 +7,7 @@ import { TYPES } from '../../../di/types';
 import { SaveCandidateProfileRequestDTO } from '../../dtos/candidate/save-profile.dto';
 import { CandidateMessages } from '../../../shared/constants/candidate-message.constants';
 import { ErrorCode } from '../../../shared/constants/general-constants';
-
+//update/save profile use case
 @injectable()
 export class SaveCandidateProfile implements ISaveCandidateProfile {
   constructor(

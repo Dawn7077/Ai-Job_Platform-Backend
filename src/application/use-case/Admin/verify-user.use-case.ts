@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { User } from '../../../domain/entities/user.entity';
+// import { User } from '../../../domain/entities/user.entity';
 import { IUserRepository } from '../../../domain/repositories/i-user.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { AdminMessages } from '../../../shared/constants/admin-messages.constant';

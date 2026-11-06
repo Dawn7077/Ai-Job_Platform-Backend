@@ -1,13 +1,10 @@
-import { UserRole } from '@prisma/client';
 import { IUserRepository } from '../../../domain/repositories/i-user.repository';
 import { IEmailService } from '../../interface/services/i-email.service';
 import { IHashService } from '../../interface/services/i-hash.service';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
 import { generateOtp } from '../../../shared/utils/generate-otp.util';
-import redisClient, {
-  ICacheService,
-} from '../../../infrastructure/db/redis/redis-client.db';
+import { ICacheService } from '../../../infrastructure/db/redis/redis-client.db';
 import {
   ResetOTPExpiry,
   SignUpOTPExpiry,

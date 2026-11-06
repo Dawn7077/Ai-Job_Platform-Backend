@@ -4,9 +4,7 @@ import { IUserRepository } from '../../../domain/repositories/i-user.repository'
 import { IHashService } from '../../interface/services/i-hash.service';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
-import redisClient, {
-  ICacheService,
-} from '../../../infrastructure/db/redis/redis-client.db';
+import { ICacheService } from '../../../infrastructure/db/redis/redis-client.db';
 import { AuthMessages } from '../../../shared/constants/auth-messages.constant';
 import { IResetPasswordUseCase } from '../../interface/use-cases/auth/i-reset-password.use-case';
 import { ResetPasswordRequestDTO } from '../../dtos/auth/reset-password.dto';

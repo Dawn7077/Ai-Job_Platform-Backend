@@ -1,7 +1,8 @@
-import { tool } from '@langchain/core/tools';
+// import { tool } from '@langchain/core/tools';
 import { MemorySaver } from '@langchain/langgraph';
+import { MongoDBSaver } from '@langchain/langgraph-checkpoint-mongodb';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
-import { z } from 'zod';
+// import { z } from 'zod';
 import { GatewayModels } from '../../../infrastructure/ai/gateway.models';
 import { IVectorSearchService } from '../../interface/services/i-vector-search.service';
 import { createSearchJobTool } from '../tools/search-job.tool';
@@ -13,18 +14,22 @@ import { createGetUserApplicationsTool } from '../tools/get-user-applications.to
 import { createGetApplicationDetailsTool } from '../tools/get-application-details.tool';
 import { IGetProfileCandidateUseCase } from '../../interface/use-cases/candidate/i-get-profile-candidate.use-case';
 import { createGetProfileCandidateTool } from '../tools/get-candidate-profile.tool';
-import { IGetResumeTextUseCase } from '../../interface/use-cases/candidate/i-get-resume-text.use-case';
+import { IGetResumeTextUseCase } from '../interfaces/i-get-resume-text.use-case';
 import { createAnalyzeResumeTool } from '../tools/analyse-resume.tool';
 import { IMentorAgent } from '../interfaces/i-mentor-agent.interface';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../../di/types';
+import { MongoClient } from 'mongodb';
+import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
 
 @injectable()
 export class MentorAgent implements IMentorAgent {
   private agentInstance;
+  private checkpointer: MongoDBSaver;
 
   constructor(
     @inject(TYPES.GatewayModel) aiGateway: GatewayModels,
+    @inject(TYPES.MongoClient) private mongoClient: MongoClient,
     @inject(TYPES.IVectorSearchService)
     vectorSearchService: IVectorSearchService,
     @inject(TYPES.IApplyJobUseCase) applyJobUseCase: IApplyJobUseCase,
@@ -35,10 +40,11 @@ export class MentorAgent implements IMentorAgent {
     @inject(TYPES.IGetProfileCanidateUseCase)
     getProfileCandidateUseCase: IGetProfileCandidateUseCase,
     @inject(TYPES.IGetResumeTextUseCase)
-    getResumeTextUseCase: IGetResumeTextUseCase
+    getResumeTextUseCase: IGetResumeTextUseCase,
+    @inject(TYPES.IApplicationRepo) applicationRepo: IApplicationRepository
   ) {
     const searchJobTool = createSearchJobTool(vectorSearchService);
-    const applyJobTool = createApplyJobTool(applyJobUseCase);
+    const applyJobTool = createApplyJobTool(applyJobUseCase, applicationRepo);
     const getUserApplicationsTool = createGetUserApplicationsTool(
       getAllApplicationsUseCase
     );
@@ -59,18 +65,24 @@ export class MentorAgent implements IMentorAgent {
       analyzeResumeTool,
     ];
 
-    const modelWithTools = aiGateway.getModelWithTool(tools);
+    const _modelWithTools = aiGateway.getModelWithTool(tools);
 
     console.log(
       'REGISTERED TOOLS:',
       tools.map((tool) => tool.name)
     );
 
+    this.checkpointer = new MongoDBSaver({
+      client: mongoClient as any,
+      dbName: 'ai_job_platform',
+    });
+
     this.agentInstance = createReactAgent({
       llm: aiGateway.fallbackModel.bindTools(tools),
       // llm:modelWithTools,
       tools: tools,
-      checkpointSaver: new MemorySaver(),
+      // checkpointSaver: new MemorySaver(),
+      checkpointSaver: this.checkpointer,
     });
   }
 
@@ -88,5 +100,23 @@ export class MentorAgent implements IMentorAgent {
         },
       }
     );
+  }
+
+  async getThreadMessages(threadId: string) {
+    try {
+      const tuple = await this.checkpointer.getTuple({
+        configurable: { thread_id: threadId },
+      });
+
+      if (!tuple || !tuple.checkpoint) {
+        return [];
+      }
+
+      const channelValues = tuple.checkpoint.channel_values as any;
+      return channelValues?.messages || [];
+    } catch (error) {
+      console.log(`Error fetching messages for thread ${threadId}:`, error);
+      return [];
+    }
   }
 }

@@ -4,7 +4,7 @@ import { ResumeParserService } from '../../../infrastructure/ai/pdf-parser.servi
 import { R2StorageService } from '../../../infrastructure/services/r2-storage.service';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
-import { IGetResumeTextUseCase } from '../../interface/use-cases/candidate/i-get-resume-text.use-case';
+import { IGetResumeTextUseCase } from '../interfaces/i-get-resume-text.use-case';
 import { TYPES } from '../../../di/types';
 
 @injectable()

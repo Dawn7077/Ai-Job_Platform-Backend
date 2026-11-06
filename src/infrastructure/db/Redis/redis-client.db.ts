@@ -5,6 +5,7 @@ export interface ICacheService {
   get(key: string): Promise<string | null>;
   del(key: string): Promise<number>;
   ttl(key: string): Promise<number>;
+  incrementWithExpiry(key: string, expiryInSeconds: number): Promise<number>;
 }
 
 const redisClient = new Redis({

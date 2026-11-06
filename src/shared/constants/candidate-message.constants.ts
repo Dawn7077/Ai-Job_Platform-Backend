@@ -28,6 +28,7 @@ export const CandidateMessages = {
     'Not found Profile or resume uploaded to this profile',
   SESSION_CLOSED:
     'Cannot respond to a complete or cancelled interview session.',
+  AI_ANALYSIS_ERROR: 'Error on AI Analysis and parsing',
 } as const;
 
 export type CandidateMessageKey = keyof typeof CandidateMessages;

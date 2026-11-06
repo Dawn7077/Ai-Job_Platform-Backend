@@ -23,6 +23,10 @@ export class CandidateProfileMapper {
       skills: (record.skills as unknown as string[]) ?? [],
       experience: (record.experience as unknown as ExperienceItem[]) ?? [],
       education: (record.education as unknown as EducationItem[]) ?? [],
+      internalTechScoreAvg: record.internalTechScoreAvg,
+      internalCultureScoreAvg: record.internalCultureScoreAvg,
+      internalCommScoreAvg: record.internalCommScoreAvg,
+      endorsementCount: record.endorsementCount,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });

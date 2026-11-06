@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify';
-import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { ICompanyProfileRepo } from '../../../domain/repositories/i-company-profile.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';

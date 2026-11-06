@@ -72,7 +72,7 @@ export class PrismaInterviewRepo
         technicalScore: raw.technicalScore,
         communicationScore: raw.communicationScore,
         problemSolvingScore: raw.problemSolvingScore,
-        notes: raw.notes,
+        feedback: raw.feedback,
         decision: raw.decision,
       },
     });

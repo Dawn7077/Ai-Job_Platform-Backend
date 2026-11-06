@@ -40,7 +40,11 @@ model User {
   candidateInterview Interview[]  @relation("CandidateInterview")
   companyInterview   Interview[]  @relation("CompanyInterview")
   mockInterviews     MockInterview[] 
+  chatSessions       ChatSessions[]
 
+  companyReviews     CompanyReview[]  @relation("CandidateCompanyReview")
+  candidateReviews   CandidateReview[] @relation("CompanyCandidateReview")
+  
   @@map("users")
 }
 
@@ -99,6 +103,7 @@ model Application{
   candidateId String     @map("candidate_id") 
   stage       ApplicationStage  @default(APPLIED)
   resumeKey   String?          @map("resume_url")
+  matchScore  Float?           @default(0) @map("match_score")
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
@@ -139,8 +144,16 @@ model CandidateProfile{
   experience   Json?
   education    Json?
 
+  internalTechScoreAvg     Float @default(0.0) @map("internal_tech_score")
+  internalCultureScoreAvg  Float @default(0.0) @map("internal_culture_score")
+  internalCommScoreAvg     Float @default(0.0) @map("internal_comm_score")
+  endorsementCount         Int   @default(0) @map("endorsement_count")
+
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
+
+
+  reviews CandidateReview[] @relation("CandidateProfileReviews")
 
   @@map("candidate_profiles")
 }
@@ -159,8 +172,17 @@ model CompanyProfile {
   description   String?  @db.Text
   logoUrl       String?  @map("logo_url")
 
+  averageRating          Float @default(0.0) @map("average_rating")
+  totalReviewCount       Int   @default(0)   @map("total_review_count")
+  interviewScoreAvg      Float @default(0.0) @map("internal_score_avg")
+  cultureScoreAvg        Float @default(0.0) @map("culture_score_avg")
+  communicationScoreAvg  Float @default(0.0) @map("communication_score_avg")
+  
+
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at") 
+
+  reviews CompanyReview[] 
 
   @@map("company_profiles")
 }
@@ -199,6 +221,7 @@ model Interview {
 
   evaluation    InterviewEvaluation?
 
+  @@index([applicationId])
   @@index([roomKey])
   @@index([companyId,scheduledAt])
   @@index([candidateId,scheduledAt])
@@ -211,7 +234,7 @@ model InterviewEvaluation{
   technicalScore        Int                  @map("technical_score")
   communicationScore    Int                  @map("communication_score")
   problemSolvingScore   Int                  @map("problem_solving_score")
-  notes                 String               @db.Text
+  feedback                 String               @db.Text
   decision              EvaluationDesicion   @default(PENDING)
   createdAt             DateTime             @default(now()) @map("created_at")
 
@@ -250,4 +273,64 @@ model MockInterview {
   candidate       User                @relation(fields:[candidateId],references:[id],onDelete:Cascade)
 
   @@map("mock_interview_sessions")
+}
+
+model ChatSessions {
+  id         String      @id @default(uuid())
+  userId     String      @map("user_id")
+  title      String      @default("New Chat")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("chat_sessions")
+}
+
+model CompanyReview {
+  id                     String      @id @default(uuid())
+  companyId              String      @map("company_id")
+  candidateId            String      @map("candidate_id")
+
+  overallRating          Float       @map("overall_rating")
+  interviewRating        Float       @map("interview_rating")
+  cultureRating          Float       @map("culture_rating")
+  communicationRating    Float       @map("communication_rating")
+
+  tags          Json?     //eg.['great_mentorship']
+  reviewText    String    @db.Text @map("review_text")
+  
+  updatedAt     DateTime  @default(now()) @map("updated_at")
+  createdAt     DateTime  @updatedAt @map("created_at")
+
+  //Relations
+  company     CompanyProfile  @relation(fields: [companyId], references: [id], onDelete:Cascade)
+  candidate   User            @relation("CandidateCompanyReview",fields: [candidateId], references: [id], onDelete:Cascade)
+
+  @@unique([companyId,candidateId], name: "company_candidate_review_unique")
+  @@index([companyId])
+  @@map("company_review")
+}
+
+model CandidateReview {
+  id                String      @id @default(uuid())
+  companyId         String      @map("company_id")
+  candidateId       String      @map("candidate_id")
+
+  technicalScore       Float       @map("technical_score")
+  cultureScore         Float       @map("culture_score")
+  communicationScore   Float       @map("communication_score")
+  isEndorsed           Boolean     @default(false) @map("is_endorsed")
+  comment              String      @map("comment")
+
+  updatedAt         DateTime  @default(now()) @map("updated_at")
+  createdAt         DateTime  @updatedAt @map("created_at")
+
+  candidate   CandidateProfile  @relation("CandidateProfileReviews",fields: [candidateId], references: [id], onDelete: Cascade)      
+  company     User              @relation("CompanyCandidateReview",fields: [companyId], references: [id], onDelete: Cascade)      
+
+  @@unique([companyId,candidateId], name: "candidate_review_unique")
+  @@index([candidateId])
+  @@map("candidate_review")
 }

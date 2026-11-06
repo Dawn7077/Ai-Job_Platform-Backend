@@ -206,7 +206,7 @@ export class AuthController {
           const decoded = this.tokenTool.decodeToken(refreshToken);
           if (decoded && typeof decoded === 'object' && 'userId' in decoded)
             await redisClient.del(`refresh_token:${decoded.userId}`);
-        } catch (error) {
+        } catch (_error) {
           //
         }
       }

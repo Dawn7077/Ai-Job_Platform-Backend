@@ -26,9 +26,9 @@ export class IntentClassifier {
     const prompt = `Analyse the user message below and categorize it: ${userMessage}`;
 
     try {
-      const result = await structeredOutputModel.invoke(prompt);
+      const result = (await structeredOutputModel.invoke(prompt)) as any;
       return result.intent;
-    } catch (error) {
+    } catch (_error) {
       return 'CHAT_GENERAL';
     }
   }

@@ -20,6 +20,13 @@ export class PrismaCompanyProfileRepo
     super(prisma);
   }
 
+  async findById(id: string): Promise<CompanyProfile | null> {
+    const raw = await this.prisma.companyProfile.findUnique({ where: { id } });
+    if (!raw) return null;
+
+    return CompanyProfileMapper.toDomain(raw);
+  }
+
   async findbyUserId(userId: string): Promise<CompanyProfile | null> {
     const raw = await this.prisma.companyProfile.findUnique({
       where: { userId },

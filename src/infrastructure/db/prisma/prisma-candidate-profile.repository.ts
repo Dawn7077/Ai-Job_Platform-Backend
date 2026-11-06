@@ -13,7 +13,7 @@ import { inject, injectable } from 'inversify';
 import { CandidateProfileMapper } from '../mappers/candidate-profile.mapper';
 import { BaseRepository } from './base.repository';
 import { TYPES } from '../../../di/types';
-import { UserMapper } from '../mappers/user.mapper';
+// import { UserMapper } from '../mappers/user.mapper';
 
 @injectable()
 export class PrismaCandidateProfileRepo

@@ -3,8 +3,7 @@ import {
   TokenPayload,
 } from '../../application/interface/services/i-token.service';
 import jwt from 'jsonwebtoken';
-import { inject, injectable } from 'inversify';
-import { TYPES } from '../../di/types';
+import { injectable } from 'inversify';
 
 @injectable()
 export class TokenService implements ITokenService {
@@ -68,7 +67,7 @@ export class TokenService implements ITokenService {
   decodeToken(token: string): string | jwt.JwtPayload | null {
     try {
       return jwt.decode(token);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }

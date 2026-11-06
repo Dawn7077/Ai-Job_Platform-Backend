@@ -12,6 +12,7 @@ export class ApplicationMapper {
       candidateId: record.candidateId,
       stage: record.stage as ApplicationStage,
       resumeKey: record.resumeKey,
+      matchScore: record.matchScore,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });

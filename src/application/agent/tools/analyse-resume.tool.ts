@@ -1,7 +1,7 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { RunnableConfig } from '@langchain/core/runnables';
-import { IGetResumeTextUseCase } from '../../interface/use-cases/candidate/i-get-resume-text.use-case';
+import { IGetResumeTextUseCase } from '../interfaces/i-get-resume-text.use-case';
 
 export const createAnalyzeResumeTool = (
   getResumeTextUseCase: IGetResumeTextUseCase

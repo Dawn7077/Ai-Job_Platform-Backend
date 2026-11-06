@@ -21,10 +21,15 @@ import { UpdateJobUseCase } from '../../application/use-case/company/update-job.
 import { DeleteJobUseCase } from '../../application/use-case/company/delete-job.use-case';
 import { GetAllCandidatesUseCase } from '../../application/use-case/company/get-all-candidates.use-case';
 import { GetCandidateDetailsUseCase } from '../../application/use-case/company/get-candidate-details.use-case';
+import { PrismaCompanyReviewRepo } from '../../infrastructure/db/prisma/prisma-company-review.repository';
+import { SubmitCompanyReviewUsecase } from '../../application/use-case/company/submit-company-reviews.use-case';
 
 export const companyModule = new ContainerModule(({ bind }) => {
   bind(TYPES.ICompanyProfileRepo)
     .to(PrismaCompanyProfileRepo)
+    .inSingletonScope();
+  bind(TYPES.ICompanyReviewRepository)
+    .to(PrismaCompanyReviewRepo)
     .inSingletonScope();
 
   // use cases
@@ -45,6 +50,7 @@ export const companyModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IGetCompanyInterviewUC).to(GetCompanyInterviewUC);
   bind(TYPES.IGetAllCandidatesUseCase).to(GetAllCandidatesUseCase);
   bind(TYPES.IGetCandidateDetailsUseCase).to(GetCandidateDetailsUseCase);
+  bind(TYPES.ISubmitCompanyReviewUsecase).to(SubmitCompanyReviewUsecase);
 
   bind(TYPES.CompanyController).to(CompanyController);
 });

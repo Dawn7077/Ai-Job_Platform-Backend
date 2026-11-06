@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify';
-import {
-  Application,
-  ApplicationProps,
-} from '../../../domain/entities/application.entity';
-import { JobProps } from '../../../domain/entities/job.entity';
+// import {
+//   Application,
+//   ApplicationProps,
+// } from '../../../domain/entities/application.entity';
+// import { JobProps } from '../../../domain/entities/job.entity';
 import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
 import { IJobRepository } from '../../../domain/repositories/i-job.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';

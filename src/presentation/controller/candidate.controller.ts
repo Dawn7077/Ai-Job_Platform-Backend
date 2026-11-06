@@ -7,7 +7,7 @@ import { IGetActiveJobById } from '../../application/interface/use-cases/candida
 import { ISaveCandidateProfile } from '../../application/interface/use-cases/candidate/i-save-candidate-profile.use-case';
 import { IGetProfileCandidateUseCase } from '../../application/interface/use-cases/candidate/i-get-profile-candidate.use-case';
 import { IGetResumeUrlUseCase } from '../../application/interface/use-cases/candidate/i-get-resume-url.use-case';
-import { IProcessResumeUseCase } from '../../application/interface/use-cases/candidate/i-process-resume.use-case';
+import { IProcessResumeUseCase } from '../../application/agent/interfaces/i-process-resume.use-case';
 import { IGetUploadResumeUrlUseCase } from '../../application/interface/use-cases/candidate/i-get-upload-resume-url.use-case';
 import { IGetCandidateInterviewUC } from '../../application/interface/use-cases/candidate/i-get-candidate-interview.use-case';
 import { inject, injectable } from 'inversify';
@@ -35,12 +35,20 @@ import {
   SubmitMockInterviewMessagesSchema,
 } from '../../application/dtos/candidate/start-mock-interview.dto';
 import { IGetAllMockInterviewSessionsUseCase } from '../../application/interface/use-cases/candidate/i-get-all-mock-sessions.use-case';
+import { IGetCandidateChatSessionsUseCase } from '../../application/interface/use-cases/candidate/i-get-candidate-chat-sessions.use-case';
+import { GetCandidateChatSessionsSchema } from '../../application/dtos/candidate/get-candidate-chat-sessions.dto';
+import { IGetThreadMessagesUseCase } from '../../application/interface/use-cases/candidate/i-get-thread-messages.use-case';
+import { GetThreadMessagesSchema } from '../../application/dtos/candidate/get-thread-messages.dto';
 
 @injectable()
 export class CandidateController {
   constructor(
     @inject(TYPES.IMentorChatUseCase)
     private mentorChatUseCase: MentorChatUseCase,
+    @inject(TYPES.IGetThreadMessagesUseCase)
+    private getThreadMessagesUseCase: IGetThreadMessagesUseCase,
+    @inject(TYPES.IGetCandidateChatSessionsUseCase)
+    private getChatSessionsUseCase: IGetCandidateChatSessionsUseCase,
     @inject(TYPES.IGetActiveJobsUseCase)
     private getAllJobsUseCase: IGETActiveJobs,
     @inject(TYPES.IGetActiveJobById)
@@ -70,7 +78,11 @@ export class CandidateController {
   async sendMentorMessage(req: Request, res: Response, next: NextFunction) {
     console.log('req was hit:', req.body.message);
     try {
-      const dto: MentorChatRequestDTO = MentorChatSchema.parse(req.body);
+      const { threadId } = req.params;
+      const dto: MentorChatRequestDTO = MentorChatSchema.parse({
+        ...req.body,
+        threadId,
+      });
       const { userId, message } = dto;
       if (!userId || !message) {
         return ResponseHelper.error(
@@ -90,6 +102,37 @@ export class CandidateController {
       //     success:true,
       //     data:response
       // })
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getChatSessions(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dto = GetCandidateChatSessionsSchema.parse({
+        userId: req.params.userId,
+      });
+
+      const rawSessions = await this.getChatSessionsUseCase.execute(dto);
+      const sessions = rawSessions.map((session) => session.toJSON());
+      return ResponseHelper.success(res, StatusCode.OK, {
+        data: sessions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getThreadMessages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dto = GetThreadMessagesSchema.parse({
+        threadId: req.params.threadId,
+      });
+
+      const messages = await this.getThreadMessagesUseCase.execute(dto);
+      return ResponseHelper.success(res, StatusCode.OK, {
+        data: messages,
+      });
     } catch (error) {
       next(error);
     }
@@ -391,15 +434,16 @@ export class CandidateController {
       const { language, sourceCode } = req.body;
 
       // Map languages to Piston's expected format and versions
+      const defaultLangConfig = { language: 'javascript', version: '18.15.0' };
       const languageMap: Record<string, { language: string; version: string }> =
         {
-          javascript: { language: 'javascript', version: '18.15.0' },
+          javascript: defaultLangConfig,
           python: { language: 'python', version: '3.10.0' },
           java: { language: 'java', version: '15.0.2' },
           cpp: { language: 'cpp', version: '10.2.0' },
         };
 
-      const langConfig = languageMap[language] || languageMap['javascript'];
+      const langConfig = languageMap[language] ?? defaultLangConfig;
 
       // Send request to your local Piston Docker container using native fetch
       const pistonResponse = await fetch(

@@ -37,6 +37,10 @@ import { StartMockInterviewUseCase } from '../../application/use-case/candidate/
 import { SubmitMockInterviewMessageUseCase } from '../../application/use-case/candidate/submit-mock-interview-message.use-case';
 import { CompleteMockInterviewUseCase } from '../../application/use-case/candidate/complete-mock-interview.use-case';
 import { GetAllMockInterviewSessionsUseCase } from '../../application/use-case/candidate/get-all-mock-sessions.use-case';
+import { PrismaChatSessionRepository } from '../../infrastructure/db/prisma/prisma-chat-session.repository';
+import { GetCandidateChatSessionsUseCase } from '../../application/use-case/candidate/get-chat-session.use-case';
+import { GetThreadMessagesUseCase } from '../../application/use-case/candidate/mentor-history.use-case';
+import { JobMatchAiAnalysisUseCase } from '../../application/agent/use-case/job-match-ai-analysis.use-case';
 
 export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.MockInterviewSocketGateway).to(MockInterviewSocketGateway);
@@ -45,6 +49,9 @@ export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IApplicationRepo).to(PrismaApplicationRepo).inSingletonScope();
   bind(TYPES.IInterviewRepo).to(PrismaInterviewRepo).inSingletonScope();
   bind(TYPES.IMockInterviewRepo).to(PrismaMockInterview).inSingletonScope();
+  bind(TYPES.IChatSessionRepository)
+    .to(PrismaChatSessionRepository)
+    .inSingletonScope();
 
   bind(TYPES.IVectorSearchService)
     .to(MongoVectorSearchService)
@@ -57,6 +64,10 @@ export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IntentClassifier).to(IntentClassifier).inSingletonScope();
 
   // Use Cases
+  bind(TYPES.IGetThreadMessagesUseCase).to(GetThreadMessagesUseCase);
+  bind(TYPES.IGetCandidateChatSessionsUseCase).to(
+    GetCandidateChatSessionsUseCase
+  );
   bind(TYPES.IGetActiveJobsUseCase).to(GetActiveJobsUseCase);
   bind(TYPES.IGetActiveJobById).to(GetActiveJobById);
   bind(TYPES.IApplyJobUseCase).to(ApplyJobUseCase);
@@ -78,6 +89,7 @@ export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IGetAllMockInterviewSessionsUseCase).to(
     GetAllMockInterviewSessionsUseCase
   );
+  bind(TYPES.IJobMatchAiAnalysisUseCase).to(JobMatchAiAnalysisUseCase);
 
   // controller
   bind(TYPES.CandidateController).to(CandidateController);

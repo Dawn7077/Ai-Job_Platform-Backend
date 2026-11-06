@@ -6,7 +6,7 @@ import { StatusCode } from '../../shared/constants/status-code.constant';
 
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
   _: NextFunction
 ) => {

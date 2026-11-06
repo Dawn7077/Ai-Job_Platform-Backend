@@ -13,6 +13,11 @@ export class CompanyProfileMapper {
       description: record?.description ?? undefined,
       location: record.location ?? undefined,
       logoUrl: record.logoUrl ?? undefined,
+      averageRating: record.averageRating,
+      totalReviewCount: record.totalReviewCount,
+      interviewScoreAvg: record.interviewScoreAvg,
+      cultureScoreAvg: record.cultureScoreAvg,
+      communicationScoreAvg: record.communicationScoreAvg,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });

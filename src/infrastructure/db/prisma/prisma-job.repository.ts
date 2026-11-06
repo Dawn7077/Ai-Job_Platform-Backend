@@ -1,4 +1,4 @@
-import { PrismaClient, Job as PrismaJobModel } from '@prisma/client';
+import { PrismaClient, Job as _PrismaJobModel } from '@prisma/client';
 import { Job } from '../../../domain/entities/job.entity';
 import { IJobRepository } from '../../../domain/repositories/i-job.repository';
 import { injectable, inject } from 'inversify';
@@ -28,6 +28,8 @@ export class PrismaJobRepository
         jobType: rawData.jobType as 'REMOTE' | 'HYBRID' | 'ONSITE',
         description: rawData.description,
         skills: rawData.skills,
+        experienceMax: rawData.experienceMax ?? null,
+        experienceMin: rawData.experienceMin ?? null,
         salaryMax: rawData.salaryMax,
         salaryMin: rawData.salaryMin,
         status: rawData.status as 'OPEN' | 'CLOSED',
@@ -95,6 +97,8 @@ export class PrismaJobRepository
         jobType: raw.jobType as 'REMOTE' | 'HYBRID' | 'ONSITE',
         description: raw.description,
         skills: raw.skills,
+        experienceMax: raw.experienceMax ?? null,
+        experienceMin: raw.experienceMin ?? null,
         salaryMax: raw.salaryMax,
         salaryMin: raw.salaryMin,
         status: raw.status as 'OPEN' | 'CLOSED',

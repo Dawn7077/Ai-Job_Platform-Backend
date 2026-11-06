@@ -17,8 +17,8 @@ export interface JobProps {
   skills: string[];
   salaryMax: number;
   salaryMin: number;
-  // experienceMax?:number
-  // experienceMin?:number
+  experienceMax?: number | null;
+  experienceMin?: number | null;
   status?: 'OPEN' | 'CLOSED';
   createdAt?: Date;
   updatedAt?: Date;
@@ -38,6 +38,8 @@ export class Job {
       skills: props.skills,
       salaryMax: props.salaryMax,
       salaryMin: props.salaryMin,
+      experienceMax: props.experienceMax ?? 0,
+      experienceMin: props.experienceMin ?? 0,
       status: props.status ?? 'OPEN',
       createdAt: props.createdAt ?? new Date(),
       updatedAt: props.updatedAt ?? new Date(),
@@ -62,6 +64,12 @@ export class Job {
   public get skills(): string[] {
     return this.props.skills;
   }
+  public get experienceMax(): number {
+    return this.props.experienceMax!;
+  }
+  public get experienceMin(): number {
+    return this.props.experienceMin!;
+  }
   public get salaryMax(): number {
     return this.props.salaryMax;
   }
@@ -73,6 +81,9 @@ export class Job {
   }
   public get createdAt(): Date {
     return this.props.createdAt;
+  }
+  public get updatedAt(): Date {
+    return this.props.updatedAt;
   }
 
   public toJSON() {

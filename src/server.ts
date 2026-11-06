@@ -28,6 +28,7 @@ import { container } from './di/container';
 import { TYPES } from './di/types';
 import { MockInterviewSocketGateway } from './infrastructure/websocket/mock-interview-socket-gateway';
 import { ITokenService } from './application/interface/services/i-token.service';
+import { RateLimiterMiddleware } from './presentation/middleware/rate-limiter.middleware';
 
 const PORT = process.env.PORT || 3000;
 
@@ -40,6 +41,9 @@ async function startApp() {
   setUpSocket(server, mockInterviewSocketGateway);
 
   const tokenTool = container.get<ITokenService>(TYPES.ITokenService);
+  const rateLimitMiddleware = container.get<RateLimiterMiddleware>(
+    TYPES.RateLimiterMiddleware
+  );
   // const tokenTool = new TokenService(JWTSecret);
 
   const authControllerTool = await container.getAsync<AuthController>(
@@ -60,7 +64,11 @@ async function startApp() {
 
   const userRoutes = AuthRoutes(authControllerTool, tokenTool, authMiddleware);
   const adminRoutes = AdminRouter(adminControllerTool, tokenTool);
-  const candidateRoutes = CandidateRoute(candidateControllerTool, tokenTool);
+  const candidateRoutes = CandidateRoute(
+    candidateControllerTool,
+    tokenTool,
+    rateLimitMiddleware
+  );
   const companyRoutes = CompanyRouter(companyControllerTool, tokenTool);
   const applicationRoutes = ApplicationRouter(applicationController, tokenTool);
 

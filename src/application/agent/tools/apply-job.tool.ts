@@ -3,8 +3,12 @@ import { z } from 'zod';
 import { RunnableConfig } from '@langchain/core/runnables';
 import { IApplyJobUseCase } from '../../interface/use-cases/candidate/i-apply-job.use-case';
 import { ApplyJobSchema } from '../../dtos/candidate/apply-job.dto';
+import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
 
-export const createApplyJobTool = (applyJobUseCase: IApplyJobUseCase) => {
+export const createApplyJobTool = (
+  applyJobUseCase: IApplyJobUseCase,
+  applicationRepo: IApplicationRepository
+) => {
   return tool(
     async ({ jobId, resumeUrl }, config: RunnableConfig) => {
       try {
@@ -26,9 +30,20 @@ export const createApplyJobTool = (applyJobUseCase: IApplyJobUseCase) => {
         }
         const dto = ApplyJobSchema.parse({
           candidateId,
-          jobID: jobId,
+          jobId,
           resumeUrl,
         });
+        const existingApplication = await applicationRepo.findByCandidateAndJob(
+          candidateId,
+          jobId
+        );
+
+        if (existingApplication) {
+          return JSON.stringify({
+            status: 'error',
+            message: `You have already applied to this job position. Please check your application history. The Application Id is ${existingApplication.id}`,
+          });
+        }
 
         const application = await applyJobUseCase.execute(dto);
 

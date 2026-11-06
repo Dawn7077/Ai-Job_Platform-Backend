@@ -1,8 +1,5 @@
 import { inject, injectable } from 'inversify';
-import {
-  Application,
-  ApplicationStage,
-} from '../../../domain/entities/application.entity';
+import { ApplicationStage } from '../../../domain/entities/application.entity';
 import { Interview } from '../../../domain/entities/interview.entity';
 import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
 import { IInterviewRepository } from '../../../domain/repositories/i-interview.repository';

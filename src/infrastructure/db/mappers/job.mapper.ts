@@ -13,6 +13,8 @@ export class JobMapper {
       jobType: record.jobType as 'REMOTE' | 'HYBRID' | 'ONSITE',
       description: record.description,
       skills: skillsArray,
+      experienceMax: record.experienceMax ?? null,
+      experienceMin: record.experienceMin ?? null,
       salaryMax: record.salaryMax,
       salaryMin: record.salaryMin,
       status: record.status as 'OPEN' | 'CLOSED',

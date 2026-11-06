@@ -7,6 +7,7 @@ export const TYPES = {
 
   // configs
   JwtSecret: Symbol.for('JwtSecret'),
+  RateLimiterMiddleware: Symbol.for('RateLimiterMiddleware'),
   MockInterviewSocketGateway: Symbol.for('MockInterviewSocketGateway'),
 
   // Repositories
@@ -17,6 +18,9 @@ export const TYPES = {
   IInterviewRepo: Symbol.for('IInterviewRepo'),
   IJobRepo: Symbol.for('IJobRepo'),
   IMockInterviewRepo: Symbol.for('IMockInterviewRepo'),
+  IChatSessionRepository: Symbol.for('IChatSessionRepository'),
+  ICompanyReviewRepository: Symbol.for('ICompanyReviewRepository'),
+  ICandidateReviewRepository: Symbol.for('ICandidateReviewRepository'),
 
   // Services & Tools
   IHashService: Symbol.for('IHashService'),
@@ -33,6 +37,7 @@ export const TYPES = {
   IR2StorageService: Symbol.for('IR2StorageService'),
   IResumeParserService: Symbol.for('IResumeParserService'),
   IMentorAgent: Symbol.for('IMentorAgent'),
+  IGetThreadMessagesUseCase: Symbol.for('IGetThreadMessagesUseCase'),
   IntentClassifier: Symbol.for('IntentClassifier'),
 
   //Auth Use Cases
@@ -75,6 +80,10 @@ export const TYPES = {
   IGetResumeTextUseCase: Symbol.for('IGetResumeTextUseCase'),
   // ai chat
   IMentorChatUseCase: Symbol.for('IMentorChatUseCase'),
+  IGetCandidateChatSessionsUseCase: Symbol.for(
+    'IGetCandidateChatSessionsUseCase'
+  ),
+  IJobMatchAiAnalysisUseCase: Symbol.for('IJobMatchAiAnalysisUseCase'),
 
   // Company Use Cases
   ICreateJob: Symbol.for('ICreateJob'),
@@ -94,6 +103,7 @@ export const TYPES = {
   IGetProfileCompanyUC: Symbol.for('IGetProfileCompanyUC'),
   IGetAllCandidatesUseCase: Symbol.for('IGetAllCandidatesUseCase'),
   IGetCandidateDetailsUseCase: Symbol.for('IGetCandidateDetailsUseCase'),
+  ISubmitCompanyReviewUsecase: Symbol.for('ISubmitCompanyReviewUsecase'),
 
   // Admin Use Case
   IGetPendingUsersUseCase: Symbol.for('IGetPendingUsersUseCase'),

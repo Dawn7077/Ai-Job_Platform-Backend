@@ -3,7 +3,7 @@ import { IEmailService } from '../../interface/services/i-email.service.js';
 import { AppError } from '../../../shared/utils/app-errors.util.js';
 import { StatusCode } from '../../../shared/constants/status-code.constant.js';
 import { generateOtp } from '../../../shared/utils/generate-otp.util.js';
-import redisClient, {
+import _redisClient, {
   ICacheService,
 } from '../../../infrastructure/db/redis/redis-client.db.js';
 import {

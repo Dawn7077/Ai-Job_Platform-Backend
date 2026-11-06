@@ -14,3 +14,6 @@ export const logger = pino({
       }
     : undefined,
 });
+// logger input params -
+//   obj(events , and other meta data),+
+//   string message

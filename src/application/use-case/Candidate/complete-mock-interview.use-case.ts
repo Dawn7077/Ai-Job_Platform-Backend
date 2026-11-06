@@ -65,7 +65,7 @@ export class CompleteMockInterviewUseCase implements ICompleteMockInterviewUseCa
     let feedback: MockInterviewFeedback;
     try {
       feedback = JSON.parse(cleanedContent);
-    } catch (error) {
+    } catch (_error) {
       logger.error(
         `Error while parsing LLM feedback JSON. Raw content was: ${cleanedContent},\n${session.transcript}`
       );

@@ -2,7 +2,7 @@ import {
   CandidateProfile,
   CandidateProfileProps,
 } from '../entities/candidate-profile.entity';
-import { User } from '../entities/user.entity';
+// import { User } from '../entities/user.entity';
 
 export interface CandidateFilterQueryParams {
   page: number;

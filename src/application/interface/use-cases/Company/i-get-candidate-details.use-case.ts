@@ -1,5 +1,4 @@
 import {
-  CandidateProfileProps,
   EducationItem,
   ExperienceItem,
 } from '../../../../domain/entities/candidate-profile.entity';

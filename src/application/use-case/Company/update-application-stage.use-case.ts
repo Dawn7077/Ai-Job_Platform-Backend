@@ -1,8 +1,4 @@
 import { inject, injectable } from 'inversify';
-import {
-  Application,
-  ApplicationStage,
-} from '../../../domain/entities/application.entity';
 import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
 import { IJobRepository } from '../../../domain/repositories/i-job.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';

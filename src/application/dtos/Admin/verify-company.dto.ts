@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserRole } from '../../../shared/constants/roles.constant';
+// import { UserRole } from '../../../shared/constants/roles.constant';
 
 export const VerifyCompanyBodySchema = z.object({
   userId: z.string().min(1, 'User ID is required'),

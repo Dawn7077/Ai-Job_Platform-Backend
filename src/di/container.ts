@@ -12,6 +12,7 @@ import { authModule } from './modules/auth.module';
 import { candidateModule } from './modules/candidate.module';
 import { companyModule } from './modules/company.module';
 import { adminModule } from './modules/admin.module';
+import { RateLimiterMiddleware } from '../presentation/middleware/rate-limiter.middleware';
 
 const container = new Container();
 
@@ -26,6 +27,7 @@ container
   .bind(TYPES.JwtSecret)
   .toConstantValue(process.env.JWT_SECRET || '"Default_SecretKey"');
 
+container.bind(TYPES.RateLimiterMiddleware).to(RateLimiterMiddleware);
 container.bind(TYPES.GatewayModel).to(GatewayModels);
 
 container

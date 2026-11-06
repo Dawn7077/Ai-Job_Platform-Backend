@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify';
-import { Interview } from '../../../domain/entities/interview.entity';
 import { IInterviewRepository } from '../../../domain/repositories/i-interview.repository';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { StatusCode } from '../../../shared/constants/status-code.constant';

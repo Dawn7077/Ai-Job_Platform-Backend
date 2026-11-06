@@ -27,7 +27,7 @@ export class InterviewMapper {
       technicalScore: record.technicalScore,
       communicationScore: record.communicationScore,
       problemSolvingScore: record.problemSolvingScore,
-      notes: record.notes,
+      feedback: record.feedback,
       decision: record.decision,
     });
   }

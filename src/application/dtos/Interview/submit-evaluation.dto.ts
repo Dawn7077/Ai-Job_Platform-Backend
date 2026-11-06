@@ -13,7 +13,7 @@ export const SubmitEvaluationBodySchema = z.object({
   problemSolvingScore: z.coerce
     .number()
     .min(0, 'problemSolving Score must be atleast greater than or equal to 0'),
-  notes: z.string().min(1, 'note are required'),
+  feedback: z.string().min(1, 'Feedback is required'),
   decision: z.enum(['HIRED', 'REJECTED', 'NEXT_ROUND', 'PENDING']),
 });
 

@@ -37,7 +37,7 @@ export class GatewayModels {
     const runnable = primaryWithTools.withFallbacks({
       fallbacks: [fallbackWithTools],
     });
-    (runnable as any).bindTools = (tools: any[]) => runnable;
+    (runnable as any).bindTools = (_tools: any[]) => runnable;
 
     return runnable;
   }

@@ -28,6 +28,13 @@ export interface CandidateProfileProps {
   resumeKey?: string;
   experience?: ExperienceItem[];
   education?: EducationItem[];
+
+  // internal propertise
+  internalTechScoreAvg?: number;
+  internalCultureScoreAvg?: number;
+  internalCommScoreAvg?: number;
+  endorsementCount?: number;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +47,10 @@ export class CandidateProfile {
       ...props,
       id: props.id ?? crypto.randomUUID(),
       skills: props.skills ?? [],
+      internalTechScoreAvg: props.internalTechScoreAvg ?? 0,
+      internalCultureScoreAvg: props.internalCultureScoreAvg ?? 0,
+      internalCommScoreAvg: props.internalCommScoreAvg ?? 0,
+      endorsementCount: props.endorsementCount ?? 0,
       createdAt: props.createdAt ?? new Date(),
       updatedAt: props.updatedAt ?? new Date(),
     };
@@ -92,6 +103,22 @@ export class CandidateProfile {
   }
   get education(): EducationItem[] | undefined {
     return this.props.education;
+  }
+
+  get internalTechScoreAvg(): number {
+    return this.props.internalTechScoreAvg!;
+  }
+
+  get internalCultureScoreAvg(): number {
+    return this.props.internalCultureScoreAvg!;
+  }
+
+  get internalCommScoreAvg(): number {
+    return this.props.internalCommScoreAvg!;
+  }
+
+  get endorsementCount(): number {
+    return this.props.endorsementCount!;
   }
 
   get createdAt(): Date {

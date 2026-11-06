@@ -4,6 +4,7 @@ export interface CreateApplicationInputDTO {
   jobId: string;
   candidateId: string;
   resumeKey?: string;
+  matchScore?: number;
 }
 
 export interface IApplicationRepository {

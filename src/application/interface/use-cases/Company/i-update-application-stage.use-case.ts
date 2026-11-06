@@ -1,7 +1,4 @@
-import {
-  Application,
-  ApplicationStage,
-} from '../../../../domain/entities/application.entity';
+import { Application } from '../../../../domain/entities/application.entity';
 import {
   UpdateApplicationParamDTO,
   UpdateApplicationStageRequestDTO,

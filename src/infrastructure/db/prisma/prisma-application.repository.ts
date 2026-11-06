@@ -29,6 +29,7 @@ export class PrismaApplicationRepo
         jobId: data.jobId,
         candidateId: data.candidateId,
         resumeKey: data.resumeKey ?? null,
+        matchScore: data.matchScore ?? 0.0,
         stage: JobAppStage.APPLIED,
       },
     });

@@ -2,9 +2,7 @@ import { User } from '../../../domain/entities/user.entity';
 import { IGoogleAuthService } from '../../interface/services/i-google-auth.service';
 import { IUserRepository } from '../../../domain/repositories/i-user.repository';
 import { ITokenService } from '../../interface/services/i-token.service';
-import redisClient, {
-  ICacheService,
-} from '../../../infrastructure/db/redis/redis-client.db';
+import { ICacheService } from '../../../infrastructure/db/redis/redis-client.db';
 import {
   RefreshExpiry,
   UserRole,

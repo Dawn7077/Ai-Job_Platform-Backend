@@ -4,10 +4,13 @@ import { authMiddleware } from '../middleware/auth.middleware';
 import { authorizeRole } from '../middleware/role.middleware';
 import { UserRole } from '../../shared/constants/roles.constant';
 import { CandidateController } from '../controller/candidate.controller';
+import { inputGuardrail } from '../middleware/input.guardrail.middleware';
+import { RateLimiterMiddleware } from '../middleware/rate-limiter.middleware';
 
 export function CandidateRoute(
   candidateController: CandidateController,
-  tokenTool: ITokenService
+  tokenTool: ITokenService,
+  rateLimitMiddleware: RateLimiterMiddleware
 ) {
   const router = Router();
 
@@ -17,9 +20,27 @@ export function CandidateRoute(
   // router.get('/home',(req:Request,res:Response,next:NextFunction)=>{
   //     candidateController.getHome(req,res)
   // })
-  router.post('/ai-chat', (req: Request, res: Response, next: NextFunction) => {
-    candidateController.sendMentorMessage(req, res, next);
-  });
+  router.post(
+    '/ai-chat/:threadId',
+    rateLimitMiddleware.handle,
+    inputGuardrail,
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.sendMentorMessage(req, res, next);
+    }
+  );
+  router.get(
+    '/ai-chat/history/:threadId',
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.getThreadMessages(req, res, next);
+    }
+  );
+
+  router.get(
+    '/chats/:userId',
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.getChatSessions(req, res, next);
+    }
+  );
 
   router.get('/jobs', (req: Request, res: Response, next: NextFunction) => {
     candidateController.getActiveJobs(req, res, next);
@@ -85,7 +106,7 @@ export function CandidateRoute(
 
   router.post(
     '/run-code',
-    async (req: Request, res: Response, next: NextFunction) => {
+    (req: Request, res: Response, next: NextFunction) => {
       candidateController.runCode(req, res, next);
     }
   );
