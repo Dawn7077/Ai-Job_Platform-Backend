@@ -22,6 +22,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
+    "forceConsistentCasingInFileNames": false,
+
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
