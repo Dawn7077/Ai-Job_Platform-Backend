@@ -66,7 +66,7 @@ export class JobMatchAiAnalysisUseCase implements IJobMatchAiAnalysisUseCase {
       new Set(companyReviews.flatMap((r) => r.tags || []))
     );
     const companyData = {
-      companyName: companyProfile?.companyName || 0,
+      companyName: companyProfile?.companyName || '',
       averageRating: companyProfile?.averageRating || 0,
       cultureScoreAvg: companyProfile?.cultureScoreAvg || 0,
       totalReviewCount: companyProfile?.totalReviewCount || 0,

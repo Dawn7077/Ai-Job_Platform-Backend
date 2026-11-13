@@ -5,9 +5,7 @@ import { createReactAgent } from '@langchain/langgraph/prebuilt';
 // import { z } from 'zod';
 import { GatewayModels } from '../../../infrastructure/ai/gateway.models';
 import { IVectorSearchService } from '../../interface/services/i-vector-search.service';
-import { createSearchJobTool } from '../tools/search-job.tool';
 import { IApplyJobUseCase } from '../../interface/use-cases/candidate/i-apply-job.use-case';
-import { createApplyJobTool } from '../tools/apply-job.tool';
 import { IGetCandidateALLAppications } from '../../interface/use-cases/candidate/i-get-candidate-all-applications.use-case';
 import { IGetCandidateApplication } from '../../interface/use-cases/candidate/i-get-candidate-application.use-case';
 import { createGetUserApplicationsTool } from '../tools/get-user-applications.tool';
@@ -21,6 +19,8 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../../di/types';
 import { MongoClient } from 'mongodb';
 import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
+import { createSearchJobTool } from '../tools/candidate/search-job.tool';
+import { createApplyJobTool } from '../tools/candidate/apply-job.tool';
 
 @injectable()
 export class MentorAgent implements IMentorAgent {
@@ -77,12 +77,16 @@ export class MentorAgent implements IMentorAgent {
       dbName: 'ai_job_platform',
     });
 
+    //     const STATIC_SYSTEM_PROMPT = `You are an AI Career Mentor for a job platform...
+    // // Include detailed instructions, formatting rules, and tool usage guidelines here.
+    // // Keep this 100% identical for all users so Gemini/Groq caches it automatically.`;
+
     this.agentInstance = createReactAgent({
       llm: aiGateway.fallbackModel.bindTools(tools),
       // llm:modelWithTools,
       tools: tools,
-      // checkpointSaver: new MemorySaver(),
       checkpointSaver: this.checkpointer,
+      // stateModifier: STATIC_SYSTEM_PROMPT,
     });
   }
 
@@ -91,6 +95,7 @@ export class MentorAgent implements IMentorAgent {
     candidateId?: string,
     threadId: string = 'default-session'
   ) {
+    console.log('mentor model candidateId:', candidateId);
     return await this.agentInstance.invoke(
       { messages: [{ role: 'user', content: message }] },
       {

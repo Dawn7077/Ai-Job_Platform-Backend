@@ -22,7 +22,13 @@ import { DeleteJobUseCase } from '../../application/use-case/company/delete-job.
 import { GetAllCandidatesUseCase } from '../../application/use-case/company/get-all-candidates.use-case';
 import { GetCandidateDetailsUseCase } from '../../application/use-case/company/get-candidate-details.use-case';
 import { PrismaCompanyReviewRepo } from '../../infrastructure/db/prisma/prisma-company-review.repository';
-import { SubmitCompanyReviewUsecase } from '../../application/use-case/company/submit-company-reviews.use-case';
+import { CompanyAnalystAgent } from '../../application/agent/models/company-analyst.model';
+import { CompanyAnalystChatUseCase } from '../../application/use-case/company/analyst-agent.use-case';
+import { RankApplicantsUseCase } from '../../application/use-case/company/rank-applicants.use-case';
+import { AnalyzeCandidateResumeUseCase } from '../../application/agent/use-case/analyze-candidate-resume.use-case';
+import { SubmitCandidateReviewUseCase } from '../../application/use-case/company/submit-candidate-review.use-case';
+import { GetCompanyReviewsUseCase } from '../../application/use-case/company/get-company-review.use-case';
+import { BatchScreenWorkFlowTool } from '../../application/agent/tools/company/batch-screening.tool';
 
 export const companyModule = new ContainerModule(({ bind }) => {
   bind(TYPES.ICompanyProfileRepo)
@@ -32,7 +38,12 @@ export const companyModule = new ContainerModule(({ bind }) => {
     .to(PrismaCompanyReviewRepo)
     .inSingletonScope();
 
+  // ai agent
+  bind(TYPES.ICompanyAnalystAgent).to(CompanyAnalystAgent);
+  bind(TYPES.BatchScreenWorkFlowTool).to(BatchScreenWorkFlowTool);
+
   // use cases
+  bind(TYPES.ICompanyAnalystChatUseCase).to(CompanyAnalystChatUseCase);
   bind(TYPES.ICreateJob).to(CreateJobUseCase);
   bind(TYPES.IUpdateJobUseCase).to(UpdateJobUseCase);
   bind(TYPES.IDeleteJobUseCase).to(DeleteJobUseCase);
@@ -50,7 +61,10 @@ export const companyModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IGetCompanyInterviewUC).to(GetCompanyInterviewUC);
   bind(TYPES.IGetAllCandidatesUseCase).to(GetAllCandidatesUseCase);
   bind(TYPES.IGetCandidateDetailsUseCase).to(GetCandidateDetailsUseCase);
-  bind(TYPES.ISubmitCompanyReviewUsecase).to(SubmitCompanyReviewUsecase);
+  bind(TYPES.IRankApplicantsUseCase).to(RankApplicantsUseCase);
+  bind(TYPES.ISubmitCandidateReviewUseCase).to(SubmitCandidateReviewUseCase);
+  bind(TYPES.IAnalyzeCandidateResumeUseCase).to(AnalyzeCandidateResumeUseCase);
+  bind(TYPES.IGetCompanyReviewsUseCase).to(GetCompanyReviewsUseCase);
 
   bind(TYPES.CompanyController).to(CompanyController);
 });

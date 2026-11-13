@@ -22,7 +22,7 @@ import { ApplicationController } from './presentation/controller/application.con
 
 import { createServer } from 'http';
 import { setUpSocket } from './infrastructure/websocket/interview-signaling.server';
-
+import promClient from 'prom-client';
 import 'reflect-metadata';
 import { container } from './di/container';
 import { TYPES } from './di/types';
@@ -33,6 +33,7 @@ import { RateLimiterMiddleware } from './presentation/middleware/rate-limiter.mi
 const PORT = process.env.PORT || 3000;
 
 async function startApp() {
+  promClient.collectDefaultMetrics({ prefix: 'ai_job_backend_' });
   const server = createServer(app);
   const mockInterviewSocketGateway =
     await container.getAsync<MockInterviewSocketGateway>(
@@ -61,6 +62,11 @@ async function startApp() {
   const applicationController = await container.getAsync<ApplicationController>(
     TYPES.ApplicationController
   );
+
+  app.get('/metrics', async (_req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+  });
 
   const userRoutes = AuthRoutes(authControllerTool, tokenTool, authMiddleware);
   const adminRoutes = AdminRouter(adminControllerTool, tokenTool);

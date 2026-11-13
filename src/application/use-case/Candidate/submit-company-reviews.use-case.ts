@@ -6,10 +6,10 @@ import { CompanyReview } from '../../../domain/entities/company-review.entity';
 import { AppError } from '../../../shared/utils/app-errors.util';
 import { CandidateMessages } from '../../../shared/constants/candidate-message.constants';
 import { StatusCode } from '../../../shared/constants/status-code.constant';
-import { ISubmitCompanyReviewUsecase } from '../../interface/use-cases/company/i-submit-company-review.use-case';
-import { SubmitCompanyReviewDTO } from '../../dtos/company/submit-company-review.dto';
+import { ISubmitCompanyReviewUsecase } from '../../interface/use-cases/candidate/i-submit-company-review.use-case';
+import { SubmitCompanyReviewDTO } from '../../dtos/candidate/submit-company-review.dto';
 
-// used by candidate to submit reviews on company which will
+// from / used by candidate to submit reviews on company which will
 // create the review and update the internal score metrics
 @injectable()
 export class SubmitCompanyReviewUsecase implements ISubmitCompanyReviewUsecase {

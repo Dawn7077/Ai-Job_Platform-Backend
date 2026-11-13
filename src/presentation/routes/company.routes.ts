@@ -114,5 +114,33 @@ export function CompanyRouter(
     }
   );
 
+  router.get(
+    '/jobs/:jobId/rank-applicants',
+    (req: Request, res: Response, next: NextFunction) => {
+      console.log('test hit');
+      companyController.getRankApplicants(req, res, next);
+    }
+  );
+  // submit review
+  router.post(
+    '/candidates/:candidateId/reviews',
+    (req: Request, res: Response, next: NextFunction) => {
+      console.log('test hit');
+      companyController.submitCandidateReviews(req, res, next);
+    }
+  );
+
+  router.get(
+    '/me/reviews',
+    (req: Request, res: Response, next: NextFunction) => {
+      companyController.getCompanyReview(req, res, next);
+    }
+  );
+  // analyst chat
+  router.post('/chat', (req: Request, res: Response, next: NextFunction) => {
+    console.log('test hit');
+    companyController.chatWithAnalyst(req, res, next);
+  });
+
   return router;
 }

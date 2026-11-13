@@ -1,4 +1,4 @@
-import { ChatSession } from '../../../domain/entities/chat-session.entity';
+import { ChatSession } from '../entities/chat-session.entity';
 import { ChatSessionRequestDTO } from '../../application/dtos/candidate/chat-session.dto';
 
 export interface IChatSessionRepository {

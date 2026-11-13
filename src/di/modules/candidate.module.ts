@@ -41,6 +41,8 @@ import { PrismaChatSessionRepository } from '../../infrastructure/db/prisma/pris
 import { GetCandidateChatSessionsUseCase } from '../../application/use-case/candidate/get-chat-session.use-case';
 import { GetThreadMessagesUseCase } from '../../application/use-case/candidate/mentor-history.use-case';
 import { JobMatchAiAnalysisUseCase } from '../../application/agent/use-case/job-match-ai-analysis.use-case';
+import { SubmitCompanyReviewUsecase } from '../../application/use-case/candidate/submit-company-reviews.use-case';
+import { GetCandidateReviewsUseCase } from '../../application/use-case/candidate/get-candidate-review';
 
 export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.MockInterviewSocketGateway).to(MockInterviewSocketGateway);
@@ -90,6 +92,8 @@ export const candidateModule = new ContainerModule(({ bind }) => {
     GetAllMockInterviewSessionsUseCase
   );
   bind(TYPES.IJobMatchAiAnalysisUseCase).to(JobMatchAiAnalysisUseCase);
+  bind(TYPES.ISubmitCompanyReviewUsecase).to(SubmitCompanyReviewUsecase);
+  bind(TYPES.IGetCandidateReviewsUseCase).to(GetCandidateReviewsUseCase);
 
   // controller
   bind(TYPES.CandidateController).to(CandidateController);

@@ -1,9 +1,9 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { RunnableConfig } from '@langchain/core/runnables';
-import { IApplyJobUseCase } from '../../interface/use-cases/candidate/i-apply-job.use-case';
-import { ApplyJobSchema } from '../../dtos/candidate/apply-job.dto';
-import { IApplicationRepository } from '../../../domain/repositories/i-application.repository';
+import { IApplyJobUseCase } from '../../../interface/use-cases/candidate/i-apply-job.use-case';
+import { IApplicationRepository } from '../../../../domain/repositories/i-application.repository';
+import { ApplyJobSchema } from '../../../dtos/candidate/apply-job.dto';
 
 export const createApplyJobTool = (
   applyJobUseCase: IApplyJobUseCase,

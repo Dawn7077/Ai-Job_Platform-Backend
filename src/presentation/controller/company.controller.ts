@@ -42,6 +42,15 @@ import {
   GetCandidateDetailParamsSchema,
   GetCandidatesQuerySchema,
 } from '../../application/dtos/company/get-candidate.dto';
+import { RankApplicantsSchema } from '../../application/dtos/company/rank-applicants.dto';
+import { IRankApplicantsUseCase } from '../../application/interface/use-cases/company/i-rank-applicants.use-case';
+import { ISubmitCandidateReviewUseCase } from '../../application/interface/use-cases/company/i-submit-candidate-review.use-case';
+import { SubmitCandidateReviewSchema } from '../../application/dtos/company/submit-candidate-review.dto';
+import { SubmitCompanyReviewSchema } from '../../application/dtos/candidate/submit-company-review.dto';
+import { GetCompanyReviewsSchema } from '../../application/dtos/company/get-company-reviews.dto';
+import { IGetCompanyReviewsUseCase } from '../../application/interface/use-cases/company/i-get-company-reviews.use-case';
+import { ICompanyAnalystChatUseCase } from '../../application/interface/use-cases/company/i-company-analyst-chat.use-case';
+import { AnalystChatSchema } from '../../application/dtos/company/company-analyst-chat.dto';
 
 @injectable()
 export class CompanyController {
@@ -75,7 +84,15 @@ export class CompanyController {
     @inject(TYPES.IGetAllCandidatesUseCase)
     private getAllCandidatesUseCase: IGetAllCandidatesUseCase,
     @inject(TYPES.IGetCandidateDetailsUseCase)
-    private getCandidateDetailsUseCase: IGetCandidateDetailsUseCase
+    private getCandidateDetailsUseCase: IGetCandidateDetailsUseCase,
+    @inject(TYPES.IRankApplicantsUseCase)
+    private rankApplicantsUseCase: IRankApplicantsUseCase,
+    @inject(TYPES.ISubmitCandidateReviewUseCase)
+    private submitCandidateReviewUseCase: ISubmitCandidateReviewUseCase,
+    @inject(TYPES.IGetCompanyReviewsUseCase)
+    private getCompanyReviewsUseCase: IGetCompanyReviewsUseCase,
+    @inject(TYPES.ICompanyAnalystChatUseCase)
+    private analystChatUseCase: ICompanyAnalystChatUseCase
 
     // private getJobsTypeUseCase:IGetJOBTypeCompany
   ) {}
@@ -595,6 +612,123 @@ export class CompanyController {
         },
         'Candidates fetched successfully'
       );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getRankApplicants = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const companyId = req.user?.userId;
+      if (!companyId) {
+        return ResponseHelper.error(
+          res,
+          StatusCode.BAD_REQUEST,
+          CompanyMessages.MISSING_ID
+        );
+      }
+      const { jobId } = req.params;
+      const dto = RankApplicantsSchema.parse({ jobId, companyId });
+
+      const results = await this.rankApplicantsUseCase.execute(dto);
+
+      console.log('result', results);
+      return ResponseHelper.success(
+        res,
+        StatusCode.OK,
+        {
+          data: results,
+        },
+        'Candidates fetched successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  submitCandidateReviews = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const companyId = req.user?.userId;
+      if (!companyId) {
+        return ResponseHelper.error(
+          res,
+          StatusCode.BAD_REQUEST,
+          CompanyMessages.MISSING_ID
+        );
+      }
+      const { candidateId } = req.params;
+      const dto = SubmitCandidateReviewSchema.parse({
+        ...req.body,
+        companyId,
+        candidateId,
+      });
+
+      const result = await this.submitCandidateReviewUseCase.execute(dto);
+
+      console.log('submitted Review:', result);
+      return ResponseHelper.success(
+        res,
+        StatusCode.OK,
+        { data: result },
+        'Review submitted successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getCompanyReview = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const companyId = req.user?.userId;
+      if (!companyId) {
+        return ResponseHelper.error(
+          res,
+          StatusCode.BAD_REQUEST,
+          CompanyMessages.MISSING_ID
+        );
+      }
+      const dto = GetCompanyReviewsSchema.parse({ companyId });
+
+      const reviews = await this.getCompanyReviewsUseCase.execute(dto);
+      return ResponseHelper.success(res, StatusCode.OK, {
+        reviews: reviews,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  chatWithAnalyst = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return ResponseHelper.error(
+          res,
+          StatusCode.BAD_REQUEST,
+          CompanyMessages.MISSING_ID
+        );
+      }
+      const dto = AnalystChatSchema.parse({
+        ...req.body,
+        userId,
+      });
+
+      const result = await this.analystChatUseCase.execute(dto);
+      return ResponseHelper.success(res, StatusCode.OK, {
+        result,
+      });
     } catch (error) {
       next(error);
     }

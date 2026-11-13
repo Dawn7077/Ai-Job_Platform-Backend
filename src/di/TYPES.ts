@@ -39,6 +39,7 @@ export const TYPES = {
   IMentorAgent: Symbol.for('IMentorAgent'),
   IGetThreadMessagesUseCase: Symbol.for('IGetThreadMessagesUseCase'),
   IntentClassifier: Symbol.for('IntentClassifier'),
+  ICompanyAnalystAgent: Symbol.for('ICompanyAnalystAgent'),
 
   //Auth Use Cases
   IRegisterUseCase: Symbol.for('IRegisterUseCase'),
@@ -80,10 +81,13 @@ export const TYPES = {
   IGetResumeTextUseCase: Symbol.for('IGetResumeTextUseCase'),
   // ai chat
   IMentorChatUseCase: Symbol.for('IMentorChatUseCase'),
+  ICompanyAnalystChatUseCase: Symbol.for('ICompanyAnalystChatUseCase'),
   IGetCandidateChatSessionsUseCase: Symbol.for(
     'IGetCandidateChatSessionsUseCase'
   ),
   IJobMatchAiAnalysisUseCase: Symbol.for('IJobMatchAiAnalysisUseCase'),
+  ISubmitCompanyReviewUsecase: Symbol.for('ISubmitCompanyReviewUsecase'),
+  IGetCandidateReviewsUseCase: Symbol.for('IGetCandidateReviewsUseCase'),
 
   // Company Use Cases
   ICreateJob: Symbol.for('ICreateJob'),
@@ -103,7 +107,10 @@ export const TYPES = {
   IGetProfileCompanyUC: Symbol.for('IGetProfileCompanyUC'),
   IGetAllCandidatesUseCase: Symbol.for('IGetAllCandidatesUseCase'),
   IGetCandidateDetailsUseCase: Symbol.for('IGetCandidateDetailsUseCase'),
-  ISubmitCompanyReviewUsecase: Symbol.for('ISubmitCompanyReviewUsecase'),
+  IRankApplicantsUseCase: Symbol.for('IRankApplicantsUseCase'),
+  IAnalyzeCandidateResumeUseCase: Symbol.for('IAnalyzeCandidateResumeUseCase'),
+  ISubmitCandidateReviewUseCase: Symbol.for('ISubmitCandidateReviewUseCase'),
+  IGetCompanyReviewsUseCase: Symbol.for('IGetCompanyReviewsUseCase'),
 
   // Admin Use Case
   IGetPendingUsersUseCase: Symbol.for('IGetPendingUsersUseCase'),
@@ -119,4 +126,7 @@ export const TYPES = {
   CompanyController: Symbol.for('CompanyController'),
   AdminController: Symbol.for('AdminController'),
   ApplicationController: Symbol.for('ApplicationController'),
+
+  //ai tools
+  BatchScreenWorkFlowTool: Symbol.for('BatchScreenWorkFlowTool'),
 };

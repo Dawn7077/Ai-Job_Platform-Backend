@@ -5,6 +5,8 @@ export const CompanyMessages = {
     'Company profile context missing. Required company name and company-id fields!',
   COMPANY_NOT_FOUND: 'Company User dose not exits',
   COMPANY_PROFILE_NOT_FOUND: 'Company Profile dose not exist for this user Id.',
+  CANDIDATE_PROFILE_NOT_FOUND:
+    'Candidate Profile dose not exist for this user Id.',
   CANDIDATE_NOT_FOUND: 'Candidate Profile not found.',
   MISSING_ID: 'Company ID is required',
   MISSING_JOB_ID: 'job Id missing',

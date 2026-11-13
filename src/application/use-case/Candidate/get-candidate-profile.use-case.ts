@@ -17,6 +17,7 @@ export class GetProfileCandidateUseCase implements IGetProfileCandidateUseCase {
   ) {}
 
   async execute(dto: GetProfileCandidateRequestDTO) {
+    console.log(`get profile was hit:${dto.userId}`);
     const { userId } = dto;
     const profile = await this.profileRepo.findByUserId(userId);
     if (!profile) {

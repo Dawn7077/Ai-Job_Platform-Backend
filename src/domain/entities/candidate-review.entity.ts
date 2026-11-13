@@ -6,7 +6,7 @@ export interface CandidateReviewProps {
   cultureScore: number;
   communicationScore: number;
   isEndorsed: boolean;
-  comments: string;
+  comment: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -51,8 +51,8 @@ export class CandidateReview {
     return this.props.isEndorsed;
   }
 
-  get comments(): string {
-    return this.props.comments;
+  get comment(): string {
+    return this.props.comment;
   }
 
   get createdAt(): Date {

@@ -39,6 +39,12 @@ import { IGetCandidateChatSessionsUseCase } from '../../application/interface/us
 import { GetCandidateChatSessionsSchema } from '../../application/dtos/candidate/get-candidate-chat-sessions.dto';
 import { IGetThreadMessagesUseCase } from '../../application/interface/use-cases/candidate/i-get-thread-messages.use-case';
 import { GetThreadMessagesSchema } from '../../application/dtos/candidate/get-thread-messages.dto';
+import { SubmitCompanyReviewSchema } from '../../application/dtos/candidate/submit-company-review.dto';
+import { ISubmitCompanyReviewUsecase } from '../../application/interface/use-cases/candidate/i-submit-company-review.use-case';
+import { IJobMatchAiAnalysisUseCase } from '../../application/agent/interfaces/i-job-match-ai-analysis.use-case';
+import { JobAiMatchAnalysisSchema } from '../../application/dtos/agent/job-ai-match-analysis.dto';
+import { IGetCandidateReviewsUseCase } from '../../application/interface/use-cases/candidate/i-get-candidate-reviews.use-case';
+import { GetCandidateReviewsSchema } from '../../application/dtos/candidate/get-reviews.dto';
 
 @injectable()
 export class CandidateController {
@@ -72,25 +78,35 @@ export class CandidateController {
     @inject(TYPES.ICompleteMockInterviewUseCase)
     private completeMockInterviewUseCase: ICompleteMockInterviewUseCase,
     @inject(TYPES.IGetAllMockInterviewSessionsUseCase)
-    private getAllMockInterviewSessionsUseCase: IGetAllMockInterviewSessionsUseCase
+    private getAllMockInterviewSessionsUseCase: IGetAllMockInterviewSessionsUseCase,
+    @inject(TYPES.IJobMatchAiAnalysisUseCase)
+    private getJobAiAnalysisUsecase: IJobMatchAiAnalysisUseCase,
+    @inject(TYPES.ISubmitCompanyReviewUsecase)
+    private submitCompanyReviewUsecase: ISubmitCompanyReviewUsecase,
+    @inject(TYPES.IGetCandidateReviewsUseCase)
+    private getCandidateReviewsUseCase: IGetCandidateReviewsUseCase
   ) {}
 
   async sendMentorMessage(req: Request, res: Response, next: NextFunction) {
     console.log('req was hit:', req.body.message);
     try {
       const { threadId } = req.params;
+      const userId = req.user?.userId;
+      const message = req.body.message;
       const dto: MentorChatRequestDTO = MentorChatSchema.parse({
-        ...req.body,
+        // ...req.body,
+        userId,
+        message,
         threadId,
       });
-      const { userId, message } = dto;
-      if (!userId || !message) {
-        return ResponseHelper.error(
-          res,
-          StatusCode.BAD_REQUEST,
-          'UserId and message prompt are required'
-        );
-      }
+      // const { userId, message } = dto;
+      // if (!userId || !message) {
+      //   return ResponseHelper.error(
+      //     res,
+      //     StatusCode.BAD_REQUEST,
+      //     'UserId and message prompt are required'
+      //   );
+      // }
 
       const response = await this.mentorChatUseCase.execute(dto);
       console.log(response);
@@ -469,6 +485,57 @@ export class CandidateController {
       }
 
       return res.json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
+  //reviews submited by candidates on company users
+  async submitCompanyReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const candidateId = req.user?.userId;
+      const dto = SubmitCompanyReviewSchema.parse({ ...req.body, candidateId });
+
+      const result = await this.submitCompanyReviewUsecase.execute(dto);
+
+      return ResponseHelper.success(
+        res,
+        StatusCode.CREATED,
+        {
+          review: result.toJSON(),
+        },
+        'Review Submitted successfully.'
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  //AI Job Match & Company Culture Analysis for candidates
+  async getJobAiAnalysis(req: Request, res: Response, next: NextFunction) {
+    try {
+      const candidateId = req.user?.userId;
+      const jobId = req.params.jobId;
+      const dto = JobAiMatchAnalysisSchema.parse({ jobId, candidateId });
+
+      const result = await this.getJobAiAnalysisUsecase.execute(dto);
+
+      return ResponseHelper.success(res, StatusCode.OK, {
+        analysis: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCandidateReviews(req: Request, res: Response, next: NextFunction) {
+    try {
+      const candidateId = req.user?.userId;
+      const dto = GetCandidateReviewsSchema.parse({ candidateId });
+
+      const reviews = await this.getCandidateReviewsUseCase.execute(dto);
+
+      return ResponseHelper.success(res, StatusCode.OK, {
+        reviews: reviews,
+      });
     } catch (error) {
       next(error);
     }

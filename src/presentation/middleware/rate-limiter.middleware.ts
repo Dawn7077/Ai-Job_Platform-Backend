@@ -8,7 +8,9 @@ import { logger } from '../../shared/utils/loggers.util';
 
 @injectable()
 export class RateLimiterMiddleware {
-  constructor(@inject(TYPES.RedisClient) private redisService: RedisService) {}
+  constructor(
+    @inject(TYPES.IRedisService) private redisService: RedisService
+  ) {}
 
   public handle = async (req: Request, res: Response, next: NextFunction) => {
     try {

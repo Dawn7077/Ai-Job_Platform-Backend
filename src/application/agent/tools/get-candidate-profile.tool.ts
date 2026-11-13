@@ -16,8 +16,14 @@ export const createGetProfileCandidateTool = (
         });
       }
 
+      console.log('getprofile tool:candidateId', candidateId);
+      if (getProfileUseCase) console.log('get_profile✅', true);
+      if (!getProfileUseCase) console.log('get_profile❌', true);
+      const userId = candidateId;
+
       try {
-        const profile = await getProfileUseCase.execute(candidateId);
+        const profile = await getProfileUseCase.execute({ userId });
+        if (!profile) console.log('get_profile', false);
 
         return JSON.stringify({
           status: 'success',

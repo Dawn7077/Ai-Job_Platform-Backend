@@ -110,6 +110,27 @@ export function CandidateRoute(
       candidateController.runCode(req, res, next);
     }
   );
+  // Submit candidate review for a company
+  router.post(
+    '/company-review',
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.submitCompanyReview(req, res, next);
+    }
+  );
+
+  router.get(
+    '/me/reviews',
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.getCandidateReviews(req, res, next);
+    }
+  );
+  //AI Job Match & Company Culture Analysis
+  router.get(
+    '/jobs/:jobId/ai-analysis',
+    (req: Request, res: Response, next: NextFunction) => {
+      candidateController.getJobAiAnalysis(req, res, next);
+    }
+  );
 
   return router;
 }

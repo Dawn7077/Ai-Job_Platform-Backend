@@ -73,8 +73,20 @@ export class ProcessResumeUseCase implements IProcessResumeUseCase {
 
     const readResumeUrl = await this.r2Service.getPresignedReadUrl(fileKey);
 
+    //add on to exist skill do rewrite if already added check
+    const profile = await this.candidateRepo.findByUserId(userId);
+
+    const candidateSkills = profile?.skills ? profile.skills : [];
+
+    if (parsedJSON.skills instanceof Array) {
+      const newSkills = parsedJSON.skills.filter(
+        (s: string) => !candidateSkills?.includes(s)
+      );
+      candidateSkills?.push(...newSkills);
+    }
+
     const updatedProdfile = await this.candidateRepo.upsertProfile(userId, {
-      skills: parsedJSON.skills || [],
+      skills: candidateSkills,
       experience: parsedJSON.experience || [],
       education: parsedJSON.education || [],
       bio: parsedJSON.bio || [],
