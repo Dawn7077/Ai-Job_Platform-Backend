@@ -43,6 +43,7 @@ import { GetThreadMessagesUseCase } from '../../application/use-case/candidate/m
 import { JobMatchAiAnalysisUseCase } from '../../application/agent/use-case/job-match-ai-analysis.use-case';
 import { SubmitCompanyReviewUsecase } from '../../application/use-case/candidate/submit-company-reviews.use-case';
 import { GetCandidateReviewsUseCase } from '../../application/use-case/candidate/get-candidate-review';
+import { PrismaCandidateReviewRepo } from '../../infrastructure/db/prisma/prisma-candidate-review.repository';
 
 export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.MockInterviewSocketGateway).to(MockInterviewSocketGateway);
@@ -51,6 +52,9 @@ export const candidateModule = new ContainerModule(({ bind }) => {
   bind(TYPES.IApplicationRepo).to(PrismaApplicationRepo).inSingletonScope();
   bind(TYPES.IInterviewRepo).to(PrismaInterviewRepo).inSingletonScope();
   bind(TYPES.IMockInterviewRepo).to(PrismaMockInterview).inSingletonScope();
+  bind(TYPES.ICandidateReviewRepository)
+    .to(PrismaCandidateReviewRepo)
+    .inSingletonScope();
   bind(TYPES.IChatSessionRepository)
     .to(PrismaChatSessionRepository)
     .inSingletonScope();

@@ -18,7 +18,7 @@ export class CompanyAnalystAgent implements ICompanyAnalystAgent {
     @inject(TYPES.MongoClient) private mongoClient: MongoClient,
     @inject(TYPES.IGetApplicationByJobIdUC)
     getApplicationByJobIdUC: IGetApplicationByJobIdUC,
-    @inject(BatchScreenWorkFlowTool) //should i TYPES add it first this workflow tool class
+    @inject(TYPES.BatchScreenWorkFlowTool) //should i TYPES add it first this workflow tool class
     private batchScreenWorkFlowTool: BatchScreenWorkFlowTool
   ) {
     // const getJobApplicationsTool = createGetJobApplicationsTool(getJobApplicationsUC);

@@ -46,7 +46,6 @@ import { RankApplicantsSchema } from '../../application/dtos/company/rank-applic
 import { IRankApplicantsUseCase } from '../../application/interface/use-cases/company/i-rank-applicants.use-case';
 import { ISubmitCandidateReviewUseCase } from '../../application/interface/use-cases/company/i-submit-candidate-review.use-case';
 import { SubmitCandidateReviewSchema } from '../../application/dtos/company/submit-candidate-review.dto';
-import { SubmitCompanyReviewSchema } from '../../application/dtos/candidate/submit-company-review.dto';
 import { GetCompanyReviewsSchema } from '../../application/dtos/company/get-company-reviews.dto';
 import { IGetCompanyReviewsUseCase } from '../../application/interface/use-cases/company/i-get-company-reviews.use-case';
 import { ICompanyAnalystChatUseCase } from '../../application/interface/use-cases/company/i-company-analyst-chat.use-case';
