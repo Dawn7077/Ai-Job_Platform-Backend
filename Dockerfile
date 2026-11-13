@@ -2,26 +2,31 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm install
+RUN apk add --no-cache openssl
+
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
 
 RUN npx prisma generate
-
 RUN npm run build
+RUN npm prune --production
 
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN apk add --no-cache openssl
 
+ENV NODE_ENV=production
+ENV PORT=8080
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-ENV PORT=8080
 EXPOSE 8080
 
 CMD [ "npm", "start" ]

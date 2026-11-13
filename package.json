@@ -6,7 +6,8 @@
   "scripts": {
     "dev:raw": "tsx watch src/server.ts",
     "dev": "infisical run --env=dev -- npx tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
+    "postinstall": "prisma generate",
     "start": "node dist/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -1,8 +1,17 @@
 import dns from 'node:dns';
 
-// Force Node to use reliable public DNS servers for SRV resolution
+// Force Node to use reliable public DNS servers for SRV resolution in local dev if needed
 dns.setDefaultResultOrder('ipv4first');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+if (
+  process.env.OVERRIDE_DNS === 'true' ||
+  (process.env.NODE_ENV !== 'production' && !process.env.RAILWAY_ENVIRONMENT)
+) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch {
+    // Fall back to default system DNS
+  }
+}
 
 import 'dotenv/config';
 import app from './app';
@@ -86,8 +95,9 @@ async function startApp() {
   app.use('/application', applicationRoutes);
 
   app.use(errorHandler);
-  server.listen(PORT, () => {
-    log(`Server and Websocket running on port http://localhost:${PORT}`);
+  const listenPort = Number(PORT) || 3000;
+  server.listen(listenPort, '0.0.0.0', () => {
+    log(`Server and Websocket running on port http://0.0.0.0:${listenPort}`);
   });
 }
 

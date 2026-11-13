@@ -8,10 +8,19 @@ export interface ICacheService {
   incrementWithExpiry(key: string, expiryInSeconds: number): Promise<number>;
 }
 
-const redisClient = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number(process.env.REDIS_PORT) || 6379,
-});
+const redisUrl = process.env.REDIS_URL || process.env.REDISURL;
+
+const redisClient = redisUrl
+  ? new Redis(redisUrl, { maxRetriesPerRequest: null })
+  : new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: Number(process.env.REDIS_PORT) || 6379,
+      password:
+        process.env.REDIS_PASSWORD ||
+        process.env.REDISPASSWORD ||
+        undefined,
+      maxRetriesPerRequest: null,
+    });
 
 redisClient.on('error', (err) => console.error('Redis Error:', err));
 

@@ -1,7 +1,7 @@
 import {
   CompanyProfile,
   CompanyProfileProps,
-} from '../../domain/entities/company-profile.entity';
+} from '../entities/company-profile.entity';
 
 export interface ICompanyProfileRepo {
   findById(id: string): Promise<CompanyProfile | null>;

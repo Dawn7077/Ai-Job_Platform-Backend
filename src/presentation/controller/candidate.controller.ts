@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-// import { IClassfierIntent } from "../../application/agent/Models/Classifier";
 import { StatusCode } from '../../shared/constants/status-code.constant';
 import { MentorChatUseCase } from '../../application/use-case/candidate/mentor-chat.use-case';
 import { IGETActiveJobs } from '../../application/interface/use-cases/candidate/i-get-active-jobs.use-case';

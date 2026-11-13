@@ -22,7 +22,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
 
     // Recommended Options
     "strict": true,
